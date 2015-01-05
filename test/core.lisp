@@ -3,7 +3,7 @@
 (def lisp2js
     {
         :author 'Yiyi-Wang
-        :core-version 0.0.1
+        "core-version" "0.0.1"
     })
 
 (def print (x) (console.log (x.toString)))
@@ -17,5 +17,6 @@
     (test body) `(if ~test ~body '())
     (test body . rest) `(if ~test ~body (cond ~@rest))
     )
-
-(cond 1 2 3 4)
+(def b 12)
+(cond 1 2 3 b)
+(console.log "Here")

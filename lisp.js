@@ -35,7 +35,7 @@ var lisp_module = function() {
     var global_context = null;
     var append = function(x, y){ // (x y) (z w) => (x y z w)
         if(x === null)
-            return (y instanceof $List) ? y : cons(y, null);
+            return (y instanceof $List || y === null) ? y : cons(y, null);
         return cons(x.first, append(x.rest, y));
     }
     if(node_environment){ // run under nodejs env
@@ -322,13 +322,17 @@ var lisp_module = function() {
                 //console.log(compiler(clauses.rest.first));
                 var eval_macro = "(function(){";
                 for (key in match) {
-                    eval_macro += ("var " + key + " = " + compiler(match[key]) + "; ");
+                    if(match[key] instanceof $List)
+                        eval_macro += ("var " + key + " = " + compiler(cons("list", match[key])) + "; ");
+                    else
+                        eval_macro += ("var " + key + " = " + compiler(match[key]) + "; ");
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
                 if(node_environment)
                     try{
-                        return vm.runInContext(eval_macro, global_context, "lisp.vm");
+                        var result = vm.runInContext(eval_macro, global_context, "lisp.vm");
+                        return result;
                     }
                     catch(e){
                         console.log(e);
