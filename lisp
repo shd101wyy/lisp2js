@@ -3,6 +3,7 @@
 var fs = require("fs");
 var util = require("util");
 var lisp = require("./lisp.js");
+var list = require("./dependencies/list.js");
 var vm = require("vm");
 var repl = require("repl");
 var argv = process.argv;
@@ -24,13 +25,15 @@ if (argv.length === 2){
             input_lines += input; // add to history.
             var compiled_result = lisp.compile(input_lines);
             if(compiled_result === null){
-                opt.prompt = "    ";
+                opt.prompt = "... ";
                 return;
             }
             input_lines = ""; // clear input lines
             opt.prompt = "> ";
             try{
                 var result = (context === global) ? (vm.runInThisContext(compiled_result, filename)) : (vm.runInContext(compiled_result, context, filename));
+                if(result instanceof context.$List)
+                    return cb(null, result.toString());
             }
             catch(error){
                 console.log(error);
@@ -44,5 +47,63 @@ if (argv.length === 2){
         console.log("\nquit repl\n");
         process.exit();
     })
-    lisp2js_repl.context.vm = vm;
+    lisp2js_repl.context.$List = list.$List;
+    lisp2js_repl.context.car = list.car;
+    lisp2js_repl.context.cdr = list.cdr;
+    lisp2js_repl.context.cons = list.cons;
+}
+else if (argv.length === 3){
+    var file_name = argv[2];
+    if(typeof(file_name) === "undefined"){
+        console.log("No input file ... ");
+        process.exit(0);
+    }
+    // get content of file.
+    var content_in_file = fs.readFileSync(file_name, "utf8");
+    var compiled_result = lisp.compile(content_in_file);
+    if(compiled_result === null){
+        console.log("ERRPR: () paren doesn't match\n");
+        process.exit(0);
+    }
+    global.cons = list.cons;
+    global.car = list.car;
+    global.cdr = list.cdr;
+    global.$List = list.$List;
+    // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
+    vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global scope
+}
+else if (argv.length === 4){
+    var file_name = argv[2];
+    if(typeof(file_name) === "undefined"){
+        console.log("No input file ... ");
+        process.exit(0);
+    }
+    if(file_name.length <= 5 ||
+      (file_name.slice(-5) !== ".lisp")){
+          console.log("Invalid file name\nPlz use .lisp format. eg test.lisp");
+          process.exit(0);
+      }
+    // get content of file.
+    var content_in_file = fs.readFileSync(file_name, "utf8");
+    var compiled_result = lisp.compile(content_in_file);
+    if(compiled_result === null){
+        console.log("ERRPR: () paren doesn't match\n");
+        process.exit(0);
+    }
+    global.cons = list.cons;
+    global.car = list.car;
+    global.cdr = list.cdr;
+    global.$List = list.$List;
+    // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
+    vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
+
+    var save_to_file = argv[3]// file_name.slice(-5) + ".js";
+    fs.writeFile(save_to_file, compiled_result, function(error){
+        if(error){
+            console.log(error)
+        }
+        else{
+            console.log("File: " + save_to_file + " saved!");
+        }
+    })
 }
