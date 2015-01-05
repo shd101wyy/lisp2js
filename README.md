@@ -324,9 +324,5 @@ lisp2js beta
 - <strong>2015/1/5 First Release</strong>  
   * There are still lots of bugs.  
   * _support try/catch/final/throw_  in the future
-  - <strong> Unsolved Bug </strong>  
-```lisp
-        (x[0].add z[0].b 4)
-```
 ---------------------------------------
 MIT License ;)
