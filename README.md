@@ -30,10 +30,12 @@ lisp2js beta
 ```lisp
     (def x 12)
     (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.
+    (def ** Math.pow)
 ```
 ```javascript
     var x = 12;
-    var _4562this42name$invalid64in42js = 13;  // all invalid characters are replaced with its own charcode.
+    var _$45__$62_this_$42_name$invalid_$64_in_$42_js = 13;  // all invalid characters are replaced with its own charcode.
+    var _$42__$42_ = Math.pow;
 ```
 
 - change variable value  
@@ -143,20 +145,19 @@ lisp2js beta
             (- a b)))
 ```
 ```javascript
-    // es6
-    {
-        let x = 1;
-        let y = 2;
+    ((function() {
+        var x = 1;
+        var y = 2;
         x = (x + y);
-        let z = 4;
-        (x + y + z)
-    };
-    {
-        let a = 1;
-        let b = 2;
+        var z = 4;
+        return (x + y + z)
+    })());
+    ((function() {
+        var a = 1;
+        var b = 2;
         (a + b);
-        (a - b);
-    };
+        return (a - b);
+    })());
 ```
 
 
@@ -194,6 +195,14 @@ lisp2js beta
 ```
 ```javascript
     var x = (new Array(1, 2, 3, 4));
+```
+
+- instanceof
+```lisp
+    (instanceof [1 2 3] Array)
+```
+```javascript
+    ([1, 2, 3] instanceof Array)
 ```
 -----------------------------------------
 -  <strong> List functions </strong>

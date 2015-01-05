@@ -92,12 +92,12 @@ var lisp_module = function() {
                     }
                 } else {
                     output_list.push("(");
-                    output_list.push("[");
+                    output_list.push("Array");
                 }
                 paren_count++;
             } else if (input_string[i] === "{") {
                 output_list.push("(");
-                output_list.push("{");
+                output_list.push("Object");
                 paren_count++;
             } else if (input_string[i] === ")" || input_string[i] === "]" || input_string[i] === "}") {
                 output_list.push(")");
@@ -242,10 +242,10 @@ var lisp_module = function() {
                 var_name[i] === ".") {
                 o += var_name[i];
             } else {
-                o += code;
+                o += "_$" + code + "_";
             }
         }
-        if (!isNaN(o[0])) o = "_$" + o + "_"; // first letter is number, add _$ ahead.
+        if (!isNaN(o[0])) o =  "_" + o ; // first letter is number, add _ ahead.
         return o;
     }
 
@@ -379,7 +379,7 @@ var lisp_module = function() {
                     var_value = l.rest.rest.first;
 
                 return (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + compiler(var_name) + " = " + compiler(var_value) + " ";
-            } else if (tag === "[") { // array
+            } else if (tag === "Array") { // array
                 var o = "[";
                 l = cdr(l);
                 while (l != null) {
@@ -390,7 +390,7 @@ var lisp_module = function() {
                 }
                 o += "]";
                 return o;
-            } else if (tag === "{") {
+            } else if (tag === "Object") { // object
                 var o = "{";
                 l = l.rest;
                 while (l != null) {
@@ -434,14 +434,20 @@ var lisp_module = function() {
             } else if (tag === "fn" || tag === "fn*") {
                 var o = tag === "fn" ? "function (" : "function* (";
                 var params = l.rest.first;
+                var body = l.rest.rest;
                 while (params != null) {
                     var p = params.first;
                     p = compiler(p);
                     if (p[0] === ":") {
                         o += (p.slice(1) + "=");
-                    } else if (p === ".") { // ecmascript 6 rest parameters
+                    } else if (p === "...") { // ecmascript 6 rest parameters
                         params = params.rest;
-                        o += ("..." + params.first);
+                        o += ("..." + compiler(params.first));
+                    } else if (p === "."){  // es6 rest parameters. convert to list
+                        params = params.rest;
+                        var p = compiler(params.first);
+                        o += ("..." + p);
+                        body = cons(list("=", p, list(p+".toList")), body) // convert from arry to list
                     } else {
                         o += p;
                         if (params.rest != null)
@@ -450,18 +456,19 @@ var lisp_module = function() {
                     params = params.rest;
                 }
                 o += "){";
-                o += lisp_compiler(l.rest.rest, true);
+                o += lisp_compiler(body, true);
                 o += "}";
                 return o;
             }
             /*
              * (let x 1 y 2 body)
-             * => {let x = 1; let y = 2; ...}
+             * => // {let x = 1; let y = 2; ...} deprecated
+             * => ((function(){var x = 1; var y = 2; body...}))
              */
             else if (tag === "let") {
                 var vars = {};
                 var params = cdr(l);
-                var o = "{";
+                var o = "((function(){";
                 while (params.rest != null) {
                     var var_name = params.first;
                     var var_val = params.rest.first;
@@ -471,18 +478,20 @@ var lisp_module = function() {
                             o += (var_name + " = " + compiler(var_val) + "; ");
                         } else {
                             vars[var_name] = true;
-                            o += ("let " + var_name + " = " + compiler(var_val) + "; ");
+                            o += ("var " + var_name + " = " + compiler(var_val) + "; ");
                         }
                     } else {
                         console.log("let implementation not finished yet");
                     }
                     params = params.rest.rest;
                 }
+
                 if (params.first instanceof $List && params.first.first === "do") {
-                    o += lisp_compiler(params.first.rest, false);
+                    o += lisp_compiler(params.first.rest, true);
                 } else
-                    o += compiler(params.first);
-                return o + "}";
+                    o += ("return " + compiler(params.first));
+                o += "})())"
+                return o; //+ "}";
             }
             /*
              *  (if a b c) => ((a) ? (b) : (c));
@@ -508,13 +517,13 @@ var lisp_module = function() {
                 o += formatParams(l.rest.rest);
                 o += ")";
                 return o;
-            } else if (tag === "+" || tag === "-" || tag === "*" || tag === "/" ||
+            } else if (tag === "+" || tag === "-" || tag === "*" || tag === "/" || tag === "%" ||
                 tag === "==" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=" ||
                 tag === "&&" || tag === "||" || tag === "&" || tag === "|") {
                 var o = "(";
                 var params = l.rest;
                 if(params.rest == null){ // only one params
-                    if(tag === "+" || tag === "*")
+                    if(tag === "+" || tag === "*" || tag === "%")
                         return compiler(params.first);
                     else if (tag === "-")
                         return "(-" + compiler(params.first) + ")";

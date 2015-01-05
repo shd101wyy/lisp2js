@@ -128,7 +128,7 @@ else if (argv.length === 4){
                 console.log(error)
             }
             else{
-                console.log("File: " + save_to_file + " saved!");
+                console.log("\n\nFile: " + save_to_file + " saved!");
             }
         })
     }
@@ -141,7 +141,7 @@ else if (argv.length === 4){
                 console.log(error)
             }
             else{
-                console.log("File: " + save_to_file + " saved!");
+                console.log("\n\nFile: " + save_to_file + " saved!");
             }
         })
     }

@@ -13,3 +13,14 @@
 
 (def add (x y) (+ x y))
 (apply add [1 2])
+
+
+(let x 1
+    y 2
+    x (+ x y)
+    z 4
+    (+ x y z))
+(let a 1
+    b 2
+    (do (+ a b)
+    (- a b)))

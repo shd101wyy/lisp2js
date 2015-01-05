@@ -19,3 +19,16 @@ add.apply(this, (function() {
     var temp = [1, 2];
     return temp instanceof $List ? temp.toArray() : temp
 })());
+((function() {
+    var x = 1;
+    var y = 2;
+    x = (x + y);
+    var z = 4;
+    return (x + y + z)
+})());
+((function() {
+    var a = 1;
+    var b = 2;
+    (a + b);
+    return (a - b);
+})());
