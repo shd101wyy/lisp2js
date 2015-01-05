@@ -180,6 +180,75 @@ var lisp_module = function(){
         return current_list_pointer;
     }
 
+    var quote_list = function(l){
+        if(l == null) return null;
+        var v = l.first;
+        if(v instanceof $List) return cons("cons",
+                                          cons(quote_list(v),
+                                                cons(quote_list(l.rest),
+                                                    null)));
+        else if (typeof(v) === "string" && v === ".")
+            return cons("quote", cons(l.rest.first, null));
+        else
+            return cons("cons",
+                        cons(cons("quote", cons(v, null)),
+                            cons(quote_list(cdr(l)), null)));
+    }
+
+    // validate variable name.
+    var validateName = function(var_name){
+        var o = "";
+        for(var i = 0; i < var_name.length; i++){
+            var code = var_name.charCodeAt(i);
+            if ((code > 47 && code < 58) || // numeric (0-9)
+                (code > 64 && code < 91) || // upper alpha (A-Z)
+                (code > 96 && code < 123) || // lower alpha (a-z)
+                var_name[i] === "$" ||
+                var_name[i] === "_") {
+                o += var_name[i];
+            }
+            else{
+                o += code;
+            }
+        }
+        if (!isNaN(o[0])) o = "_" + o; // first letter is number, add _ ahead.
+        return o;
+    }
+
+    var quasiquote_list = function(l){
+        if (l == null) {
+            return null;
+        }
+        v = l.first;
+        if(v instanceof $List){
+            if (typeof(v.first) === "string"
+                && v.first === "unquote") {
+                    return cons("cons",
+                                cons(v.rest.first,
+                                    cons(quasiquote_list(cdr(l)),
+                                        null)));
+                    }
+            else if (typeof(v.first) == "string"
+                        && v.first === "unquote-splice"){
+                            return cons("append",
+                                        cons(v.rest.first,
+                                             cons(quasiquote_list(l.rest),
+                                                 null)));
+                        }
+            return cons("cons",
+                        cons(quasiquote_list(v),
+                            cons(quasiquote_list(l.rest), null)));
+        }
+        else if (typeof(v) === "string" && v === ".")
+            return cons("quote", cons(l.rest.first, null));
+        else
+            return cons("cons",
+                        cons(cons("quote",
+                                  cons(v, null)),
+                            cons(quasiquote_list(l.rest),
+                                        null)));
+    }
+
     compiler = function(l){
         if (l === null)
             return "null";
@@ -233,15 +302,18 @@ var lisp_module = function(){
             else if (tag === "[["){ // x[0] =? [[ x 0
                 return compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) +"]";
             }
-            else if (tag === "quote"){
+            else if (tag === "quote" || tag === "quasiquote"){
                 if(l.rest.first instanceof $List){
-                    console.log("QUOTE LIST");
+                    return compiler( tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
                 }
                 else if (l.rest === null){
                     return "null";
                 }
                 else{
-                    return '"' + l.rest.first + '"';
+                    if(isNaN(l.rest.first)) // not a number
+                        return '"' + l.rest.first + '"';
+                    else
+                        return l.rest.first;
                 }
             }
             else if (tag === "fn"){
@@ -346,6 +418,7 @@ var lisp_module = function(){
                     else
                         o += ("(" + p) ;
                     params = params.rest;
+                    if(params != null) o += ", "
                 }
                 else{
                     o += "(";
@@ -367,8 +440,11 @@ var lisp_module = function(){
                 return o;
             }
         }
-        else{
-            return l;
+        else{ // string.
+            if(isNaN(l))     // not a number
+                return validateName(l);
+            else
+                return l; // number
         }
     }
 
@@ -392,15 +468,13 @@ var lisp_module = function(){
 }
 
 
-
-
 // test
 var lisp = lisp_module();
 var lexer = lisp.lexer;
 var parser = lisp.parser;
 var compiler = lisp.compiler;
 var lisp_compiler = lisp.lisp_compiler;
-var l = lexer("(def x [1 2 3 4]) (x.map (fn (i) (* i 2)))");
+var l = lexer("`(~x y (+ 3 4))");
 console.log(l);
 var p = parser(l);
 console.log(p.toString());
