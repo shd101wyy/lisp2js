@@ -23,6 +23,7 @@
 var lisp_module = function() {
     var lexer, parser, compiler, lisp_compiler;
     var macros = {}; // used to save macro
+    var GET_DOT = 1;
     lexer = function(input_string) {
         var output_list = [];
         var paren_count = 0;
@@ -105,7 +106,34 @@ var lisp_module = function() {
             } else {
                 var end = getIndexOfValidStr(input_string, i + 1);
                 var t = input_string.slice(i, end);
-                output_list.push(t);
+
+                // check exp like [0].x
+                if(t[0] === "." && output_list[output_list.length - 1] === ")"){
+                    var p = 1;
+                    var j = output_list.length - 1;
+                    output_list.push(""); // save space;
+                    output_list.push(""); // save space;
+                    output_list.push(""); // save space;
+                    output_list[j + 3] = output_list[j];
+                    j = j - 1;
+                    while (1) {
+                        output_list[j + 3] = output_list[j];
+                        if (output_list[j] === ")")
+                            p++;
+                        if (output_list[j] === "(")
+                            p--;
+                        if (p == 0)
+                            break;
+                        j--;
+                    }
+                    output_list[j] = "(";
+                    output_list[j + 1] = GET_DOT;
+                    output_list[j + 2] = t;
+
+                    output_list.push(")");
+                }
+                else
+                    output_list.push(t);
                 i = end - 1;
             }
         }
@@ -113,7 +141,6 @@ var lisp_module = function() {
         if (paren_count != 0) {
             return null;
         }
-
         return output_list;
     }
 
@@ -370,6 +397,8 @@ var lisp_module = function() {
                 return o;
             } else if (tag === "[[") { // x[0] =? [[ x 0
                 return compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
+            } else if (tag === GET_DOT){ // x[0].a
+                return compiler(l.rest.rest.first) + compiler(l.rest.first);
             } else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
                     return compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));

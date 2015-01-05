@@ -200,7 +200,7 @@ lisp2js beta
      * To enable <strong>List</strong> datatype, include lisp.js from https://github.com/shd101wyy/List_for_FP
      *  after you compile your .lisp file to javascript file.
      *  This file will give you 4 functions: car, cdr, cons, list.  
-     *                      and 1 datatyep: $List  
+     *                      and 1 datatype: $List  
      *  See the link above for more information.
 - define a list.
 ```lisp
