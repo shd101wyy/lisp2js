@@ -320,9 +320,8 @@ y.add(y.a, y.b);
   * There are still lots of bugs.  
   * _support try/catch/final/throw_  in the future
   - <strong> Unsolved Bug </strong>  
-    ```lisp
-    (x[0].add z[0].b 4)
-    ```
-  ---------------------------------------
-
-MIT License ;)
+```lisp
+        (x[0].add z[0].b 4)
+```
+---------------------------------------
+MIT License ;)    
