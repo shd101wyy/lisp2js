@@ -550,7 +550,7 @@ var lisp_module = function() {
              *      var1 pattern1 ... )
              */
             else if (tag === "defmacro") {
-                var macro_name = l.rest.first;
+                var macro_name = compiler(l.rest.first);
                 if (typeof(macro_name) != "string") {
                     console.log("ERROR: Invalid macro name: " + macro_name.toString());
                     return "";

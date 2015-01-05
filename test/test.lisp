@@ -24,3 +24,11 @@
     b 2
     (do (+ a b)
     (- a b)))
+
+(defmacro square (x) `(* ~x ~x))
+(square 12)
+(defmacro square-with-different-params
+        (x) `(* ~x ~x)
+        (x y) `(+ (* ~x ~x) (* ~y ~y)))
+(square-with-different-params 12)
+(square-with-different-params 15 16)

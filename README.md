@@ -26,16 +26,16 @@ lisp2js beta
     ;; this is comment
 ```
 
--     define variable value  
+-     define variable value
 ```lisp
-    (def x 12)
-    (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.
-    (def ** Math.pow)
+        (def x 12)
+        (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.
+        (def ** Math.pow)
 ```
 ```javascript
-    var x = 12;
-    var _$45__$62_this_$42_name$invalid_$64_in_$42_js = 13;  // all invalid characters are replaced with its own charcode.
-    var _$42__$42_ = Math.pow;
+        var x = 12;
+        var _$45__$62_this_$42_name$invalid_$64_in_$42_js = 13;  // all invalid characters are replaced with its own charcode.
+        var _$42__$42_ = Math.pow;
 ```
 
 - change variable value  
@@ -320,7 +320,29 @@ lisp2js beta
     y.add(y.a, y.b);
 ```
 ---------------------------------------
+#### Macro
+- define a macro  
+```lisp
+    (defmacro square (x) `(* ~x ~x))
+    (square 12)
+    (defmacro square-with-different-params
+        (x) `(* ~x ~x)
+        (x y) `(+ (* ~x ~x) (* ~y ~y)))
+    (square-with-different-params 12)
+    (square-with-different-params 15 16)
+```
+```javascript
+    (12 * 12);
+    (12 * 12);
+    ((15 * 15) + (16 * 16));
+```
+However, the macro implementation still has errors.
+---------------------------------------
 #### Change Log
+- <strong>2015/1/5 </strong>
+    * add support for <strong> const </strong>
+    * change <strong> let </strong>. see doc above.
+    * fix several bugs.
 - <strong>2015/1/5 First Release</strong>  
   * There are still lots of bugs.  
   * _support try/catch/final/throw_  in the future
