@@ -3,3 +3,13 @@
 (console.log (t))
 (def add (:x 12 :y 15)
     (+ x y))
+(add[a].add[0].test a.b[3] 12)
+
+(def MyObject (age)
+    (= this.age age))
+(def o (new MyObject 12))
+(console.log o.age)
+(console.log o)
+
+(def add (x y) (+ x y))
+(apply add [1 2])

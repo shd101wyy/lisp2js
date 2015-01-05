@@ -500,7 +500,7 @@ var lisp_module = function() {
             } else if (tag === "apply") {
                 var func = compiler(l.rest.first);
                 var params = compiler(l.rest.rest.first);
-                return func + ".apply(this, " + params + ")";
+                return func + ".apply(this, " + "(function(){var temp = "+params+"; return temp instanceof $List ? temp.toArray() : temp})()" + ")";
             } else if (tag === "new") {
                 var func = compiler(l.rest.first);
                 var o = "(new " + func + "";
