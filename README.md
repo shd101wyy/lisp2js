@@ -1,41 +1,93 @@
 lisp2js
 =======
+#### By Yiyi Wang (shd101wyy)
 
-Simple Lisp that compiles to JavaScript (ECMAScripten 6)
+##### Simple Lisp that compiles to JavaScript (targeting ECMAScript 6)  
+##### So ECMAScript 5 might not work.  
+---------------
 
-(def x 12)           =>           var x = 12
+#### Installation
+```sh
+    node -g install lisp2js  
+```
+#### How to run  
+```sh
+    lisp                               # repl
+    lisp   [file1.lisp]                # run file1.lisp
+    lisp   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]
+```
 
-(= x 15)             =>           x = 15
+----------------
+#### Examples
+-     define variable value  
+```lisp
+    (def x 12)
+```
+```javascript
+    var x = 12;
+```
 
-(def x [1 2 3])      =>           var x = [1 2 3]
+- change variable value  
+```lisp
+    (= x 15)  
+```
+```javascript
+    x = 15;
+```
 
-(def x {"a" 12, "b" 13, c 14}) => var x = {["a"]:12, ["b"]:13, ["c"]:14}
+- define function
+```lisp
+    (def add (a b)
+        (+ a b))
+```
+```javascript
+    var add = function(a, b){
+        return a + b;
+    }
+```
 
-(def add (x y)       =>           var add = (x, y)=>{return x + y}
-    (+ x y))
+- define function with default parameters
+```lisp
+    (def add (:a 12 :b 3)
+        (+ a b))
+```
+```javascript
+    var add = function(a=12, b=3){
+        return a + b;
+    }
+```
 
-(def abs (x)         =>           var abs = (x)=>{
-    (if (> x 0)                       return ((x > 0) ? (x) : (-x))
-        x                         }
-        (- x)))
+- define function with rest parameters
+```lisp
+    (def add (a . b)
+        (+ a b[0]))
+```
+```javascript
+    var add = function(a, ...b){
+        return a + b[0];
+    }
+```
 
-(def [x, y, z] = [1, 2, 3])    => var [x, y, z] = [1, 2, 3]
+-  <strong> List functions </strong>
+     * To enable <strong>List</strong> datatype, include lisp.js from https://github.com/shd101wyy/List_for_FP
+     *  after you compile your .lisp file to javascript file.
+     *  This file will give you 4 functions: car, cdr, cons, list.  
+     *                      and 1 datatyep: $List  
+     *  See the link above for more information.
+- define a list.
+```lisp
+(def x '(1 2 3))
+```
+```javascript
+var x = cons(1, cons(2, cons(3, null)));
+```
 
-
-(def add (:a 12 :b 13)         => var add = function(a=12, b=13){
-    (+ a b))                                    return a + b  
-                                            }
-
-(add :a 12, 13)                 => add(a=12, 13)
-
-(console.log 12)                => console.log(12)
-
-(= x.a.b     13)                => x.a.b = 13
-
-(= x[a] 13)                     => x [a] = 13
-
-(Math.pow 12 2)                 => Math.pow(12, 2)
-
-(-> $ (.ajax {})                => $.ajax({}).success(function(){}).done(function(){})
-      (.success (fn () ...))
-      (.done (fn () ...)))
+- quasiquote
+```lisp
+(def x 12)
+`(~x x)
+```
+```javascript
+var x = 12;
+cons(x, cons("x", null));
+```

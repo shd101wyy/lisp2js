@@ -379,8 +379,8 @@ var lisp_module = function(){
                         return l.rest.first;
                 }
             }
-            else if (tag === "fn"){
-                var o = "function (";
+            else if (tag === "fn" || tag === "fn*"){
+                var o = tag === "fn"? "function (" : "function* (";
                 var params = l.rest.first;
                 while(params != null){
                     var p = params.first;
