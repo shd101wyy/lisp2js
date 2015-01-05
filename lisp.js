@@ -570,8 +570,6 @@ var lisp_module = function(){
 
 // test
 var lisp = lisp_module();
-var cc = lisp.compile;
-var c = cc("(def x 1) (def y 2) (def z 12)");
-console.log(c);
-console.log("\n\n\n====== EVAL ======\n");
-// eval(c);
+if(typeof(module) !== "undefined"){
+    module.exports.compile = lisp.compile;
+}
