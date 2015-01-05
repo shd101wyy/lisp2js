@@ -51,6 +51,7 @@ if (argv.length === 2){
     lisp2js_repl.context.car = list.car;
     lisp2js_repl.context.cdr = list.cdr;
     lisp2js_repl.context.cons = list.cons;
+    lisp2js_repl.context.list = list.list;
 }
 else if (argv.length === 3){
     var file_name = argv[2];
@@ -74,6 +75,7 @@ else if (argv.length === 3){
     global.car = list.car;
     global.cdr = list.cdr;
     global.$List = list.$List;
+    global.list = list.list;
     // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
     vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global scope
 }
@@ -99,6 +101,7 @@ else if (argv.length === 4){
     global.car = list.car;
     global.cdr = list.cdr;
     global.$List = list.$List;
+    global.list = list.list;
     try{
         // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
         vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
