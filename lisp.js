@@ -463,6 +463,16 @@ var lisp_module = function() {
                 tag === "&&" || tag === "||" || tag === "&" || tag === "|") {
                 var o = "(";
                 var params = l.rest;
+                if(params.rest == null){ // only one params
+                    if(tag === "+" || tag === "*")
+                        return compiler(params.first);
+                    else if (tag === "-")
+                        return "(-" + compiler(params.first) + ")";
+                    else if (tag === "/")
+                        return "(1/" + compiler(params.first) + ")";
+                    else  // this part might be wrong.
+                        return "true";
+                }
                 while (params != null) {
                     var p = compiler(params.first);
                     o += p;
