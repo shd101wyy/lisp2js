@@ -28,14 +28,14 @@ lisp2js beta
 
 -     define variable value
 ```lisp
-        (def x 12)
-        (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.
-        (def ** Math.pow)
+    (def x 12)
+    (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.
+    (def ** Math.pow)
 ```
 ```javascript
-        var x = 12;
-        var _$45__$62_this_$42_name$invalid_$64_in_$42_js = 13;  // all invalid characters are replaced with its own charcode.
-        var _$42__$42_ = Math.pow;
+    var x = 12;
+    var _$45__$62_this_$42_name$invalid_$64_in_$42_js = 13;  // all invalid characters are replaced with its own charcode.
+    var _$42__$42_ = Math.pow;
 ```
 
 - change variable value  
