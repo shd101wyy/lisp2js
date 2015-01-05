@@ -285,12 +285,17 @@ var lisp_module = function() {
         var o = "";
         if (params != null) { // check first param
             p = compiler(params.first);
-            if (typeof(p) === "string" && p[0] === ".") // fix (x[0].map ) bug.
+            if (typeof(p) === "string" && p[0] === ".") {// fix (x[0].map ) bug.
                 o += (p + "(");
-            else
+            }
+            else if (typeof(p) === "string" && p[0] === ":"){
+                o += ("(" + p.slice(1) + "=");
+            }
+            else{
                 o += ("(" + p);
+                if (params != null) o += ", ";
+            }
             params = params.rest;
-            if (params != null) o += ", "
         } else {
             o += "(";
         }

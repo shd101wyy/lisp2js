@@ -14,8 +14,8 @@ cons(x, cons("x", null));
 var a = 1;
 var b = 2;
 var c = cons(a, cons(b, null));
-car(c);
-cdr(c);
+car(c, );
+cdr(c, );
 var list = list(a, b);
 var x = [1, 2, 3];
 var x = {
@@ -72,3 +72,18 @@ var x = (1 ? 2 : 3);
     (a - b);
 };
 var x = (new Array(1, 2, 3, 4));
+
+function(a, b = 13, ...c) {
+    return (a + b + c[0]);
+};
+var [x, y, z] = [1, 2, 3];
+var {
+    m, n
+} = {
+    m: 12,
+    n: 20
+};
+var _4562this42name$invalid64in42js = 13;
+add(3, 4);
+add(a = 20, b = 40);
+x[0].add(z[0], .b, 4);

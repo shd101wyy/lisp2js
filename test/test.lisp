@@ -66,3 +66,14 @@
 
 
 (def x (new Array 1 2 3 4))
+
+(fn (a :b 13 . c)
+(+ a b c[0]))
+
+(def [x y z] [1 2 3])
+(def {:m :n} {:m 12 :n 20})
+(def ->this*name$invalid@in*js 13)
+
+(add 3 4)
+(add :a 20 :b 40)
+(x[0].add z[0].b 4)

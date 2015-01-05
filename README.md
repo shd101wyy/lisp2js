@@ -21,12 +21,19 @@ lisp2js beta
 ----------------
 #### Examples
 -     <strong> Basics </strong>
+-     comment
+```lisp
+;; this is comment
+```
+
 -     define variable value  
 ```lisp
     (def x 12)
+    (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.
 ```
 ```javascript
     var x = 12;
+    var _4562this42name$invalid64in42js = 13;  // all invalid characters are replaced with its own charcode.
 ```
 
 - change variable value  
@@ -48,6 +55,14 @@ lisp2js beta
     }
 ```
 
+- call function
+```lisp
+    (add 3 4)
+```
+```javascript
+    add(3, 4);
+```
+
 - define function with default parameters
 ```lisp
     (def add (:a 12 :b 3)
@@ -60,6 +75,13 @@ lisp2js beta
     }
 ```
 
+- call function with assigned parameters
+```lisp
+    (add :a 20 :b 40)
+```
+```javascript
+    add(a = 20, b = 40);
+```
 - define function with rest parameters
 ```lisp
     (def add (a . b)
@@ -71,6 +93,19 @@ lisp2js beta
         return a + b[0];
     }
 ```
+
+- anonymous function
+```lisp
+(fn (a :b 13 . c)
+    (+ a b c[0]))
+```
+```javascript
+// es6
+function(a, b = 13, ...c) {
+    return (a + b + c[0]);
+};
+```
+
 - if
 ```lisp
 (if 1 2 3)
@@ -226,6 +261,22 @@ var x = {
 };
 ```
 
+- es6 define value
+```lisp
+(def [x y z] [1 2 3])
+(def {:m :n} {:m 12 :n 20})
+```
+```javascript
+// es6
+var [x, y, z] = [1, 2, 3];
+var {
+    m, n
+} = {
+    m: 12,
+    n: 20
+};
+```
+
 - change value  
 ```lisp
 (def x [1 2 3])
@@ -263,3 +314,13 @@ var y = {
 };
 y.add(y.a, y.b);
 ```
+---------------------------------------
+#### Change Log
+- <strong>2015/1/5 First Release</strong>  
+  * There are still lots of bugs.  
+  * _support try/catch/final/throw_  in the future
+  - <strong> Unsolved Bug </strong>  
+      * (x[0].add z[0].b 4)  
+  ---------------------------------------
+
+MIT License ;)
