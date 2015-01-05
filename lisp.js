@@ -3,9 +3,16 @@
  *  Simple Lisp to JavaScript compiler
  *
  */
+var node_environment = false;
+var vm = null;
+if(typeof(module) != "undefined"){ // nodejs
+    vm = require("vm");
+    node_environment = true;
+}
 
- var $List,car,cdr,cons,list,list_module,__slice=[].slice;
- list_module=function(){var d,e,f;d=function(b,a){this.first=b;this.rest=a;return null};d.prototype.length=function(){var b;b=function(a,c){return null===a?c:b(a.rest,c+1)};return b(this,0)};d.prototype.toString=function(){var b;b=function(a,c){return null===a?c+")":a instanceof d?b(a.rest,c+(null===a.first?"()":a.first.toString())+(null===a.rest?"":", ")):c.slice(0,-2)+" . "+a.toString()+")"};return b(this,"(")};d.prototype.reverse=function(){var b;b=function(a,c){return a instanceof d?b(a.rest,e(a.first,
+
+var $List,car,cdr,cons,list,list_module,__slice=[].slice;
+list_module=function(){var d,e,f;d=function(b,a){this.first=b;this.rest=a;return null};d.prototype.length=function(){var b;b=function(a,c){return null===a?c:b(a.rest,c+1)};return b(this,0)};d.prototype.toString=function(){var b;b=function(a,c){return null===a?c+")":a instanceof d?b(a.rest,c+(null===a.first?"()":a.first.toString())+(null===a.rest?"":", ")):c.slice(0,-2)+" . "+a.toString()+")"};return b(this,"(")};d.prototype.reverse=function(){var b;b=function(a,c){return a instanceof d?b(a.rest,e(a.first,
      c)):null===a?c:e(a,c)};return b(this,null)};d.prototype.slice=function(b,a){var c,d,f;null==a&&(a=null);if(null===a)return 0>b&&(b=this.length()+b),d=function(a,b){return 0===b?a:d(a.rest,b-1)},d(this,b);if(0>b||0>a)c=this.length(),b=0>b?c+b:b,a=0>a?c+a:a;f=function(a,b,c){return 0===b?0===c||null===a?null:e(a.first,f(a.rest,b,c-1)):f(a.rest,b-1,c)};return f(this,b,a-b)};d.prototype.ref=function(b){var a;0>b&&(b=this.length()+b);a=function(b,d){return null===b?null:0===d?b.first:a(b.rest,d-1)};return a(this,
          b)};d.prototype.append=function(){var b,a;a=1<=arguments.length?__slice.call(arguments,0):[];a=f.apply(f,a);b=function(a,d){return null===a?d:e(a.first,b(a.rest,d))};return b(this,a)};d.prototype.toArray=function(){var b,a;b=[];a=function(c){if(null===c)return b;b.push(c.first);return a(c.rest)};return a(this)};d.prototype.forEach=function(b){var a;a=function(c){if(null===c)return null;b(c.first);return a(c.rest)};return a(this)};d.prototype.foreach=d.prototype.forEach;d.prototype.map=function(b){var a;
              a=function(c){return null===c?null:e(b(c.first),a(c.rest))};return a(this)};d.prototype.filter=function(b){var a;a=function(c){return null===c?null:b(c.first)?e(c.first,a(c.rest)):a(c.rest)};return a(this)};e=function(b,a){return new d(b,a)};f=function(){var b,a;b=1<=arguments.length?__slice.call(arguments,0):[];a=function(b,d){return d===b.length?null:e(b[d],a(b,d+1))};return a(b,0)};return{list:f,cons:e,List:d,car:function(b){return b.first},cdr:function(b){return b.rest}}}();$List=list_module.List;
@@ -24,6 +31,25 @@ var lisp_module = function() {
     var lexer, parser, compiler, lisp_compiler;
     var macros = {}; // used to save macro
     var GET_DOT = 1;
+    var eval_result = "";
+    var global_context = null;
+    var append = function(x, y){ // (x y) (z w) => (x y z w)
+        if(x === null)
+            return (y instanceof $List) ? y : cons(y, null);
+        return cons(x.first, append(x.rest, y));
+    }
+    if(node_environment){ // run under nodejs env
+        global_context = vm.createContext(global);
+        global_context.cons = cons;
+        global_context.car = car;
+        global_context.cdr = cdr;
+        global_context.list = list;
+        global_context.$List = $List;
+        global_context.append = append;
+    }
+    else{
+        window.append = append;
+    }
     lexer = function(input_string) {
         var output_list = [];
         var paren_count = 0;
@@ -222,7 +248,7 @@ var lisp_module = function() {
                 o += code;
             }
         }
-        if (!isNaN(o[0])) o = "_" + o; // first letter is number, add _ ahead.
+        if (!isNaN(o[0])) o = "_$" + o + "_"; // first letter is number, add _$ ahead.
         return o;
     }
 
@@ -300,7 +326,17 @@ var lisp_module = function() {
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
-                return eval(eval_macro);
+                if(node_environment)
+                    try{
+                        return vm.runInContext(eval_macro, global_context, "lisp.vm");
+                    }
+                    catch(e){
+                        console.log(e);
+                        return "";
+                    }
+
+                else
+                    return window.eval(eval_macro);
             }
             clauses = clauses.rest.rest;
         }
@@ -309,23 +345,7 @@ var lisp_module = function() {
     }
 
     var formatParams = function(params) {
-        var o = "";
-        if (params != null) { // check first param
-            p = compiler(params.first);
-            if (typeof(p) === "string" && p[0] === ".") {// fix (x[0].map ) bug.
-                o += (p + "(");
-            }
-            else if (typeof(p) === "string" && p[0] === ":"){
-                o += ("(" + p.slice(1) + "=");
-            }
-            else{
-                o += ("(" + p);
-                if (params != null) o += ", ";
-            }
-            params = params.rest;
-        } else {
-            o += "(";
-        }
+        var o = "(";
         while (params != null) {
             var p = params.first;
             p = compiler(p);
@@ -346,7 +366,7 @@ var lisp_module = function() {
             return "null";
         else if (l instanceof $List) {
             var tag = car(l);
-            if (tag === "def" || tag === "=" || tag === "set!") {
+            if (tag === "def" || tag === "=" || tag === "set!" || tag === "const") {
                 var var_name = car(cdr(l));
                 var var_value = null;
                 if (cdr(cdr(l)) === null)
@@ -357,7 +377,7 @@ var lisp_module = function() {
                 else
                     var_value = l.rest.rest.first;
 
-                return (tag === "def" ? "var " : "") + compiler(var_name) + " = " + compiler(var_value) + " ";
+                return (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + compiler(var_name) + " = " + compiler(var_value) + " ";
             } else if (tag === "[") { // array
                 var o = "[";
                 l = cdr(l);
@@ -548,12 +568,23 @@ var lisp_module = function() {
         }
     }
 
-    lisp_compiler = function(l, need_return) {
+    lisp_compiler = function(l, need_return, eval_$) {
         var o = "";
         while (l != null) {
             if (need_return && l.rest == null)
                 o += "return ";
             var result = compiler(l.first);
+            if(eval_$){    // eval
+                if(node_environment)
+                    try{
+                        eval_result = vm.runInContext(result, global_context, "lisp.vm");
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                else
+                    window.eval(result);
+            }
             if (result.trim().length != 0)
                 o += (result + "; ");
             l = l.rest;
@@ -567,14 +598,20 @@ var lisp_module = function() {
             return null;
         }
         var p = parser(l);
-        return lisp_compiler(p);
+        return lisp_compiler(p, false, true);
     }
+
+    var getEvalResult = function(){
+        return eval_result;
+    }
+
     return {
         lexer: lexer,
         parser: parser,
         compiler: compiler,
         lisp_compiler: lisp_compiler,
-        compile: compile
+        compile: compile,
+        getEvalResult: getEvalResult
     }
 }
 
@@ -582,4 +619,5 @@ var lisp_module = function() {
 var lisp = lisp_module();
 if (typeof(module) !== "undefined") {
     module.exports.compile = lisp.compile;
+    module.exports.getEvalResult = lisp.getEvalResult;
 }

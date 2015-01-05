@@ -7,7 +7,13 @@ var list = require("./dependencies/list.js");
 var vm = require("vm");
 var repl = require("repl");
 var argv = process.argv;
-
+/*
+global.cons = list.cons;
+global.car = list.car;
+global.cdr = list.cdr;
+global.$List = list.$List;
+global.list = list.list;
+*/
 if (argv.length === 2){
     console.log("lisp2js by Yiyi Wang (shd101wyy) 2015");
     console.log("Interactive Mode");
@@ -30,8 +36,10 @@ if (argv.length === 2){
             }
             input_lines = ""; // clear input lines
             opt.prompt = "> ";
+            /*
             try{
                 var result = (context === global) ? (vm.runInThisContext(compiled_result, filename)) : (vm.runInContext(compiled_result, context, filename));
+                var result = vm.runInContext(compiled_result, global, filename);
                 if(result instanceof context.$List)
                     return cb(null, result.toString());
             }
@@ -39,6 +47,8 @@ if (argv.length === 2){
                 console.log(error);
                 return cb(error);
             }
+            */
+            var result = lisp.getEvalResult();
             return cb(null, result);
         }
     }
@@ -71,13 +81,9 @@ else if (argv.length === 3){
         console.log("ERRPR: () paren doesn't match\n");
         process.exit(0);
     }
-    global.cons = list.cons;
-    global.car = list.car;
-    global.cdr = list.cdr;
-    global.$List = list.$List;
-    global.list = list.list;
+
     // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
-    vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global scope
+    //vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global scope
 }
 else if (argv.length === 4){
     var file_name = argv[2];
@@ -97,11 +103,7 @@ else if (argv.length === 4){
         console.log("ERRPR: () paren doesn't match\n");
         process.exit(0);
     }
-    global.cons = list.cons;
-    global.car = list.car;
-    global.cdr = list.cdr;
-    global.$List = list.$List;
-    global.list = list.list;
+    /*
     try{
         // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
         vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
@@ -111,6 +113,10 @@ else if (argv.length === 4){
         console.log("\n\nCompiled result:\n============");
         console.log(compiled_result);
     }
+    */
+    console.log("\n\nCompiled result:\n============");
+    console.log(compiled_result);
+
     var save_to_file = argv[3]// file_name.slice(-5) + ".js";
 
     // if has js-beautify installed
