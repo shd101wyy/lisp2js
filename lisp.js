@@ -39,13 +39,10 @@ var lisp_module = function() {
         return cons(x.first, append(x.rest, y));
     }
     if(node_environment){ // run under nodejs env
-        global_context = vm.createContext(global);
-        global_context.cons = cons;
-        global_context.car = car;
-        global_context.cdr = cdr;
-        global_context.list = list;
-        global_context.$List = $List;
-        global_context.append = append;
+        // create global context
+        var sandbox = {cons: cons, car: car, cdr: cdr, list: list, $List: $List, append: append, console: console}
+        global_context = vm.createContext(sandbox);
+        // console.log(vm.runInContext("[1, 2, 3] instanceof Array", global_context, "repl"));
     }
     else{
         window.append = append;
@@ -534,6 +531,9 @@ var lisp_module = function() {
                     params = params.rest;
                 }
                 return o + ")";
+            }
+            else if (tag === "instanceof"){
+                return "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";
             }
             /*
              * (defmacro macro-name
