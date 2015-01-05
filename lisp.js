@@ -430,7 +430,11 @@ var lisp_module = function(){
                     }
                     params = params.rest.rest;
                 }
-                o += compiler(params.first);
+                if(params.first instanceof $List && params.first.first === "do"){
+                    o += lisp_compiler(params.first.rest, false);
+                }
+                else
+                    o += compiler(params.first);
                 return o + "}";
             }
             /*

@@ -99,9 +99,15 @@ else if (argv.length === 4){
     global.car = list.car;
     global.cdr = list.cdr;
     global.$List = list.$List;
-    // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
-    vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
-
+    try{
+        // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
+        vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
+    }
+    catch(e){
+        console.log(e);
+        console.log("\n\nCompiled result:\n============");
+        console.log(compiled_result);
+    }
     var save_to_file = argv[3]// file_name.slice(-5) + ".js";
 
     // if has js-beautify installed
