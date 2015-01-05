@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/shd101wyy/lisp2js/issues"
   },
+  "dependencies": {
+    "js-beautify": "^1.5.4"
+  },
   "homepage": "https://github.com/shd101wyy/lisp2js"
 }

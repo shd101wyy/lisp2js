@@ -58,6 +58,11 @@ else if (argv.length === 3){
         console.log("No input file ... ");
         process.exit(0);
     }
+    if(file_name.length <= 5 ||
+        (file_name.slice(-5) !== ".lisp")){
+            console.log("Invalid file name\nPlz use .lisp format. eg test.lisp");
+            process.exit(0);
+    }
     // get content of file.
     var content_in_file = fs.readFileSync(file_name, "utf8");
     var compiled_result = lisp.compile(content_in_file);
@@ -98,12 +103,31 @@ else if (argv.length === 4){
     vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
 
     var save_to_file = argv[3]// file_name.slice(-5) + ".js";
-    fs.writeFile(save_to_file, compiled_result, function(error){
-        if(error){
-            console.log(error)
-        }
-        else{
-            console.log("File: " + save_to_file + " saved!");
-        }
-    })
+
+    // if has js-beautify installed
+    try{
+        var beautify = require("js-beautify").js_beautify;
+        var res = beautify(compiled_result);
+        fs.writeFile(save_to_file, res, function(error){
+            if(error){
+                console.log(error)
+            }
+            else{
+                console.log("File: " + save_to_file + " saved!");
+            }
+        })
+    }
+    catch(e){
+        console.log("\n\n\n");
+        console.log(e);
+        console.log("You need to install js-beautify to see beautified result\nsee https://www.npmjs.com/package/js-beautify for more information\n\n\n");
+        fs.writeFile(save_to_file, compiled_result, function(error){
+            if(error){
+                console.log(error)
+            }
+            else{
+                console.log("File: " + save_to_file + " saved!");
+            }
+        })
+    }
 }
