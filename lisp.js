@@ -337,7 +337,13 @@ var lisp_module = function() {
                     }
 
                 else
-                    return window.eval(eval_macro);
+                    try{
+                        return window.eval(eval_macro);
+                    }
+                    catch(e){
+                        alert(e);
+                        return "";
+                    }
             }
             clauses = clauses.rest.rest;
         }
@@ -595,8 +601,14 @@ var lisp_module = function() {
                     catch(e){
                         console.log(e);
                     }
-                else
-                    window.eval(result);
+                else{
+                    try{
+                        window.eval(result);
+                    }
+                    catch(e){
+                        alert(e);
+                    }
+                }
             }
             if (result.trim().length != 0)
                 o += (result + "; ");
