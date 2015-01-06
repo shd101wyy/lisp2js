@@ -569,7 +569,7 @@ var lisp_module = function() {
                 var params = l.rest;
                 func = compiler(func);
                 var o = func;
-                if(func[func.length - 1] === "}") // solve ((fn () "Hi")) bug
+                if(func[func.length - 1] === "}" || (!isNaN(func))) // solve ((fn () "Hi")) bug
                     o = "(" + o + ")";
                 if (func in macros) {
                     // console.log("Macro");
