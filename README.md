@@ -16,6 +16,9 @@ lisp2js beta
     lisp   [file1.lisp]                # run file1.lisp
     lisp   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]
 ```
+
+### Try it online
+http://rawgit.com/shd101wyy/lisp2js_demo/master/index.html
 ----------------
 #### all comma, tab, space will be ignored.
 ----------------
