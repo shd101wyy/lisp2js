@@ -440,10 +440,10 @@ var lisp_module = function() {
                     p = compiler(p);
                     if (p[0] === ":") {
                         o += (p.slice(1) + "=");
-                    } else if (p === "...") { // ecmascript 6 rest parameters
+                    } else if (p === ".") { // ecmascript 6 rest parameters
                         params = params.rest;
                         o += ("..." + compiler(params.first));
-                    } else if (p === "."){  // es6 rest parameters. convert to list
+                    } else if (p === ".list"){  // es6 rest parameters. convert to list
                         params = params.rest;
                         var p = compiler(params.first);
                         o += ("..." + p);
