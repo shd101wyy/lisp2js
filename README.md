@@ -341,6 +341,17 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong>2015/1/7 </strong>
+    * add support for fn with name .
+```lisp
+    (fn add (x) (+ x y))
+```
+```javascript
+    function add(x) {
+        return (x + y);
+    };
+```
+    * fix one macro bug
 - <strong>2015/1/5 </strong>
     * add support for <strong> const </strong>
     * change <strong> let </strong>. see doc above.
