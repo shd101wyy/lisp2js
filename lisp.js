@@ -553,7 +553,7 @@ var lisp_module = function() {
             } else if (tag === "do") {
                 return "(function (){" + lisp_compiler(l.rest, true) + "})()";
             } else if (tag === "begin"){   // begin will get return, while do wont
-                return lisp_compiler(l.rest, false, null, is_recur);
+                return lisp_compiler(l.rest, is_last_exp ? true : false, null, is_recur);
             } else if (tag === "apply") {
                 var func = compiler(l.rest.first);
                 var params = compiler(l.rest.rest.first);
@@ -633,7 +633,7 @@ var lisp_module = function() {
         var o = "";
         var result;
         while (l != null) {
-            if (need_return && l.rest == null)
+            if (need_return && l.rest == null && (! (l instanceof $List && l.first === "begin")))
                 o += "return ";
             if(l.rest === null && (l.first instanceof $List) && (l.first.first === "recur")){
                 if(is_recur[0] === false){
