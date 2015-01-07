@@ -70,7 +70,7 @@ var lisp_module = function() {
                     j = output_list.length - 1;
                     p = (output_list[j] === ")") ? 1 : 0;
                     if (p == 0) { // x[0]
-                        output_list.push("[[");
+                        output_list.push("array-object-get");
                         output_list.push(output_list[j]);
                         output_list[j] = "(";
                     } else { // x[1]
@@ -89,7 +89,7 @@ var lisp_module = function() {
                             j--;
                         }
                         output_list[j] = "(";
-                        output_list[j + 1] = "[[";
+                        output_list[j + 1] = "array-object-get";
                     }
                 } else {
                     output_list.push("(");
@@ -433,7 +433,7 @@ var lisp_module = function() {
                 }
                 o += "}";
                 return o;
-            } else if (tag === "[[") { // x[0] =? [[ x 0
+            } else if (tag === "array-object-get") { // x[0] =? [[ x 0
                 return compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
             } else if (tag === GET_DOT){ // x[0].a
                 return compiler(l.rest.rest.first) + compiler(l.rest.first);
@@ -553,7 +553,7 @@ var lisp_module = function() {
             } else if (tag === "do") {
                 return "(function (){" + lisp_compiler(l.rest, true) + "})()";
             } else if (tag === "begin"){   // begin will get return, while do wont
-                return lisp_compiler(l.rest, true, null, is_recur);
+                return lisp_compiler(l.rest, is_last_exp ? true : false, null, is_recur);
             } else if (tag === "apply") {
                 var func = compiler(l.rest.first);
                 var params = compiler(l.rest.rest.first);
