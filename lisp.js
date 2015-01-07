@@ -33,6 +33,7 @@ var lisp_module = function() {
     var GET_DOT = 1;
     var eval_result = "";
     var global_context = null;
+    var recursion_function_name_count = 0;
     var append = function(x, y){ // (x y) (z w) => (x y z w)
         if(x === null)
             return (y instanceof $List || y === null) ? y : cons(y, null);
@@ -438,15 +439,16 @@ var lisp_module = function() {
                         return l.rest.first;
                 }
             } else if (tag === "fn" || tag === "fn*") {
-                var o = tag === "fn" ? "function " : "function* ";
+                var o = tag === "fn" ? "function " : "function* "; // o is part ahead (){}
+                var o2 = "";                                       // o2 is (){}
                 var params, body;
                 if(typeof(l.rest.first) === "string"){ // solve ((function test (){})()) problem
-                    o += (l.rest.first + "(");
+                    o2 += (l.rest.first + "(");
                     params = l.rest.rest.first;
                     body = l.rest.rest.rest;
                 }
                 else{
-                    o += "(";
+                    o2 += "(";
                     params = l.rest.first;
                     body = l.rest.rest;
                 }
@@ -454,26 +456,30 @@ var lisp_module = function() {
                     var p = params.first;
                     p = compiler(p);
                     if (p[0] === ":") {
-                        o += (p.slice(1) + "=");
+                        o2 += (p.slice(1) + "=");
                     } else if (p === ".") { // ecmascript 6 rest parameters
                         params = params.rest;
-                        o += ("..." + compiler(params.first));
+                        o2 += ("..." + compiler(params.first));
                     } else if (p === ".list"){  // es6 rest parameters. convert to list
                         params = params.rest;
                         var p = compiler(params.first);
-                        o += ("..." + p);
+                        o2 += ("..." + p);
                         body = cons(list("=", p, list(p+".toList")), body) // convert from arry to list
                     } else {
-                        o += p;
+                        o2 += p;
                         if (params.rest != null)
-                            o += ", ";
+                            o2 += ", ";
                     }
                     params = params.rest;
                 }
-                o += "){";
-                o += lisp_compiler(body, true);
-                o += "}";
-                return o;
+                var is_recur = [false];
+                o2 += "){";
+                o2 += lisp_compiler(body, true, null, is_recur);
+                o2 += "}";
+                if(is_recur[0] !== false){ // is recur
+                    o += is_recur[0];
+                }
+                return o + o2;
             }
             /*
              * (let x 1 y 2 body)
@@ -597,12 +603,23 @@ var lisp_module = function() {
         }
     }
 
-    lisp_compiler = function(l, need_return, eval_$) {
+    lisp_compiler = function(l, need_return, eval_$, is_recur) {
         var o = "";
+        var result;
         while (l != null) {
             if (need_return && l.rest == null)
                 o += "return ";
-            var result = compiler(l.first);
+            if(l.rest === null && (l.first instanceof $List) && (l.first.first === "recur")){
+                if(is_recur[0] === false){
+                    is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
+                    recursion_function_name_count+=3;
+                }
+                l.first.first = is_recur[0];  // change recur name.
+                result = compiler(l.first);
+            }
+            else{
+                result = compiler(l.first);
+            }
             if(eval_$){    // eval
                 if(node_environment)
                     try{
