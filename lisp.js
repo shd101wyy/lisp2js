@@ -312,6 +312,15 @@ var lisp_module = function() {
         }
     }
     var macro_expand = function(clauses, exp) {
+        var formatList = function(l){ // add "" to values.
+            if (l === null)
+                return null;
+            else if (l.first instanceof $List){
+                return cons(formatList(l.first), formatList(l.rest));
+            }
+            else
+                return cons('"' + l.first + '"', formatList(l.rest));
+        }
         while (clauses != null) {
             var match = macro_match(clauses.first,
                 exp, {})
@@ -320,10 +329,11 @@ var lisp_module = function() {
                 //console.log(compiler(clauses.rest.first));
                 var eval_macro = "(function(){";
                 for (key in match) {
-                    if(match[key] instanceof $List)
-                        eval_macro += ("var " + key + " = " + compiler(cons("list", match[key])) + "; ");
+                    if(match[key] instanceof $List){
+                        eval_macro += ("var " + key + " = " + compiler(cons("list", formatList(match[key]))) + "; ");
+                    }
                     else
-                        eval_macro += ("var " + key + " = " + compiler(match[key]) + "; ");
+                        eval_macro += ("var " + key + " = " + compiler('"' + match[key]) + '"' + "; ");
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
