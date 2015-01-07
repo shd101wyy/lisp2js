@@ -542,6 +542,8 @@ var lisp_module = function() {
                 return o;
             } else if (tag === "do") {
                 return "(function (){" + lisp_compiler(l.rest, true) + "})()";
+            } else if (tag === "begin"){   // begin will get return, while do wont
+                return lisp_compiler(l.rest, true, null, is_recur);
             } else if (tag === "apply") {
                 var func = compiler(l.rest.first);
                 var params = compiler(l.rest.rest.first);
