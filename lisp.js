@@ -298,7 +298,7 @@ var lisp_module = function() {
                 if (typeof(b.first) !== "string") {
                     return 0; // doesn't match
                 }
-                if (a.slice(1) === b)
+                if (a.first.slice(1) === b.first)
                     return macro_match(a.rest, b.rest, result);
                 else
                     return 0;
@@ -653,7 +653,7 @@ var lisp_module = function() {
                     }
                 }
             }
-            if (result.trim().length != 0)
+            if (!(typeof(result) === "string" && result.trim().length === 0))
                 o += (result + "; ");
             l = l.rest;
         }
