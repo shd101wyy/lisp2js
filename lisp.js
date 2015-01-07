@@ -438,9 +438,18 @@ var lisp_module = function() {
                         return l.rest.first;
                 }
             } else if (tag === "fn" || tag === "fn*") {
-                var o = tag === "fn" ? "function (" : "function* (";
-                var params = l.rest.first;
-                var body = l.rest.rest;
+                var o = tag === "fn" ? "function " : "function* ";
+                var params, body;
+                if(typeof(l.rest.first) === "string"){ // solve ((function test (){})()) problem
+                    o += (l.rest.first + "(");
+                    params = l.rest.rest.first;
+                    body = l.rest.rest.rest;
+                }
+                else{
+                    o += "(";
+                    params = l.rest.first;
+                    body = l.rest.rest;
+                }
                 while (params != null) {
                     var p = params.first;
                     p = compiler(p);
