@@ -633,7 +633,7 @@ var lisp_module = function() {
         var o = "";
         var result;
         while (l != null) {
-            if (need_return && l.rest == null && (! (l instanceof $List && l.first === "begin")))
+            if (need_return && l.rest == null && (! (l.first instanceof $List && l.first.first === "begin")))
                 o += "return ";
             if(l.rest === null && (l.first instanceof $List) && (l.first.first === "recur")){
                 if(is_recur[0] === false){
