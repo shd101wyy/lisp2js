@@ -369,7 +369,7 @@ var lisp_module = function() {
         o += ")";
         return o;
     }
-    compiler = function(l) {
+    compiler = function(l, is_last_exp, is_recur) {
         if (l === null)
             return "null";
         else if (l instanceof $List) {
@@ -523,8 +523,22 @@ var lisp_module = function() {
                 var conseq = l.rest.rest.first;
                 var alter = l.rest.rest.rest === null ? null : l.rest.rest.rest.first;
                 o += (compiler(test) + " ? ");
-                o += (compiler(conseq) + " : ");
-                o += (compiler(alter) + ")");
+
+                // check last exp and recur.
+                if(is_last_exp &&
+                    (   (conseq instanceof $List && conseq.first === "recur" )
+                     || (alter && alter instanceof $List && alter.first === "recur"))){  // recursion, last call.
+                        if(is_recur[0] === false){
+                            is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
+                            recursion_function_name_count+=3;
+                        }
+                        if(conseq.first === "recur")
+                            conseq.first = is_recur[0];  // change recur name.
+                        if(alter.first === "recur")
+                            alter.first = is_recur[0];
+                }
+                o += (compiler(conseq, is_last_exp, is_recur) + " : ");
+                o += (compiler(alter, is_last_exp, is_recur) + ")");
                 return o;
             } else if (tag === "do") {
                 return "(function (){" + lisp_compiler(l.rest, true) + "})()";
@@ -615,10 +629,10 @@ var lisp_module = function() {
                     recursion_function_name_count+=3;
                 }
                 l.first.first = is_recur[0];  // change recur name.
-                result = compiler(l.first);
+                result = compiler(l.first, true, is_recur);
             }
             else{
-                result = compiler(l.first);
+                result = compiler(l.first, l.rest === null? true : false, is_recur);
             }
             if(eval_$){    // eval
                 if(node_environment)
