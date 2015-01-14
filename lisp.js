@@ -379,7 +379,7 @@ var lisp_module = function() {
         o += ")";
         return o;
     }
-    compiler = function(l, is_last_exp, is_recur, need_return_string, param_or_assignment) {
+    compiler = function(l, is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name) {
         if (l === null)
             return (need_return_string) ? "return null" : "null";
         else if (l instanceof $List) {
@@ -396,7 +396,7 @@ var lisp_module = function() {
                     var_value = l.rest.rest.first;
 
                 var_name = compiler(var_name);
-                var_value = compiler(var_value, null, null, null, true); // param_or_aasignment
+                var_value = compiler(var_value, null, null, null, true, var_name); // param_or_aasignment
                 var o = (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + var_name + " = " + var_value + " ";
                 return (need_return_string) ? o + "; return " + var_name : o;
             } else if (tag === "Array") { // array
@@ -487,11 +487,11 @@ var lisp_module = function() {
                     }
                     params = params.rest;
                 }
-                var is_recur = [false];
+                var is_recur = [current_fn_name ? current_fn_name : false];
                 o2 += "){";
                 o2 += lisp_compiler(body, true, null, is_recur);
                 o2 += "}";
-                if(is_recur[0] !== false){ // is recur
+                if(is_recur[0] !== false && is_recur[0] !== current_fn_name){ // is recur
                     o += is_recur[0];
                 }
                 return o + o2;
