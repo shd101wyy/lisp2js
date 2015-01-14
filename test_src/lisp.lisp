@@ -34,3 +34,15 @@
   (cond (== n 0) 0
         1 (recur (- n 2))
         else (recur (- n 1))))
+(console.log ((fn (n acc)
+  (if (== n 0)
+    acc
+    (recur (- n 1) (* n acc))))
+    10 1))
+
+(try (do
+        (console.log "This is try"))
+ catch e (do
+            (console.log "This is catch"))
+ finally (do
+            (console.log "This is finally")))

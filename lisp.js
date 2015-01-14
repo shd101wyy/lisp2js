@@ -643,6 +643,49 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";
             }
             /*
+             *  (try (do ...)   catch e (do ...) finally (do ...))
+             *
+             */
+             else if (tag === "try"){
+               var o = "try{"
+               var clauses = l.rest;
+               var body = clauses.first;
+               if(body instanceof $List && body.first === "do"){
+                 o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
+               }
+               else{
+                 o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
+               }
+               o += "}"
+               clauses = clauses.rest;
+               if(clauses != null && clauses.first === "catch"){ // catch
+                 o += "catch(";
+                 var error = compiler(clauses.rest.first);  // e
+                 o += (error + "){");
+                 var body = clauses.rest.rest.first;
+                 if(body instanceof $List && body.first === "do"){
+                   o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
+                 }
+                 else{
+                   o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
+                 }
+                 o += "}"
+                 clauses = clauses.rest.rest.rest;
+               }
+               if(clauses != null && clauses.first === "finally"){// finally
+                 var body = clauses.rest.first;
+                 o += "finally {"
+                 if(body instanceof $List && body.first === "do"){
+                   o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
+                 }
+                 else{
+                   o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
+                 }
+                 o += "}"
+               }
+               return o;
+             }
+            /*
              * (defmacro macro-name
              *      var0 pattern0
              *      var1 pattern1 ... )
