@@ -366,7 +366,7 @@ var lisp_module = function() {
         var o = "(";
         while (params != null) {
             var p = params.first;
-            p = compiler(p);
+            p = compiler(p, null, null, null, true);
             if (typeof(p) === "string" && p[0] === ":") {
                 o += (p.slice(1) + "=");
             } else {
@@ -379,9 +379,9 @@ var lisp_module = function() {
         o += ")";
         return o;
     }
-    compiler = function(l, is_last_exp, is_recur) {
+    compiler = function(l, is_last_exp, is_recur, need_return_string, param_or_assignment) {
         if (l === null)
-            return "null";
+            return (need_return_string) ? "return null" : "null";
         else if (l instanceof $List) {
             var tag = car(l);
             if (tag === "def" || tag === "=" || tag === "set!" || tag === "const") {
@@ -394,10 +394,13 @@ var lisp_module = function() {
                         cdr(cdr(cdr(l)))));
                 else
                     var_value = l.rest.rest.first;
-
-                return (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + compiler(var_name) + " = " + compiler(var_value) + " ";
+                
+                var_name = compiler(var_name); 
+                var_value = compiler(var_value, null, null, null, true); // param_or_aasignment
+                var o = (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + var_name + " = " + var_value + " ";
+                return (need_return_string) ? o + "; return " + var_name : o;
             } else if (tag === "Array") { // array
-                var o = "[";
+                var o = need_return_string ? "return [" : "[";
                 l = cdr(l);
                 while (l != null) {
                     o += (compiler(car(l)));
@@ -408,7 +411,7 @@ var lisp_module = function() {
                 o += "]";
                 return o;
             } else if (tag === "Object") { // object
-                var o = "{";
+                var o = need_return_string ? "return {" : "{";
                 l = l.rest;
                 while (l != null) {
                     var key = compiler(l.first);
@@ -439,17 +442,19 @@ var lisp_module = function() {
                 return compiler(l.rest.rest.first) + compiler(l.rest.first);
             } else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
-                    return compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
+                    var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first)); 
+                    return need_return_string ? "return " + v : v;
                 } else if (l.rest === null) {
-                    return "null";
+                    return need_return_string ? "return null" : "null";
                 } else {
                     if (isNaN(l.rest.first)) // not a number
-                        return '"' + l.rest.first + '"';
+                        return need_return_string ? "return " + '"' + l.rest.first + '"' : '"' + l.rest.first + '"';
                     else
-                        return l.rest.first;
+                        return need_return_string ? "return " + l.rest.first : l.rest.first;
                 }
             } else if (tag === "fn" || tag === "fn*") {
                 var o = tag === "fn" ? "function " : "function* "; // o is part ahead (){}
+                if(need_return_string) o = "return " + o;
                 var o2 = "";                                       // o2 is (){}
                 var params, body;
                 if(typeof(l.rest.first) === "string"){ // solve ((function test (){})()) problem
@@ -522,7 +527,62 @@ var lisp_module = function() {
                 } else
                     o += ("return " + compiler(params.first));
                 o += "})())"
+                if (need_return_string) o = "return " + o;
                 return o; //+ "}";
+            }
+            else if (tag === "cond"){
+                var find_else = false;
+                var clauses = l.rest;
+                var o = "if(";
+                if(param_or_assignment)
+                    o = "(function(){" + o;
+                var test = compiler(clauses.first);
+                o = o + test + "){";
+                var body = clauses.rest.first;
+                if(body instanceof $List && body.first === "do"){
+                    o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
+                }
+                else{
+                    o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
+                }
+                o += "}"
+                clauses = clauses.rest.rest;
+                while(clauses != null){
+                    o += " else ";
+                    if(clauses.first !== "else"){ // else if
+                        o += "if ("
+                        test = compiler(clauses.first);
+                        o = o + test + "){"
+                        body = clauses.rest.first;
+                        if(body instanceof $List && body.first === "do"){
+                            o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
+                        }
+                        else{
+                            o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
+                        }
+                        o += "}"
+                        clauses = clauses.rest.rest;
+                    }
+                    else{
+                        find_else = true;
+                        o += "{"
+                        body = clauses.rest.first;
+                        if(body instanceof $List && body.first === "do"){
+                            o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
+                        }
+                        else{
+                            o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
+                        }
+                        o += "}"
+                        break;
+                    }
+                }
+                if(find_else === false && need_return_string){
+                    o += " else return null";
+                }
+                if(param_or_assignment)
+                    o = o + "})()"
+                return o;
             }
             /*
              *  (if a b c) => ((a) ? (b) : (c));
@@ -532,38 +592,42 @@ var lisp_module = function() {
                 var test = l.rest.first;
                 var conseq = l.rest.rest.first;
                 var alter = l.rest.rest.rest === null ? null : l.rest.rest.rest.first;
-                o += (compiler(test) + " ? ");
-
-                // check last exp and recur.
-                if(is_last_exp &&
-                    (   (conseq instanceof $List && conseq.first === "recur" )
-                     || (alter && alter instanceof $List && alter.first === "recur"))){  // recursion, last call.
-                        if(is_recur[0] === false){
-                            is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
-                            recursion_function_name_count+=3;
-                        }
-                        if(conseq.first === "recur")
-                            conseq.first = is_recur[0];  // change recur name.
-                        if(alter.first === "recur")
-                            alter.first = is_recur[0];
+                if(param_or_assignment){
+                    o += (compiler(test) + " ? ");
+                    // check last exp and recur.
+                    if(is_last_exp &&
+                        (   (conseq instanceof $List && conseq.first === "recur" )
+                         || (alter && alter instanceof $List && alter.first === "recur"))){  // recursion, last call.
+                            if(is_recur[0] === false){
+                                is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
+                                recursion_function_name_count+=3;
+                            }
+                            if(conseq.first === "recur")
+                                conseq.first = is_recur[0];  // change recur name.
+                            if(alter.first === "recur")
+                                alter.first = is_recur[0];
+                    }
+                    o += (compiler(conseq, is_last_exp, is_recur) + " : ");
+                    o += (compiler(alter, is_last_exp, is_recur) + ")");
+                    return o;
                 }
-                o += (compiler(conseq, is_last_exp, is_recur) + " : ");
-                o += (compiler(alter, is_last_exp, is_recur) + ")");
-                return o;
+                else{
+                    return compiler(list("cond", test, conseq, "else", alter), is_last_exp, is_recur, need_return_string, param_or_assignment);
+                }
             } else if (tag === "do") {
-                return "(function (){" + lisp_compiler(l.rest, true) + "})()";
-            } else if (tag === "begin"){   // begin will get return, while do wont
-                return lisp_compiler(l.rest, true, null, is_recur);
-            } else if (tag === "apply") {
+                return (need_return_string ? "return " : "") + "(function (){" + lisp_compiler(l.rest, true) + "})()";
+            } /*else if (tag === "begin"){   // begin will get return, while do wont
+               // return lisp_compiler(l.rest, true, null, is_recur);
+            }*/ else if (tag === "apply") {
                 var func = compiler(l.rest.first);
                 var params = compiler(l.rest.rest.first);
-                return func + ".apply(this, " + "(function(){var temp = "+params+"; return temp instanceof $List ? temp.toArray() : temp})()" + ")";
+                return (need_return_string ? "return " : "") + func + ".apply(this, " + "(function(){var temp = "+params+"; return temp instanceof $List ? temp.toArray() : temp})()" + ")";
             } else if (tag === "new") {
                 var func = compiler(l.rest.first);
                 var o = "(new " + func + "";
                 o += formatParams(l.rest.rest);
                 o += ")";
-                return o;
+                return (need_return_string ? "return " : "") + o;
             } else if (tag === "+" || tag === "-" || tag === "*" || tag === "/" || tag === "%" ||
                 tag === "==" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=" ||
                 tag === "&&" || tag === "||" || tag === "&" || tag === "|") {
@@ -586,10 +650,10 @@ var lisp_module = function() {
                         o += (" " + (tag === "==" ? "===" : tag) + " ")
                     params = params.rest;
                 }
-                return o + ")";
+                return (need_return_string ? "return " : "") + o + ")";
             }
             else if (tag === "instanceof"){
-                return "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";
+                return (need_return_string ? "return " : "") + "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";
             }
             /*
              * (defmacro macro-name
@@ -619,32 +683,35 @@ var lisp_module = function() {
                 }
 
                 o += formatParams(params);
-                return o;
+                return (need_return_string ? "return " : "") + o;
             }
         } else { // string.
             if (isNaN(l) && l[0] != "'" && l[0] != "\"" && l[0] != ":") // not a number
-                return validateName(l);
+                return (need_return_string ? "return " : "") + validateName(l);
             else
-                return l; // number
+                return (need_return_string ? "return " : "") + l; // number
         }
     }
 
     lisp_compiler = function(l, need_return, eval_$, is_recur) {
         var o = "";
         var result;
+        var need_return_string = false;
         while (l != null) {
-            if (need_return && l.rest == null)
-                o += "return ";
+            if (need_return && l.rest == null){
+                need_return_string = true; // need add return string.
+                //o += "return ";
+            }
             if(l.rest === null && (l.first instanceof $List) && (l.first.first === "recur")){
                 if(is_recur[0] === false){
                     is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
                     recursion_function_name_count+=3;
                 }
                 l.first.first = is_recur[0];  // change recur name.
-                result = compiler(l.first, true, is_recur);
+                result = compiler(l.first, true, is_recur, need_return_string);
             }
             else{
-                result = compiler(l.first, l.rest === null? true : false, is_recur);
+                result = compiler(l.first, l.rest === null? true : false, is_recur, need_return_string);
             }
             if(eval_$){    // eval
                 if(node_environment)
