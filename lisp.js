@@ -389,13 +389,13 @@ var lisp_module = function() {
                 var var_value = null;
                 if (cdr(cdr(l)) === null)
                     var_value = null;
-                else if (tag === "def" && cdr(cdr(cdr(l))) != null)
+                else if (/*tag === "def" &&*/ cdr(cdr(cdr(l))) != null)
                     var_value = cons("fn", cons(car(cdr(cdr(l))),
                         cdr(cdr(cdr(l)))));
                 else
                     var_value = l.rest.rest.first;
-                
-                var_name = compiler(var_name); 
+
+                var_name = compiler(var_name);
                 var_value = compiler(var_value, null, null, null, true); // param_or_aasignment
                 var o = (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + var_name + " = " + var_value + " ";
                 return (need_return_string) ? o + "; return " + var_name : o;
@@ -442,7 +442,7 @@ var lisp_module = function() {
                 return compiler(l.rest.rest.first) + compiler(l.rest.first);
             } else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
-                    var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first)); 
+                    var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
                     return need_return_string ? "return " + v : v;
                 } else if (l.rest === null) {
                     return need_return_string ? "return null" : "null";
