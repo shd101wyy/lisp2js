@@ -28,3 +28,9 @@
                     ")")
             ))
     (to_string this "("))
+
+
+(def test (n)
+  (cond (== n 0) 0
+        1 (recur (- n 2))
+        else (recur (- n 1))))

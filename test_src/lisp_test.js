@@ -25,3 +25,12 @@ List.prototype.toString = function() {
     };
     return to_string(this, "(");
 };
+var test = function __lisp__recur__$0(n) {
+    if ((n === 0)) {
+        return 0;
+    } else if (1) {
+        return __lisp__recur__$0((n - 2));
+    } else {
+        return __lisp__recur__$0((n - 1));
+    };
+};

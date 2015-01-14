@@ -594,19 +594,6 @@ var lisp_module = function() {
                 var alter = l.rest.rest.rest === null ? null : l.rest.rest.rest.first;
                 if(param_or_assignment){
                     o += (compiler(test) + " ? ");
-                    // check last exp and recur.
-                    if(is_last_exp &&
-                        (   (conseq instanceof $List && conseq.first === "recur" )
-                         || (alter && alter instanceof $List && alter.first === "recur"))){  // recursion, last call.
-                            if(is_recur[0] === false){
-                                is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
-                                recursion_function_name_count+=3;
-                            }
-                            if(conseq.first === "recur")
-                                conseq.first = is_recur[0];  // change recur name.
-                            if(alter.first === "recur")
-                                alter.first = is_recur[0];
-                    }
                     o += (compiler(conseq, is_last_exp, is_recur) + " : ");
                     o += (compiler(alter, is_last_exp, is_recur) + ")");
                     return o;
@@ -620,7 +607,7 @@ var lisp_module = function() {
                // return lisp_compiler(l.rest, true, null, is_recur);
             }*/ else if (tag === "apply") {
                 var func = compiler(l.rest.first);
-                var params = compiler(l.rest.rest.first);
+                var params = compiler(l.rest.rest.first, null, null, null, true);
                 return (need_return_string ? "return " : "") + func + ".apply(this, " + "(function(){var temp = "+params+"; return temp instanceof $List ? temp.toArray() : temp})()" + ")";
             } else if (tag === "new") {
                 var func = compiler(l.rest.first);
