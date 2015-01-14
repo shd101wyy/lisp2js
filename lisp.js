@@ -635,16 +635,16 @@ var lisp_module = function() {
                 var params = l.rest;
                 if(params.rest == null){ // only one params
                     if(tag === "+" || tag === "*" || tag === "%")
-                        return compiler(params.first);
+                        return (need_return_string ? "return " : "") + compiler(params.first, null, null, null, true);
                     else if (tag === "-")
-                        return "(-" + compiler(params.first) + ")";
+                        return (need_return_string ? "return " : "") + "(-" + compiler(params.first, null, null, null, true) + ")";
                     else if (tag === "/")
-                        return "(1/" + compiler(params.first) + ")";
+                        return (need_return_string ? "return " : "") + "(1/" + compiler(params.first, null, null, null, true) + ")";
                     else  // this part might be wrong.
-                        return "true";
+                        return (need_return_string ? "return " : "") + "true";
                 }
                 while (params != null) {
-                    var p = compiler(params.first);
+                    var p = compiler(params.first, null, null, null, true);
                     o += p;
                     if (params.rest != null)
                         o += (" " + (tag === "==" ? "===" : tag) + " ")
