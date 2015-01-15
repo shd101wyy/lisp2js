@@ -600,7 +600,10 @@ var lisp_module = function() {
                     return o;
                 }
                 else{
-                    return compiler(list("cond", test, conseq, "else", alter), is_last_exp, is_recur, need_return_string, param_or_assignment);
+                    if (alter === null)
+                      return compiler(list("cond", test, conseq), is_last_exp, is_recur, need_return_string, param_or_assignment);
+                    else
+                      return compiler(list("cond", test, conseq, "else", alter), is_last_exp, is_recur, need_return_string, param_or_assignment);
                 }
             } else if (tag === "do") {
                 return (need_return_string ? "return " : "") + "(function (){" + lisp_compiler(l.rest, true) + "})()";
