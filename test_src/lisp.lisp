@@ -51,3 +51,8 @@
   (if (== n 0)
     1
     (recur (- n 1))))
+
+(cond test1 (do stm1 stm2)
+      test2 (do stm3 stm4)
+      test3 stm5
+      else stm6)

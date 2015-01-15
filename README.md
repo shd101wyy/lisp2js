@@ -120,6 +120,26 @@ lisp2js beta
     var x = (1 ? 2 : 3);
 ```
 
+- cond
+```lisp
+    (cond test1 (do stm1 stm2)
+          test2 (do stm3 stm4)
+          test3 stm5
+          else stm6)
+```
+```javascript
+    if (test1) {
+      stm1;
+      stm2;
+    } else if (test2) {
+      stm3;
+      stm4;
+    } else if (test3) {
+      stm5;
+    } else {
+      stm6;
+    };
+```
 - do. run a series of exps.
 ```lisp
     (do  (+ 1 2)
@@ -161,10 +181,26 @@ lisp2js beta
         return (a - b);
     })());
 ```
-
-
-- some operators
+- try/catch/finally
+```lisp
+    (try (do
+        (console.log "This is try"))
+    catch e (do
+        (console.log "This is catch"))
+    finally (do
+        (console.log "This is finally")))
 ```
+```javascript
+    try {
+      console.log("This is try");
+    } catch (e) {
+      console.log("This is catch");
+    } finally {
+      console.log("This is finally");
+    };
+```
+- some operators
+```lisp
     (== 1 1)
     (+ 1 2 3)
     (- 1 2 3)
@@ -322,6 +358,39 @@ lisp2js beta
     y.add(y.a, y.b);
 ```
 ---------------------------------------
+#### recur
+##### similar like recur in clojure
+```lisp
+    (def test (n)
+      (cond (== n 0) 0
+            1 (recur (- n 2))                ;; recur here means test
+            else (recur (- n 1))))
+
+    ;; anonymous function recur
+    ((fn (n acc)
+      (if (== n 0)
+        acc
+        (recur (- n 1) (* n acc)))) 10 1)  ;; recur <=> that anonymous function
+```
+```javascript
+    var test = function(n) {
+      if ((n === 0)) {
+        return 0;
+      } else if (1) {
+        return test((n - 2));
+      } else {
+        return test((n - 1));
+      };
+    };
+    (function __lisp__recur__$0(n, acc) {
+      if ((n === 0)) {
+        return acc;
+      } else {
+        return __lisp__recur__$0((n - 1), (n * acc));
+      };
+    })(10, 1)
+```
+---------------------------------------
 #### Macro
 - define a macro  
 ```lisp
@@ -341,6 +410,13 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong>2015/1/14 </strong>
+    * add <strong> cond </strong>
+    * add <strong> recur </strong> support
+    * add <strong> try/catch/finally </strong> support
+    * change <strong>if</strong> statement  
+    Went snowboarding and fell down too many times. I twisted my wrist unfortunately. (T_T)  
+
 - <strong>2015/1/7 </strong>
     * add support for fn with name .
 ```lisp

@@ -56,3 +56,14 @@ function test(n) {
         return test((n - 1));
     };
 };
+if (test1) {
+    stm1;
+    stm2;
+} else if (test2) {
+    stm3;
+    stm4;
+} else if (test3) {
+    stm5;
+} else {
+    stm6;
+};
