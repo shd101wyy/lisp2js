@@ -46,3 +46,8 @@
             (console.log "This is catch"))
  finally (do
             (console.log "This is finally")))
+
+(fn test (n)
+  (if (== n 0)
+    1
+    (recur (- n 1))))

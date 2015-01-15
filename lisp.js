@@ -458,6 +458,7 @@ var lisp_module = function() {
                 var o2 = "";                                       // o2 is (){}
                 var params, body;
                 if(typeof(l.rest.first) === "string"){ // solve ((function test (){})()) problem
+                    current_fn_name = l.rest.first; // set recur fn name
                     o2 += (l.rest.first + "(");
                     params = l.rest.rest.first;
                     body = l.rest.rest.rest;
