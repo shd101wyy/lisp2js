@@ -1,0 +1,79 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'publish' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.35
+4 verbose node symlink C:\Program Files\nodejs\\node.exe
+5 verbose publish [ '.' ]
+6 verbose cache add [ '.', null ]
+7 verbose cache add name=undefined spec="." args=[".",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: '.',
+8 verbose parsed url   path: '.',
+8 verbose parsed url   href: '.' }
+9 silly lockFile 3a52ce78- .
+10 verbose lock . C:\Users\Xun\AppData\Roaming\npm-cache\3a52ce78-.lock
+11 verbose tar pack [ 'C:\\Users\\Xun\\AppData\\Roaming\\npm-cache\\lisp2js\\0.0.9\\package.tgz',
+11 verbose tar pack   '.' ]
+12 verbose tarball C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package.tgz
+13 verbose folder .
+14 info prepublish lisp2js@0.0.9
+15 silly lockFile 1f1177db-tar tar://.
+16 verbose lock tar://. C:\Users\Xun\AppData\Roaming\npm-cache\1f1177db-tar.lock
+17 silly lockFile fcdb6aac--cache-lisp2js-0-0-9-package-tgz tar://C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package.tgz
+18 verbose lock tar://C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package.tgz C:\Users\Xun\AppData\Roaming\npm-cache\fcdb6aac--cache-lisp2js-0-0-9-package-tgz.lock
+19 silly lockFile 1f1177db-tar tar://.
+20 silly lockFile 1f1177db-tar tar://.
+21 silly lockFile fcdb6aac--cache-lisp2js-0-0-9-package-tgz tar://C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package.tgz
+22 silly lockFile fcdb6aac--cache-lisp2js-0-0-9-package-tgz tar://C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package.tgz
+23 silly lockFile c87d3d54--npm-cache-lisp2js-0-0-9-package C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package
+24 verbose lock C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package C:\Users\Xun\AppData\Roaming\npm-cache\c87d3d54--npm-cache-lisp2js-0-0-9-package.lock
+25 silly lockFile c87d3d54--npm-cache-lisp2js-0-0-9-package C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package
+26 silly lockFile c87d3d54--npm-cache-lisp2js-0-0-9-package C:\Users\Xun\AppData\Roaming\npm-cache\lisp2js\0.0.9\package
+27 silly lockFile 3a52ce78- .
+28 silly lockFile 3a52ce78- .
+29 silly publish { name: 'lisp2js',
+29 silly publish   version: '0.0.9',
+29 silly publish   description: 'A simple lisp to javascript translater',
+29 silly publish   main: 'lisp.js',
+29 silly publish   scripts: { test: 'lisp' },
+29 silly publish   bin: { lisp: './lisp' },
+29 silly publish   repository: { type: 'git', url: 'https://github.com/shd101wyy/lisp2js.git' },
+29 silly publish   keywords:
+29 silly publish    [ 'lisp',
+29 silly publish      'fun',
+29 silly publish      'compiler',
+29 silly publish      'interpreter',
+29 silly publish      'eval',
+29 silly publish      'shd101wyy',
+29 silly publish      'yiyi',
+29 silly publish      'Yiyi Wang' ],
+29 silly publish   author: { name: 'Yiyi Wang', url: 'shd101wyy' },
+29 silly publish   license: 'MIT',
+29 silly publish   bugs: { url: 'https://github.com/shd101wyy/lisp2js/issues' },
+29 silly publish   dependencies: { 'js-beautify': '^1.5.4' },
+29 silly publish   homepage: 'https://github.com/shd101wyy/lisp2js',
+29 silly publish   readme: 'lisp2js beta\r\n=======\r\n#### By Yiyi Wang (shd101wyy)\r\n\r\n##### Simple Lisp that compiles to JavaScript (targeting ECMAScript 6)  \r\n##### So ECMAScript 5 might not work.  \r\n---------------\r\n\r\n#### Installation\r\n```sh\r\n    node -g install lisp2js  \r\n```\r\n#### How to run  \r\n```sh\r\n    lisp                               # repl\r\n    lisp   [file1.lisp]                # run file1.lisp\r\n    lisp   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]\r\n```\r\n----------------\r\n### [Try it Online](http://rawgit.com/shd101wyy/lisp2js_demo/master/index.html)\r\n----------------\r\n#### all comma, tab, space will be ignored.\r\n----------------\r\n#### Examples\r\n-     <strong> Basics </strong>\r\n-     comment\r\n```lisp\r\n    ;; this is comment\r\n```\r\n\r\n-     define variable value\r\n```lisp\r\n    (def x 12)\r\n    (def ->this*name$invalid@in*js 13)   ;; a invalid js variable name, which will be replaced with another name.\r\n    (def ** Math.pow)\r\n```\r\n```javascript\r\n    var x = 12;\r\n    var _$45__$62_this_$42_name$invalid_$64_in_$42_js = 13;  // all invalid characters are replaced with its own charcode.\r\n    var _$42__$42_ = Math.pow;\r\n```\r\n\r\n- change variable value  \r\n```lisp\r\n    (= x 15)  \r\n```\r\n```javascript\r\n    x = 15;\r\n```\r\n\r\n- define function\r\n```lisp\r\n    (def add (a b)\r\n        (+ a b))\r\n```\r\n```javascript\r\n    var add = function(a, b){\r\n        return a + b;\r\n    }\r\n```\r\n\r\n- call function\r\n```lisp\r\n    (add 3 4)\r\n```\r\n```javascript\r\n    add(3, 4);\r\n```\r\n\r\n- define function with default parameters\r\n```lisp\r\n    (def add (:a 12 :b 3)\r\n        (+ a b))\r\n```\r\n```javascript\r\n    // es6\r\n    var add = function(a=12, b=3){\r\n        return a + b;\r\n    }\r\n```\r\n\r\n- call function with assigned parameters\r\n```lisp\r\n    (add :a 20 :b 40)\r\n```\r\n```javascript\r\n    add(a = 20, b = 40);\r\n```\r\n- define function with rest parameters\r\n```lisp\r\n    (def add (a . b)\r\n        (+ a b[0]))\r\n```\r\n```javascript\r\n    // es6\r\n    var add = function(a, ...b){\r\n        return a + b[0];\r\n    }\r\n```\r\n\r\n- anonymous function\r\n```lisp\r\n    (fn (a :b 13 . c)\r\n        (+ a b c[0]))\r\n```\r\n```javascript\r\n// es6\r\n    function(a, b = 13, ...c) {\r\n        return (a + b + c[0]);\r\n    };\r\n```\r\n\r\n- if\r\n```lisp\r\n    (if 1 2 3)\r\n    (def x (if 1 2 3))\r\n```\r\n```javascript\r\n    (1 ? 2 : 3);\r\n    var x = (1 ? 2 : 3);\r\n```\r\n\r\n- cond\r\n```lisp\r\n    (cond test1 (do stm1 stm2)\r\n          test2 (do stm3 stm4)\r\n          test3 stm5\r\n          else stm6)\r\n```\r\n```javascript\r\n    if (test1) {\r\n      stm1;\r\n      stm2;\r\n    } else if (test2) {\r\n      stm3;\r\n      stm4;\r\n    } else if (test3) {\r\n      stm5;\r\n    } else {\r\n      stm6;\r\n    };\r\n```\r\n- do. run a series of exps.\r\n```lisp\r\n    (do  (+ 1 2)\r\n         (- 3 4)\r\n         (* 5 6))\r\n```\r\n```javascript\r\n    (function() {\r\n        (1 + 2);\r\n        (3 - 4);\r\n        return (5 * 6);\r\n        })();\r\n```\r\n\r\n- let\r\n```lisp\r\n    (let x 1\r\n        y 2\r\n        x (+ x y)\r\n        z 4\r\n        (+ x y z))\r\n    (let a 1\r\n         b 2\r\n        (do (+ a b)\r\n            (- a b)))\r\n```\r\n```javascript\r\n    ((function() {\r\n        var x = 1;\r\n        var y = 2;\r\n        x = (x + y);\r\n        var z = 4;\r\n        return (x + y + z)\r\n    })());\r\n    ((function() {\r\n        var a = 1;\r\n        var b = 2;\r\n        (a + b);\r\n        return (a - b);\r\n    })());\r\n```\r\n- try/catch/finally\r\n```lisp\r\n    (try (do\r\n        (console.log "This is try"))\r\n    catch e (do\r\n        (console.log "This is catch"))\r\n    finally (do\r\n        (console.log "This is finally")))\r\n```\r\n```javascript\r\n    try {\r\n      console.log("This is try");\r\n    } catch (e) {\r\n      console.log("This is catch");\r\n    } finally {\r\n      console.log("This is finally");\r\n    };\r\n```\r\n- some operators\r\n```lisp\r\n    (== 1 1)\r\n    (+ 1 2 3)\r\n    (- 1 2 3)\r\n    (* 1 2 3)\r\n    (/ 1 2 3)\r\n    (* (+ 1 2) (- 3 4))\r\n    (> 1 2 3 4)\r\n    (<= 1 2 3 4)\r\n    (&& true false)\r\n    (|| 1 2)\r\n    (| 1 0x12)\r\n```\r\n```javascript\r\n    (1 === 1);\r\n    (1 + 2 + 3);\r\n    (1 - 2 - 3);\r\n    (1 * 2 * 3);\r\n    (1 / 2 / 3);\r\n    ((1 + 2) * (3 - 4));\r\n    (1 > 2 > 3 > 4);\r\n    (1 <= 2 <= 3 <= 4);\r\n    (true && false);\r\n    (1 || 2);\r\n    (1 | 0x12);\r\n```\r\n\r\n- new\r\n```lisp\r\n    (def x (new Array 1 2 3 4))\r\n```\r\n```javascript\r\n    var x = (new Array(1, 2, 3, 4));\r\n```\r\n\r\n- instanceof\r\n```lisp\r\n    (instanceof [1 2 3] Array)\r\n```\r\n```javascript\r\n    ([1, 2, 3] instanceof Array)\r\n```\r\n-----------------------------------------\r\n-  <strong> List functions </strong>\r\n     * To enable <strong>List</strong> datatype, include lisp.js from https://github.com/shd101wyy/List_for_FP\r\n     *  after you compile your .lisp file to javascript file.\r\n     *  This file will give you 4 functions: car, cdr, cons, list.  \r\n     *                      and 1 datatype: $List  \r\n     *  See the link above for more information.\r\n- define a list.\r\n```lisp\r\n    (def x \'(1 2 3))\r\n```\r\n```javascript\r\n    var x = cons(1, cons(2, cons(3, null)));\r\n```\r\n\r\n- quasiquote\r\n```lisp\r\n    (def x 12)\r\n    `(~x x)     ;; => (12 x)\r\n```\r\n```javascript\r\n    var x = 12;\r\n    cons(x, cons("x", null));\r\n```\r\n\r\n- car, cdr, cons, list\r\n```lisp\r\n    (def a 1)\r\n    (def b 2)\r\n    (def c (cons a (cons b \'())))   ;; => (1 2)\r\n    (car c)                         ;; => 1\r\n    (cdr c)                         ;; => (2)\r\n    (def l (list a b))           ;; => (1 2)\r\n```\r\n```javascript\r\n    var a = 1;\r\n    var b = 2;\r\n    var c = cons(a, cons(b, null));\r\n    car(c);\r\n    cdr(c);\r\n    var l = list(a, b);\r\n```\r\n---------------------------------------\r\n- <strong>Use JavaScript Object/Array</strong>\r\n\r\n- define Array\r\n```lisp\r\n    (def x [1 2 3])\r\n```\r\n```javascript\r\n    var x = [1, 2, 3];\r\n```\r\n\r\n- define Object\r\n```lisp\r\n    (def x {:a 12 b 13 "c" 14})\r\n```\r\n```javascript\r\n    // es6\r\n    var x = {a: 12, [b]: 13, "c": 14};\r\n```\r\n\r\n- es6 define value\r\n```lisp\r\n    (def [x y z] [1 2 3])\r\n    (def {:m :n} {:m 12 :n 20})\r\n```\r\n```javascript\r\n    // es6\r\n    var [x, y, z] = [1, 2, 3];\r\n    var {\r\n        m, n\r\n    } = {\r\n        m: 12,\r\n        n: 20\r\n    };\r\n```\r\n\r\n- change value  \r\n```lisp\r\n    (def x [1 2 3])\r\n    (= x[0] 12)\r\n    (def y {:a 12 :b 13 :c (fn (a b) (+ a b))})\r\n    (= y.a 13)\r\n    (= y["a"] 13)\r\n```\r\n```javascript\r\n    var x = [1, 2, 3];\r\n    x[0] = 12;\r\n    var y = {\r\n        a: 12,\r\n        b: 13,\r\n        c: function(a, b) {\r\n            return (a + b);\r\n        }\r\n    };\r\n    y.a = 13;\r\n    y["a"] = 13;\r\n```\r\n\r\n- get value\r\n```lisp\r\n    (def y {:a 12 :b 13 :c (fn (a b) (+ a b))})\r\n    (y.add y.a y.b)\r\n```\r\n```javascript\r\n    var y = {\r\n        a: 12,\r\n        b: 13,\r\n        c: function(a, b) {\r\n            return (a + b);\r\n        }\r\n    };\r\n    y.add(y.a, y.b);\r\n```\r\n---------------------------------------\r\n#### recur\r\n##### similar like recur in clojure\r\n```lisp\r\n    (def test (n)\r\n      (cond (== n 0) 0\r\n            1 (recur (- n 2))                ;; recur here means test\r\n            else (recur (- n 1))))\r\n\r\n    ;; anonymous function recur\r\n    ((fn (n acc)\r\n      (if (== n 0)\r\n        acc\r\n        (recur (- n 1) (* n acc)))) 10 1)  ;; recur <=> that anonymous function\r\n```\r\n```javascript\r\n    var test = function(n) {\r\n      if ((n === 0)) {\r\n        return 0;\r\n      } else if (1) {\r\n        return test((n - 2));\r\n      } else {\r\n        return test((n - 1));\r\n      };\r\n    };\r\n    (function __lisp__recur__$0(n, acc) {\r\n      if ((n === 0)) {\r\n        return acc;\r\n      } else {\r\n        return __lisp__recur__$0((n - 1), (n * acc));\r\n      };\r\n    })(10, 1)\r\n```\r\n---------------------------------------\r\n#### Macro\r\n- define a macro  \r\n```lisp\r\n    (defmacro square (x) `(* ~x ~x))\r\n    (square 12)\r\n    (defmacro square-with-different-params\r\n        (x) `(* ~x ~x)\r\n        (x y) `(+ (* ~x ~x) (* ~y ~y)))\r\n    (square-with-different-params 12)\r\n    (square-with-different-params 15 16)\r\n```\r\n```javascript\r\n    (12 * 12);\r\n    (12 * 12);\r\n    ((15 * 15) + (16 * 16));\r\n```\r\nHowever, the macro implementation still has errors.\r\n---------------------------------------\r\n#### Change Log\r\n- <strong>2015/1/14 </strong>\r\n    * add <strong> cond </strong>\r\n    * add <strong> recur </strong> support\r\n    * add <strong> try/catch/finally </strong> support\r\n    * change <strong>if</strong> statement  \r\n    Went snowboarding and fell down too many times. I twisted my wrist unfortunately. (T_T)  \r\n\r\n- <strong>2015/1/7 </strong>\r\n    * add support for fn with name .\r\n```lisp\r\n    (fn add (x) (+ x y))\r\n```\r\n```javascript\r\n    function add(x) {\r\n        return (x + y);\r\n    };\r\n```\r\n    * fix one macro bug\r\n- <strong>2015/1/5 </strong>\r\n    * add support for <strong> const </strong>\r\n    * change <strong> let </strong>. see doc above.\r\n    * fix several bugs.\r\n- <strong>2015/1/5 First Release</strong>  \r\n  * There are still lots of bugs.  \r\n  * _support try/catch/final/throw_  in the future\r\n---------------------------------------\r\nMIT License ;)\r\n',
+29 silly publish   readmeFilename: 'README.md',
+29 silly publish   gitHead: '1eeb73eab4db4e39bf3ccce5de7929135c7ceaa2',
+29 silly publish   _id: 'lisp2js@0.0.9',
+29 silly publish   _shasum: '77cb910ba16d37a6fbdadef9d7d087674cc371c1',
+29 silly publish   _from: '.' }
+30 error need auth auth and email required for publishing
+30 error need auth You need to authorize this machine using `npm adduser`
+31 error System Windows_NT 6.2.9200
+32 error command "C:\\Program Files\\nodejs\\\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "publish"
+33 error cwd C:\Users\Xun\Documents\GitHub\lisp2js
+34 error node -v v0.10.35
+35 error npm -v 1.4.28
+36 error code ENEEDAUTH
+37 verbose exit [ 1, true ]

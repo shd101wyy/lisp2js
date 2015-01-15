@@ -25,45 +25,5 @@ List.prototype.toString = function() {
     };
     return to_string(this, "(");
 };
-var test = function(n) {
-    if ((n === 0)) {
-        return 0;
-    } else if (1) {
-        return test((n - 2));
-    } else {
-        return test((n - 1));
-    };
-};
-console.log((function __lisp__recur__$0(n, acc) {
-    if ((n === 0)) {
-        return acc;
-    } else {
-        return __lisp__recur__$0((n - 1), (n * acc));
-    };
-})(10, 1));
-try {
-    console.log("This is try");
-} catch (e) {
-    console.log("This is catch");
-} finally {
-    console.log("This is finally");
-};
-
-function test(n) {
-    if ((n === 0)) {
-        return 1;
-    } else {
-        return test((n - 1));
-    };
-};
-if (test1) {
-    stm1;
-    stm2;
-} else if (test2) {
-    stm3;
-    stm4;
-} else if (test3) {
-    stm5;
-} else {
-    stm6;
-};
+var 我is = 12;
+var _$42__$42_ = Math.pow;

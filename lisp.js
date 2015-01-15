@@ -240,7 +240,9 @@ var lisp_module = function() {
                 (code > 96 && code < 123) || // lower alpha (a-z)
                 var_name[i] === "$" ||
                 var_name[i] === "_" ||
-                var_name[i] === ".") {
+                var_name[i] === "." ||
+                code > 255 // utf
+                ) {
                 o += var_name[i];
             } else {
                 o += "_$" + code + "_";

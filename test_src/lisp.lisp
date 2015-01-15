@@ -28,31 +28,3 @@
                     ")")
             ))
     (to_string this "("))
-
-
-(def test (n)
-  (cond (== n 0) 0
-        1 (recur (- n 2))
-        else (recur (- n 1))))
-(console.log ((fn (n acc)
-  (if (== n 0)
-    acc
-    (recur (- n 1) (* n acc))))
-    10 1))
-
-(try (do
-        (console.log "This is try"))
- catch e (do
-            (console.log "This is catch"))
- finally (do
-            (console.log "This is finally")))
-
-(fn test (n)
-  (if (== n 0)
-    1
-    (recur (- n 1))))
-
-(cond test1 (do stm1 stm2)
-      test2 (do stm3 stm4)
-      test3 stm5
-      else stm6)
