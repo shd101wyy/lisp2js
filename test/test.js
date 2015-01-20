@@ -1,3 +1,1 @@
-"abc".length;
-[1, 2, 3].length;
-"abcd" ["length"];
+.b_$45_cx[a];

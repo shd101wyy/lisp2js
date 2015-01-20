@@ -53,7 +53,6 @@ var lisp_module = function() {
         var paren_count = 0;
         var getIndexOfValidStr = function(input_string, end) {
             while (1) {
-                if (end === input_string.length || input_string[end] === " " || input_string[end] === "\n" || input_string[end] === "\t" || input_string[end] === "," || input_string[end] === ")" || input_string[end] === "(" || input_string[end] === "]" || input_string[end] === "[" || input_string[end] === "{" || input_string[end] === "}" || input_string[end] === "\'" || input_string[end] === "`" || input_string[end] === "~" || input_string[end] === ";" || input_string[end] === ":") break;
                 end += 1;
             }
             return end;
