@@ -227,6 +227,14 @@ lisp2js beta
     (1 | 0x12);
 ```
 
+- get  
+```lisp
+    (get "abcd" 'length)
+```
+```javascript
+    "abcd"["length"]
+```
+
 - new
 ```lisp
     (def x (new Array 1 2 3 4))
@@ -410,6 +418,9 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong>2015/1/19 </strong>
+    * add <strong> get </strong> fn  
+    * fix "abc".length like exp bug.  
 - <strong>2015/1/14 </strong>
     * add <strong> cond </strong>
     * add <strong> recur </strong> support

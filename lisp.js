@@ -156,6 +156,10 @@ var lisp_module = function() {
 
                     output_list.push(")");
                 }
+                // check exp like "abc".length
+                else if (t[0] === "."  && input_string[i - 1] === "\""){
+                    output_list[output_list.length - 1] += t;
+                }
                 else
                     output_list.push(t);
                 i = end - 1;
@@ -647,6 +651,16 @@ var lisp_module = function() {
             }
             else if (tag === "instanceof"){
                 return (need_return_string ? "return " : "") + "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";
+            }
+            else if (tag === "get"){ // (get a "length")  => a["length"]
+                var v = compiler(l.rest.first);
+                var o = v;
+                var args = l.rest.rest;
+                while(args != null){
+                    o += ("[" + compiler(args.first) + "]");
+                    args = args.rest;
+                }
+                return (need_return_string ? "return " : "") + o;
             }
             /*
              *  (try (do ...)   catch e (do ...) finally (do ...))

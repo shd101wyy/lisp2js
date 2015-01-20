@@ -7,6 +7,7 @@ var list = require("./dependencies/list.js");
 var vm = require("vm");
 var repl = require("repl");
 var argv = process.argv;
+console.log("\nATTENTION: Current version of nodejs doesn't support ECMAScript6(es6)\n, so some es6 features cannot be used.\nPlease wait until es6 is officially supported.\n\n");
 /*
 global.cons = list.cons;
 global.car = list.car;
