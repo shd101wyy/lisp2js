@@ -31,6 +31,7 @@ var lisp_module = function() {
     var lexer, parser, compiler, lisp_compiler;
     var macros = {}; // used to save macro
     var GET_DOT = 1;
+    var ARRAY_OBJECT_GET = 2;
     var eval_result = "";
     var global_context = null;
     var recursion_function_name_count = 0;
@@ -53,6 +54,7 @@ var lisp_module = function() {
         var paren_count = 0;
         var getIndexOfValidStr = function(input_string, end) {
             while (1) {
+                if (end === input_string.length || input_string[end] === " " || input_string[end] === "\n" || input_string[end] === "\t" || input_string[end] === "," || input_string[end] === ")" || input_string[end] === "(" || input_string[end] === "]" || input_string[end] === "[" || input_string[end] === "{" || input_string[end] === "}" || input_string[end] === "\'" || input_string[end] === "`" || input_string[end] === "~" || input_string[end] === ";" || input_string[end] === ":" || input_string[end] === ".") break;
                 end += 1;
             }
             return end;
@@ -69,7 +71,7 @@ var lisp_module = function() {
                     j = output_list.length - 1;
                     p = (output_list[j] === ")") ? 1 : 0;
                     if (p == 0) { // x[0]
-                        output_list.push("array-object-get");
+                        output_list.push(ARRAY_OBJECT_GET);
                         output_list.push(output_list[j]);
                         output_list[j] = "(";
                     } else { // x[1]
@@ -88,7 +90,7 @@ var lisp_module = function() {
                             j--;
                         }
                         output_list[j] = "(";
-                        output_list[j + 1] = "array-object-get";
+                        output_list[j + 1] = ARRAY_OBJECT_GET;
                     }
                 } else {
                     output_list.push("(");
@@ -153,6 +155,15 @@ var lisp_module = function() {
                     output_list[j + 1] = GET_DOT;
                     output_list[j + 2] = t;
 
+                    output_list.push(")");
+                }
+                // a.b
+                else if (t[0] === "." && i > 0 && (input_string[i - 1] !== " " || input_string[i - 1] !== "\t" || input_string[i - 1] !== "\n")){
+                    var last = output_list[output_list.length - 1];
+                    output_list[output_list.length - 1] = "(";
+                    output_list.push("get");
+                    output_list.push(last);
+                    output_list.push("\"" + t.slice(1) + "\"");
                     output_list.push(")");
                 }
                 // check exp like "abc".length
@@ -421,8 +432,13 @@ var lisp_module = function() {
                 while (l != null) {
                     var key = compiler(l.first);
                     if (key[0] === ":") {
-                        if (l.rest !== null && l.rest.first[0] !== ":")
-                            o += (key.slice(1) + ": ");
+                        if (l.rest !== null && l.rest.first[0] !== ":"){
+                            var k = key.slice(1);
+                            if(validateName(k) === k && isNaN(k))
+                                o += (k + ": ");
+                            else
+                                o += ("\"" + k + "\": ");
+                        }
                         else { // {:a :b}  => {a, b}
                             o += (key.slice(1) + (l.rest == null ? "" : ", "));
                             l = l.rest;
@@ -441,10 +457,10 @@ var lisp_module = function() {
                 }
                 o += "}";
                 return o;
-            } else if (tag === "array-object-get") { // x[0] =? [[ x 0
-                return compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
+            } else if (tag === ARRAY_OBJECT_GET) { // x[0] =? [[ x 0
+                return (need_return_string ? "return " : "") + compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
             } else if (tag === GET_DOT){ // x[0].a
-                return compiler(l.rest.rest.first) + compiler(l.rest.first);
+                return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + compiler(l.rest.first);
             } else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
                     var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
@@ -533,8 +549,7 @@ var lisp_module = function() {
                 } else
                     o += ("return " + compiler(params.first));
                 o += "})())"
-                if (need_return_string) o = "return " + o;
-                return o; //+ "}";
+                return (need_return_string ? "return " : "") + o; //+ "}";
             }
             else if (tag === "cond"){
                 var find_else = false;
@@ -656,7 +671,17 @@ var lisp_module = function() {
                 var o = v;
                 var args = l.rest.rest;
                 while(args != null){
-                    o += ("[" + compiler(args.first) + "]");
+                    var key = compiler(args.first);
+                    if(key[0] === "\""){ // if "abc", then use .abc
+                        var mid = key.slice(1, -1);
+                        if(mid === validateName(mid) && isNaN(mid)){
+                            o += ("." + mid);
+                        }
+                        else
+                            o += ("[" + key + "]");
+                    }
+                    else
+                        o += ("[" + key + "]");
                     args = args.rest;
                 }
                 return (need_return_string ? "return " : "") + o;
@@ -735,7 +760,7 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + o;
             }
         } else { // string.
-            if (isNaN(l) && l[0] != "'" && l[0] != "\"" && l[0] != ":") // not a number
+            if (isNaN(l) && l[0] !== "'" && l[0] !== "\"" && l[0] !== ":") // not a number
                 return (need_return_string ? "return " : "") + validateName(l);
             else
                 return (need_return_string ? "return " : "") + l; // number
