@@ -399,6 +399,19 @@ var lisp_module = function() {
         o += ")";
         return o;
     }
+
+    /*
+     *   eg key is ":a-b-c" ".a-b-c"
+     *   then p is "a-b-c"  "a-b-c"
+     *
+     */
+    var formatKey = function(p){
+        if(validateName(p) === p && isNaN(p))
+            return p;
+        else
+            return ("\"" + p + "\"");
+    }
+
     compiler = function(l, is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name) {
         if (l === null)
             return (need_return_string) ? "return null" : "null";
@@ -437,11 +450,8 @@ var lisp_module = function() {
                     var key = compiler(l.first);
                     if (key[0] === ":") {
                         if (l.rest !== null && l.rest.first[0] !== ":"){
-                            var k = key.slice(1);
-                            if(validateName(k) === k && isNaN(k))
-                                o += (k + ": ");
-                            else
-                                o += ("\"" + k + "\": ");
+                            var k = formatKey(key.slice(1));
+                            o += (k + ": ");
                         }
                         else { // {:a :b}  => {a, b}
                             o += (key.slice(1) + (l.rest == null ? "" : ", "));
@@ -464,7 +474,8 @@ var lisp_module = function() {
             } else if (tag === ARRAY_OBJECT_GET) { // x[0] =? [[ x 0
                 return (need_return_string ? "return " : "") + compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
             } else if (tag === GET_DOT){ // x[0].a
-                return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + compiler(l.rest.first);
+                var k = formatKey(l.rest.first.slice(1));
+                return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + (k[0] === "\"" ? "[" + k + "]" : "." + k);
             } else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
                     var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));

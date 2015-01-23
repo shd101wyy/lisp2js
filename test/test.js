@@ -9,3 +9,5 @@ var add = function(a, ...b) {
     b = list.apply(this, b);
     return (a + car(b));
 };
+x[a]["b-c"];
+x[a]["d_c_f%"];
