@@ -33,7 +33,7 @@
 ;;  eg:
 ;;    x = list(1, 2, 3, 4)
 ;;  ###
-(def list (. a)
+(def list (& a)
     (fn create_list (a i)
         (if (== i a.length)
             null
@@ -143,8 +143,7 @@
 ;;      x.append(5) => (1, 2, 3, 4, 5)
 ;;      x.append(7, 8) => (1, 2, 3, 4, 7, 8)
 ;;    ###
-(= List.prototype.append (. i)
-    (def o (list.apply list i))
+(= List.prototype.append (. o)
     (fn append (l o)
         (if (== l null)
             o
@@ -215,3 +214,23 @@
                 (cons l.first (iter l.rest))
                 (iter l.rest))))
     (iter this))
+
+;; ===================================================================================================
+;; =============================== DONE Define List Object ===========================================
+;; ===================================================================================================
+
+;; iteratre over object
+(def obj_foreach (obj func)
+    (def keys (Object.keys obj))
+    ((fn (count)
+        (if (== count keys.length)
+            '()   ;; done
+            (do (func keys[count]
+                      obj[keys[count]])
+                (recur (+ count 1))))) 0))
+
+;; foreach
+(def foreach (o func)
+    (cond (== o.constructor Object)  (obj_foreach o func) ;; it is object
+          else (do (o.forEach func)
+                    '())))

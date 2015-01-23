@@ -108,8 +108,8 @@ List.prototype.ref = function(i) {
     };
     return ref(this, i);
 };
-List.prototype.append = function(...i) {
-    var o = list.apply(list, i);
+List.prototype.append = function(...o) {
+    o = list.apply(this, o);
 
     function append(l, o) {
         if ((l === null)) {
@@ -168,4 +168,23 @@ List.prototype.filter = function(func) {
         };
     };
     return iter(this);
+};
+var obj_foreach = function(obj, func) {
+    var keys = Object.keys(obj);
+    return (function __lisp__recur__$0(count) {
+        if ((count === keys.length)) {
+            return null;
+        } else {
+            func(keys[count], obj[keys[count]]);
+            return __lisp__recur__$0((count + 1));
+        };
+    })(0);
+};
+var foreach = function(o, func) {
+    if ((o.constructor === Object)) {
+        return obj_foreach(o, func);
+    } else {
+        o.forEach(func);
+        return null;
+    };
 };
