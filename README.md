@@ -424,6 +424,26 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/1/23 </strong>
+    * change . & for rest parameters  
+    * . => list
+    * & => array  
+    ```lisp
+    (def add (a & b)   ;; b here is Array
+        (+ a b[0]))
+    (def add (a . b)   ;; b here is List
+        (+ a (car b)))
+    ```
+    ```javascript
+    // es6
+    var add = function(a, ...b){
+        return a + b[0];
+    }
+    var add = function(a, ...b) {
+        b = list.apply(this, b);
+        return (a + car(b));
+    };
+    ```
 - <strong>2015/1/19 </strong>
     * add <strong> get </strong> fn  
     * fix "abc".length like exp bug.  
@@ -450,7 +470,7 @@ However, the macro implementation still has errors.
     * change <strong> let </strong>. see doc above.
     * fix several bugs.
 - <strong>2015/1/5 First Release</strong>  
-  * There are still lots of bugs.  
-  * _support try/catch/final/throw_  in the future
+    * There are still lots of bugs.  
+    * _support try/catch/final/throw_  in the future
 ---------------------------------------
 MIT License ;)
