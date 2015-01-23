@@ -88,19 +88,25 @@ lisp2js beta
 ```
 - define function with rest parameters
 ```lisp
-    (def add (a . b)
+    (def add (a & b)   ;; b here is Array
         (+ a b[0]))
+    (def add (a . b)   ;; b here is List
+        (+ a (car b)))
 ```
 ```javascript
     // es6
     var add = function(a, ...b){
         return a + b[0];
     }
+    var add = function(a, ...b) {
+        b = list.apply(this, b);
+        return (a + car(b));
+    };
 ```
 
 - anonymous function
 ```lisp
-    (fn (a :b 13 . c)
+    (fn (a :b 13 & c)
         (+ a b c[0]))
 ```
 ```javascript

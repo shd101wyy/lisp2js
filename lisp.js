@@ -157,8 +157,11 @@ var lisp_module = function() {
 
                     output_list.push(")");
                 }
+
                 // a.b
-                else if (t[0] === "." && i > 0 && (input_string[i - 1] !== " " || input_string[i - 1] !== "\t" || input_string[i - 1] !== "\n")){
+                else if (t[0] === "." && i > 0 && (input_string[i - 1] !== " " && input_string[i - 1] !== "\t" && input_string[i - 1] !== "\n"
+                                                   && input_string[i - 1] !== "{" && input_string[i - 1] !=="("
+                                                   && input_string[i - 1] !== "}" && input_string[i - 1] !== ")")){
                     var last = output_list[output_list.length - 1];
                     output_list[output_list.length - 1] = "(";
                     output_list.push("get");
@@ -255,6 +258,7 @@ var lisp_module = function() {
                 var_name[i] === "$" ||
                 var_name[i] === "_" ||
                 var_name[i] === "." ||
+                var_name[i] === "&" ||
                 code > 255 // utf
                 ) {
                 o += var_name[i];
@@ -494,14 +498,14 @@ var lisp_module = function() {
                     p = compiler(p);
                     if (p[0] === ":") {
                         o2 += (p.slice(1) + "=");
-                    } else if (p === ".") { // ecmascript 6 rest parameters
+                    } else if (p === "&") { // ecmascript 6 rest parameters
                         params = params.rest;
                         o2 += ("..." + compiler(params.first));
-                    } else if (p === ".list"){  // es6 rest parameters. convert to list
+                    } else if (p === "."){  // es6 rest parameters. convert to list
                         params = params.rest;
                         var p = compiler(params.first);
                         o2 += ("..." + p);
-                        body = cons(list("=", p, list(p+".toList")), body) // convert from arry to list
+                        body = cons(list("=", p, list("list.apply", "this", p)), body) // convert from arry to list
                     } else {
                         o2 += p;
                         if (params.rest != null)
