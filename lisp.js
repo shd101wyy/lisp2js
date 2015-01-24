@@ -517,7 +517,7 @@ var lisp_module = function() {
                         params = params.rest;
                         var p = compiler(params.first);
                         o2 += ("..." + p);
-                        body = cons(list("=", p, list("list.apply", "this", p)), body) // convert from arry to list
+                        body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
                     } else {
                         o2 += p;
                         if (params.rest != null)

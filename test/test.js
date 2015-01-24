@@ -28,3 +28,10 @@ console.log("Enter Here");
     };
 })(10, 1);
 console.log("Done");
+var test = function(...x) {
+    x = list.apply(null, x);
+    return x;
+};
+var test2 = function(...x) {
+    return x;
+};

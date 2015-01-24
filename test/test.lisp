@@ -25,3 +25,8 @@
             (recur (- x 1)
                 (* x acc)))))
 (console.log "Done")
+
+(def test (. x)
+    x)
+(def test2 (& x)
+    x)

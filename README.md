@@ -99,7 +99,7 @@ lisp2js beta
         return a + b[0];
     }
     var add = function(a, ...b) {
-        b = list.apply(this, b);
+        b = list.apply(null, b);
         return (a + car(b));
     };
 ```
@@ -424,6 +424,8 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.12 </strong>
+    * fix one macro bug.
 - <strong> 2015/1/23 </strong>
     * change . & for rest parameters  
     * . => list
@@ -440,7 +442,7 @@ However, the macro implementation still has errors.
         return a + b[0];
     }
     var add = function(a, ...b) {
-        b = list.apply(this, b);
+        b = list.apply(null, b);
         return (a + car(b));
     };
     ```
@@ -469,8 +471,7 @@ However, the macro implementation still has errors.
     * add support for <strong> const </strong>
     * change <strong> let </strong>. see doc above.
     * fix several bugs.
-- <strong>2015/1/5 First Release</strong>  
+- <strong>2015/1/5 First Release</strong>
     * There are still lots of bugs.  
-    * _support try/catch/final/throw_  in the future
 ---------------------------------------
 MIT License ;)
