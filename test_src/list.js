@@ -109,7 +109,7 @@ List.prototype.ref = function(i) {
     return ref(this, i);
 };
 List.prototype.append = function(...o) {
-    o = list.apply(this, o);
+    o = list.apply(null, o);
 
     function append(l, o) {
         if ((l === null)) {

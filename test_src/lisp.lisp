@@ -22,6 +22,12 @@
 (def map (o func)
     (o.map func))
 
+;; len
+(def len (o)
+    (cond (== o.constructor Object) (Object.keys o).length
+          (== (typeof o.length) "function") (o.length)
+          else o.length))
+
 ;; filter
 (def filter (o func)
     (o.filter func))
@@ -51,9 +57,3 @@
 
 (defmacro loop
     (. args) (parse-loop args))
-
-(console.log (loop x 10 acc 1
-    (if (== x 0)
-        acc
-        (recur (- x 1)
-               (* x acc)))))
