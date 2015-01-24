@@ -336,10 +336,11 @@ var lisp_module = function() {
             if (l === null)
                 return null;
             else if (l.first instanceof $List){
-                return cons(formatList(l.first), formatList(l.rest));
+                return cons(cons("list", formatList(l.first)), formatList(l.rest));
             }
-            else
-                return cons('"' + l.first + '"', formatList(l.rest));
+            else{
+                return cons(l.first[0] === "\"" ? ("'" + l.first + "'") : '"' + l.first + '"', formatList(l.rest)); // 这里是为了修复 ""abc""这种字符 eval 出问题的bug
+            }
         }
         while (clauses != null) {
             var match = macro_match(clauses.first,
@@ -766,9 +767,8 @@ var lisp_module = function() {
                 if(func[func.length - 1] === "}" || (!isNaN(func))) // solve ((fn () "Hi")) bug
                     o = "(" + o + ")";
                 if (func in macros) {
-                    // console.log("Macro");
                     var expanded_value = macro_expand(macros[func], params);
-                    return compiler(expanded_value);
+                    return (need_return_string ? "return " : "") + compiler(expanded_value);
                 }
 
                 o += formatParams(params);
