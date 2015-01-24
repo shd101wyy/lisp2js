@@ -20,6 +20,32 @@ var foreach = function(o, func) {
 var map = function(o, func) {
     return o.map(func);
 };
+var len = function(o) {
+    if ((o.constructor === Object)) {
+        return Object.keys(o).length;
+    } else if ((typeof(o.length) === "function")) {
+        return o.length();
+    } else {
+        return o.length;
+    };
+};
+var append = function(o, ...args) {
+    if ((o.constructor === Array)) {
+        var x = o.slice();
+        x.push.apply(x, args);
+        return x;
+    } else {
+        return o.append.apply(o, args);
+    };
+};
+var append_$33_ = function(o, ...args) {
+    if ((o.constructor === Array)) {
+        o.push.apply(o, args);
+        return o;
+    } else {
+        return o.append.apply(o, args);
+    };
+};
 var filter = function(o, func) {
     return o.filter(func);
 };
@@ -42,10 +68,3 @@ var parse_$45_loop = function(args) {
     var var_$45_vals = parse_$45_result[2].reverse();
     return cons(cons("fn", cons(var_$45_names, cons(body, null))), var_$45_vals);
 };
-console.log((function __lisp__recur__$3(x, acc) {
-    if ((x === 0)) {
-        return acc;
-    } else {
-        return __lisp__recur__$3((x - 1), (x * acc));
-    };
-})(10, 1));

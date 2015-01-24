@@ -28,6 +28,21 @@
           (== (typeof o.length) "function") (o.length)
           else o.length))
 
+;; NON-destructive
+;; append
+(def append (o & args)
+    (cond   (== o.constructor Array)    (do (def x (o.slice))
+                                            (x.push.apply x args)
+                                            x)
+            else (o.append.apply o args)))
+
+;; destructive
+;; append!
+(def append! (o & args)
+    (cond   (== o.constructor Array) (do (o.push.apply o args)
+                                        o)
+            else (o.append.apply o args)))
+
 ;; filter
 (def filter (o func)
     (o.filter func))
