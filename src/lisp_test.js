@@ -68,11 +68,63 @@ var parse_$45_loop = function(args) {
     var var_$45_vals = parse_$45_result[2].reverse();
     return cons(cons("fn", cons(var_$45_names, cons(body, null))), var_$45_vals);
 };
-(function __lisp__recur__$3(i) {
-    if ((i === 0)) {
-        return console.log("Done");
-    } else {
-        console.log(i);
-        return __lisp__recur__$3((i - 1));
+var node_environment = null;
+var vm = null;
+if ((typeof(module) != "undefined")) {
+    vm = function(require, "vm") {
+        node_environment = true;
+        return node_environment;
     };
-})(10);
+};
+var lisp_module = function() {
+    console.log("ENTER HERE");
+    var lexer = null;
+    var parser = null;
+    var compiler = null;
+    var lisp_compiler = null;
+    var macro = {};
+    var GET_DOT = 1;
+    var ARRAY_OBJECT_GET = 2;
+    var eval_result = "";
+    var global_context = null;
+    var recursion_function_name_count = 0;
+    var append = function(x, y) {
+        if ((x === null)) {
+            if (((y instanceof List) || (y === null))) {
+                return y;
+            } else {
+                return cons(y, null);
+            };
+        } else {
+            return cons(car(x), append(cdr(x, y)));
+        };
+    };
+    if (node_environment) {
+        var sandbox = {
+            cons: cons,
+            car: car,
+            cdr: cdr,
+            list: list,
+            List: List,
+            append: append,
+            console: console
+        };
+        global_context = vm.createContext(sandbox);
+    } else {
+        window.append = append;
+    };
+    var lexer = function(input_string) {
+        var output_list = [];
+        var paren_count = 0;
+        var getIndexOfValidStr = null;
+        return (function(i) {
+            if (((2)(input_string, i) === "(")) {
+                paren_count = (paren_count + 1);
+                return output_list.push("(");
+            } else if (((2)(input_string, i) === "[")) {
+                return null;
+            } else return null;
+        })(0);
+    };
+    return null;
+};
