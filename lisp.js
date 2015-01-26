@@ -31,7 +31,6 @@ var lisp_module = function() {
     var lexer, parser, compiler, lisp_compiler;
     var macros = {}; // used to save macro
     var GET_DOT = 1;
-    var ARRAY_OBJECT_GET = 2;
     var eval_result = "";
     var global_context = null;
     var recursion_function_name_count = 0;
@@ -71,7 +70,7 @@ var lisp_module = function() {
                     j = output_list.length - 1;
                     p = (output_list[j] === ")") ? 1 : 0;
                     if (p == 0) { // x[0]
-                        output_list.push(ARRAY_OBJECT_GET);
+                        output_list.push("get");
                         output_list.push(output_list[j]);
                         output_list[j] = "(";
                     } else { // x[1]
@@ -90,7 +89,7 @@ var lisp_module = function() {
                             j--;
                         }
                         output_list[j] = "(";
-                        output_list[j + 1] = ARRAY_OBJECT_GET;
+                        output_list[j + 1] = "get";
                     }
                 } else {
                     output_list.push("(");
@@ -472,9 +471,9 @@ var lisp_module = function() {
                 }
                 o += "}";
                 return o;
-            } else if (tag === ARRAY_OBJECT_GET) { // x[0] =? [[ x 0
+            } /*else if (tag === ARRAY_OBJECT_GET) { // x[0] =? [[ x 0
                 return (need_return_string ? "return " : "") + compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
-            } else if (tag === GET_DOT){ // x[0].a
+            }*/ else if (tag === GET_DOT){ // x[0].a
                 var k = formatKey(l.rest.first.slice(1));
                 return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + (k[0] === "\"" ? "[" + k + "]" : "." + k);
             } else if (tag === "quote" || tag === "quasiquote") {
@@ -768,8 +767,9 @@ var lisp_module = function() {
                 var params = l.rest;
                 func = compiler(func);
                 var o = func;
-                if(func[func.length - 1] === "}" || (!isNaN(func))) // solve ((fn () "Hi")) bug
+                if(func[func.length - 1] === "}" || (!isNaN(func))){ // solve ((fn () "Hi")) bug
                     o = "(" + o + ")";
+                }
                 if (func in macros) {
                     var expanded_value = macro_expand(macros[func], params);
                     return (need_return_string ? "return " : "") + compiler(expanded_value);

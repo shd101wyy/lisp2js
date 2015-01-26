@@ -90,6 +90,8 @@
     `(if ~test (do ~@body)))
 
 
+input_string[i]
+
 ;; ########################################################
 ;; ########################################################
 ;; ########################################################
@@ -104,7 +106,7 @@
     (def lisp_compiler)
     (def macro {})
     (def GET_DOT 1)
-    (def ARRAY_OBJECT_GET 2)
+    (def ARRAY_OBJECT_GET 3)
     (def eval_result "")
     (def global_context null)
     (def recursion_function_name_count 0)
@@ -118,15 +120,14 @@
                     (append (cdr x y)))))
 
     (if node_environment ;; run under nodejs env
-        (do (def sandbox {:cons cons
-                          :car car
-                          :cdr cdr
-                          :list list
-                          :List List
-                          :append append
-                          :console console})
-            (= global_context (vm.createContext sandbox))
-            )
+        (= global_context
+            (vm.createContext { :cons cons
+                                :car car
+                                :cdr cdr
+                                :list list
+                                :List List
+                                :append append
+                                :console console}))
         (= window.append append))
 
     ;; lexer

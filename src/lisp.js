@@ -246,15 +246,15 @@ if ((typeof(module) != "undefined")) {
         return node_environment;
     };
 };
+input_string[i];
 var lisp_module = function() {
-    console.log("ENTER HERE");
     var lexer = null;
     var parser = null;
     var compiler = null;
     var lisp_compiler = null;
     var macro = {};
     var GET_DOT = 1;
-    var ARRAY_OBJECT_GET = 2;
+    var ARRAY_OBJECT_GET = 3;
     var eval_result = "";
     var global_context = null;
     var recursion_function_name_count = 0;
@@ -270,7 +270,7 @@ var lisp_module = function() {
         };
     };
     if (node_environment) {
-        var sandbox = {
+        global_context = vm.createContext({
             cons: cons,
             car: car,
             cdr: cdr,
@@ -278,8 +278,7 @@ var lisp_module = function() {
             List: List,
             append: append,
             console: console
-        };
-        global_context = vm.createContext(sandbox);
+        });
     } else {
         window.append = append;
     };
@@ -288,10 +287,10 @@ var lisp_module = function() {
         var paren_count = 0;
         var getIndexOfValidStr = null;
         return (function(i) {
-            if (((2)(input_string, i) === "(")) {
+            if ((input_string[i] === "(")) {
                 paren_count = (paren_count + 1);
                 return output_list.push("(");
-            } else if (((2)(input_string, i) === "[")) {
+            } else if ((input_string[i] === "[")) {
                 return null;
             } else return null;
         })(0);
