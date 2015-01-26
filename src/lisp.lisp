@@ -78,8 +78,8 @@
 (def node_environment null)
 (def vm null)
 (if (!= (typeof module) "undefined") ;; nodejs
-    (do (= vm (require "vm")
-        (= node_environment true))))
+    (do (= vm (require "vm"))
+        (= node_environment true)))
 
 
 ;; when macro
