@@ -35,3 +35,6 @@ var test = function(...x) {
 var test2 = function(...x) {
     return x;
 };
+("a" in {
+    "a": 12
+});

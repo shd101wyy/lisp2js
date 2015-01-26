@@ -245,9 +245,16 @@ lisp2js beta
 ```lisp
     (def x (new Array 1 2 3 4))
 ```
-```javascript
+```javascript  
     var x = (new Array(1, 2, 3, 4));
 ```
+- in  
+```lisp
+    (in 'a {'a 12})
+```
+```javascript  
+    ("a" in {"a": 12});
+```  
 
 - instanceof
 ```lisp
@@ -424,6 +431,14 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.13 </strong>
+    * add <strong> in <strong> support.
+    ```lisp
+    (in 'a {'a 12})
+    ```
+    ```javascript
+    ("a" in {"a": 12});
+    ```
 - <strong> Version 0.0.12 </strong>
     * fix one macro bug.
 - <strong> 2015/1/23 </strong>

@@ -745,6 +745,10 @@ var lisp_module = function() {
                }
                return o;
              }
+            // (in 'a {:a 12}) => true
+            else if (tag === "in"){
+                return (need_return_string ? "return " : "") + "("+ compiler(l.rest.first) +" in " + compiler(l.rest.rest.first) + ")";
+            }
             /*
              * (defmacro macro-name
              *      var0 pattern0

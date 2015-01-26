@@ -30,3 +30,5 @@
     x)
 (def test2 (& x)
     x)
+
+(in 'a {'a 12})
