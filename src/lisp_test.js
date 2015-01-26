@@ -68,3 +68,11 @@ var parse_$45_loop = function(args) {
     var var_$45_vals = parse_$45_result[2].reverse();
     return cons(cons("fn", cons(var_$45_names, cons(body, null))), var_$45_vals);
 };
+(function __lisp__recur__$3(i) {
+    if ((i === 0)) {
+        return console.log("Done");
+    } else {
+        console.log(i);
+        return __lisp__recur__$3((i - 1));
+    };
+})(10);
