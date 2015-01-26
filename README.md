@@ -432,7 +432,7 @@ However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
 - <strong> Version 0.0.13 </strong>
-    * add <strong> in <strong> support.
+    * add <strong> in </strong> support.
     ```lisp
     (in 'a {'a 12})
     ```
