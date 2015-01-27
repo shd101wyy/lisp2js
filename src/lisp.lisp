@@ -90,7 +90,18 @@
     `(if ~test (do ~@body)))
 
 
-input_string[i]
+;; series actions
+;; like js, ajax({}).success(function(){}).fail(function(){})
+;; eg
+;;       (-> (ajax {:data {:x 12}})
+;;           (:success (fn (data) (print "Success")))
+;;           (:fail)   (fn (data) (print "Fail")) )
+;;
+
+(defmacro ->
+    (f (property . args))  `((get ~f ~property) ~@args)
+    (f (property . args) . rest) `(-> ((get ~f ~property) ~@args) ~@rest)
+    )
 
 ;; ########################################################
 ;; ########################################################
@@ -130,8 +141,31 @@ input_string[i]
                                 :console console}))
         (= window.append append))
 
+    (fn getIndexOfValidStar (input_string end)
+        (loop i end
+            (if (|| (== end input_string.length)
+                    (== input_string[end] " ")
+                    (== input_string[end] "\n")
+                    (== input_string[end] "\t")
+                    (== input_string[end] ",")
+                    (== input_string[end] ")")
+                    (== input_string[end] "(")
+                    (== input_string[end] "]")
+                    (== input_string[end] "[")
+                    (== input_string[end] "}")
+                    (== input_string[end] "{")
+                    (== input_string[end] "\"")
+                    (== input_string[end] "\'")
+                    (== input_string[end] "`")
+                    (== input_string[end] "~")
+                    (== input_string[end] ";")
+                    (== input_string[end] ":")
+                    (== input_string[end] "."))
+                end
+                (recur (+ end 1)))))
+
     ;; lexer
-    (def lexer (input_string)
+    (fn lexer (input_string)
         (def output_list [])
         (def paren_count 0)
         (def getIndexOfValidStr null)

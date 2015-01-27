@@ -74,7 +74,6 @@ if ((typeof(module) != "undefined")) {
     vm = require("vm");
     node_environment = true;
 };
-input_string[i];
 var lisp_module = function() {
     var lexer = null;
     var parser = null;
@@ -110,7 +109,19 @@ var lisp_module = function() {
     } else {
         window.append = append;
     };
-    var lexer = function(input_string) {
+
+    function getIndexOfValidStar(input_string, end) {
+        return (function __lisp__recur__$3(i) {
+            if (((end === input_string.length) || (input_string[end] === " ") || (input_string[end] === "\n") || (input_string[end] === "\t") || (input_string[end] === ",") || (input_string[end] === ")")
+             || (input_string[end] === "(") || (input_string[end] === "]") || (input_string[end] === "[") || (input_string[end] === "}") || (input_string[end] === "{") || (input_string[end] === "\"") || (input_string[end] === "\'") || (input_string[end] === "`") || (input_string[end] === "~") || (input_string[end] === ";") || (input_string[end] === ":") || (input_string[end] === "."))) {
+                return end;
+            } else {
+                return __lisp__recur__$3((end + 1));
+            };
+        })(end);
+    };
+
+    function lexer(input_string) {
         var output_list = [];
         var paren_count = 0;
         var getIndexOfValidStr = null;

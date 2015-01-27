@@ -303,8 +303,25 @@ if (typeof module != "undefined") {
   vm = require("vm");
   node_environment = true;
 };
-input_string[i];
 var lisp_module = function () {
+  var getIndexOfValidStar = function (input_string, end) {
+    return;
+  };
+
+  var lexer = function (input_string) {
+    var output_list = [];
+    var paren_count = 0;
+    var getIndexOfValidStr = null;
+    return (function (i) {
+      if (input_string[i] === "(") {
+        paren_count = paren_count + 1;
+        return output_list.push("(");
+      } else if (input_string[i] === "[") {
+        return null;
+      } else return null;
+    })(0);
+  };
+
   var lexer = null;
   var parser = null;
   var compiler = null;
@@ -339,18 +356,9 @@ var lisp_module = function () {
   } else {
     window.append = append;
   };
-  var lexer = function (input_string) {
-    var output_list = [];
-    var paren_count = 0;
-    var getIndexOfValidStr = null;
-    return (function (i) {
-      if (input_string[i] === "(") {
-        paren_count = paren_count + 1;
-        return output_list.push("(");
-      } else if (input_string[i] === "[") {
-        return null;
-      } else return null;
-    })(0);
-  };
+
+  ;
+
+  ;
   return null;
 };

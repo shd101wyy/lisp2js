@@ -338,7 +338,29 @@ var lisp_module = function() {
                 return cons(cons("list", formatList(l.first)), formatList(l.rest));
             }
             else{
-                return cons(l.first[0] === "\"" ? ("'" + l.first + "'") : '"' + l.first + '"', formatList(l.rest)); // 这里是为了修复 ""abc""这种字符 eval 出问题的bug
+                if(l.first[0] === "\""){
+                    var o = "";
+                    for(var i = 0; i < l.first.length; i++){
+                        if(l.first[i] === "\""){
+                            o += "\\\"";
+                        }
+                        else if(l.first[i] === "\\"){
+                            o += "\\\\";
+                        }
+                        else if (l.first[i] === "\n"){
+                            o += "\\n";
+                        }
+                        else if (l.first[i] === "\t"){
+                            o += "\\t";
+                        }
+                        else
+                        o += l.first[i];
+                    }
+                    return cons("\"" + o + "\"", formatList(l.rest));
+                }
+                else
+                    return cons('"' + l.first + '"', formatList(l.rest));
+                // return cons(l.first[0] === "\"" ? ("'" + l.first + "'") : '"' + l.first + '"', formatList(l.rest)); // 这里是为了修复 ""abc""这种字符 eval 出问题的bug
             }
         }
         while (clauses != null) {
