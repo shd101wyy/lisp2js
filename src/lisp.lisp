@@ -67,9 +67,15 @@
                                   (cons (car (cdr a)) var-vals))))
   (def parse-result (parse-loop-helper args '() '()))
   (def body parse-result[0])
+  (= body (if (&& (instanceof body List)
+		  (== (car body) "do"))
+	      (cdr body)
+              body))
   (def var-names (parse-result[1].reverse))
   (def var-vals (parse-result[2].reverse))
-  (cons `(fn ~var-names ~body) var-vals))
+  ;;(console.log ((cons `(fn ~var-names ~body) var-vals).toString))
+  (cons `(fn ~var-names ~body) var-vals)
+  )
 
 (defmacro loop
   (. args) (parse-loop args))

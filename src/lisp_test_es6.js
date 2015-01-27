@@ -64,6 +64,7 @@ var parse_$45_loop = function(args) {
     };
     var parse_$45_result = parse_$45_loop_$45_helper(args, null, null);
     var body = parse_$45_result[0];
+    body = (((body instanceof List) && (car(body) === "do")) ? cdr(body) : body);
     var var_$45_names = parse_$45_result[1].reverse();
     var var_$45_vals = parse_$45_result[2].reverse();
     return cons(cons("fn", cons(var_$45_names, cons(body, null))), var_$45_vals);
@@ -111,62 +112,11 @@ var lisp_module = function() {
     };
 
     function getIndexOfValidStar(input_string, end) {
-        return (function __lisp__recur__$3(i) {
-            if (((end === input_string.length) || (input_string[end] === " ") || (input_string[end] === "\n") || (input_string[end] === "\t") || (input_string[end] === ",") || (input_string[end] === ")") || (input_string[end] === "(") || (input_string[end] === "]") || (input_string[end] === "[") || (input_string[end] === "}") || (input_string[end] === "{") || (input_string[end] === "\"") || (input_string[end] === "\'") || (input_string[end] === "`") || (input_string[end] === "~") || (input_string[end] === ";") || (input_string[end] === ":") || (input_string[end] === "."))) {
-                return end;
-            } else {
-                return __lisp__recur__$3((end + 1));
-            };
-        })(end);
+        return;
     };
 
     function lexer(input_string) {
-        return (function __lisp__recur__$6(i, paren_count, output_list) {
-            if ((i >= input_string.length)) {
-                if ((paren_count === 0)) {
-                    return output_list;
-                } else {
-                    return null;
-                };
-            } else if ((input_string[i] === "(")) {
-                return __lisp__recur__$6((i + 1), (paren_count + 1), append_$33_(output_list, "("));
-            } else if ((input_string[i] === "[")) {
-                return null;
-            } else if ((input_string[i] === "{")) {
-                return __lisp__recur__$6((i + 1), (paren_count + 1), append_$33_(output_list, "(", "Object"));
-            } else if (((input_string[i] === ")") || (input_string[i] === "}") || (input_string[i] === "]"))) {
-                return __lisp__recur__$6((i + 1), (paren_count - 1), append_$33_(output_list, ")"));
-            } else if (((input_string[i] === " ") || (input_string[i] === "\n") || (input_string[i] === "\t") || true)) {
-                return __lisp__recur__$6((i + 1), paren_count, output_list);
-            } else if (((input_string[i] === "~") && (input_string[(i + 1)] === "@"))) {
-                return __lisp__recur__$6((i + 2), paren_count, append_$33_(output_list, "~@"));
-            } else if (((input_string[i] === "`") || (input_string[i] === "~") || (input_string[i] === "'"))) {
-                return __lisp__recur__$6((i + 1), paren_count, append_$33_(output_list, input_string[i]));
-            } else if ((input_string[i] === ";")) {
-                return __lisp__recur__$6((function __lisp__recur__$9(j) {
-                    if (((j === input_string.length) || (input_string[j] === "\n"))) {
-                        return j;
-                    } else {
-                        return __lisp__recur__$9((j + 1));
-                    };
-                })(i), paren_count, output_list);
-            } else if ((input_string[i] === "\"")) {
-                var end = (function __lisp__recur__$12(a) {
-                    if ((a === input_string.length)) {
-                        return a;
-                    } else if ((input_string[a] === "\\")) {
-                        return __lisp__recur__$12((a + 2));
-                    } else if ((input_string[a] === "\"")) {
-                        return a;
-                    } else {
-                        return __lisp__recur__$12((a + 1));
-                    };
-                })((i + 1));
-                return __lisp__recur__$6((end + 1), paren_count, append_$33_(input_string.slice(i, (end + 1))));
-            } else {
-                return null;
-            };
-        })(0, 0, []);
+        return;
     };
     return null;
 };

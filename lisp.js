@@ -458,7 +458,7 @@ var lisp_module = function() {
                 var o = need_return_string ? "return [" : "[";
                 l = cdr(l);
                 while (l != null) {
-                    o += (compiler(car(l)));
+                    o += (compiler(car(l), null, null, null, true));
                     if (cdr(l) != null)
                         o += ", ";
                     l = cdr(l);
@@ -469,7 +469,7 @@ var lisp_module = function() {
                 var o = need_return_string ? "return {" : "{";
                 l = l.rest;
                 while (l != null) {
-                    var key = compiler(l.first);
+                    var key = compiler(l.first, null, null, null, true);
                     if (key[0] === ":") {
                         if (l.rest !== null && l.rest.first[0] !== ":"){
                             var k = formatKey(key.slice(1));
@@ -485,7 +485,7 @@ var lisp_module = function() {
                     else
                         o += ("[" + key + "]: ")
 
-                    var value = compiler(l.rest.first);
+                    var value = compiler(l.rest.first, null, null, null, true);
                     o += (value);
                     if (l.rest.rest != null)
                         o += ", ";
