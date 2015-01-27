@@ -305,21 +305,62 @@ if (typeof module != "undefined") {
 };
 var lisp_module = function () {
   var getIndexOfValidStar = function (input_string, end) {
-    return;
+    return (function __lisp__recur__$3(i) {
+      if (end === input_string.length || input_string[end] === " " || input_string[end] === "\n" || input_string[end] === "\t" || input_string[end] === "," || input_string[end] === ")" || input_string[end] === "(" || input_string[end] === "]" || input_string[end] === "[" || input_string[end] === "}" || input_string[end] === "{" || input_string[end] === "\"" || input_string[end] === "'" || input_string[end] === "`" || input_string[end] === "~" || input_string[end] === ";" || input_string[end] === ":" || input_string[end] === ".") {
+        return end;
+      } else {
+        return __lisp__recur__$3(end + 1);
+      };
+    })(end);
   };
 
   var lexer = function (input_string) {
-    var output_list = [];
-    var paren_count = 0;
-    var getIndexOfValidStr = null;
-    return (function (i) {
-      if (input_string[i] === "(") {
-        paren_count = paren_count + 1;
-        return output_list.push("(");
+    return (function __lisp__recur__$6(i, paren_count, output_list) {
+      if (i >= input_string.length) {
+        if (paren_count === 0) {
+          return output_list;
+        } else {
+          return null;
+        };
+      } else if (input_string[i] === "(") {
+        return __lisp__recur__$6(i + 1, paren_count + 1, append_$33_(output_list, "("));
       } else if (input_string[i] === "[") {
         return null;
-      } else return null;
-    })(0);
+      } else if (input_string[i] === "{") {
+        return __lisp__recur__$6(i + 1, paren_count + 1, append_$33_(output_list, "(", "Object"));
+      } else if (input_string[i] === ")" || input_string[i] === "}" || input_string[i] === "]") {
+        return __lisp__recur__$6(i + 1, paren_count - 1, append_$33_(output_list, ")"));
+      } else if (input_string[i] === " " || input_string[i] === "\n" || input_string[i] === "\t" || true) {
+        return __lisp__recur__$6(i + 1, paren_count, output_list);
+      } else if (input_string[i] === "~" && input_string[i + 1] === "@") {
+        return __lisp__recur__$6(i + 2, paren_count, append_$33_(output_list, "~@"));
+      } else if (input_string[i] === "`" || input_string[i] === "~" || input_string[i] === "'") {
+        return __lisp__recur__$6(i + 1, paren_count, append_$33_(output_list, input_string[i]));
+      } else if (input_string[i] === ";") {
+        return __lisp__recur__$6((function __lisp__recur__$9(j) {
+          if (j === input_string.length || input_string[j] === "\n") {
+            return j;
+          } else {
+            return __lisp__recur__$9(j + 1);
+          };
+        })(i), paren_count, output_list);
+      } else if (input_string[i] === "\"") {
+        var end = (function __lisp__recur__$12(a) {
+          if (a === input_string.length) {
+            return a;
+          } else if (input_string[a] === "\\") {
+            return __lisp__recur__$12(a + 2);
+          } else if (input_string[a] === "\"") {
+            return a;
+          } else {
+            return __lisp__recur__$12(a + 1);
+          };
+        })(i + 1);
+        return __lisp__recur__$6(end + 1, paren_count, append_$33_(input_string.slice(i, end + 1)));
+      } else {
+        return null;
+      };
+    })(0, 0, []);
   };
 
   var lexer = null;
