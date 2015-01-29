@@ -102,7 +102,7 @@ List.prototype.slice = function (start) {
             return null;
           } else {
             return cons(l.first, slice2(l.rest, i, j - 1));
-          };
+          }
         } else {
           return slice2(l.rest, i - 1, j);
         };
@@ -210,7 +210,7 @@ List.prototype.filter = function (func) {
         return cons(l.first, iter(l.rest));
       } else {
         return iter(l.rest);
-      };
+      }
     };
   };
 

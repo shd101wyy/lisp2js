@@ -102,7 +102,7 @@ List.prototype.slice = function (start) {
             return null;
           } else {
             return cons(l.first, slice2(l.rest, i, j - 1));
-          };
+          }
         } else {
           return slice2(l.rest, i - 1, j);
         };
@@ -210,7 +210,7 @@ List.prototype.filter = function (func) {
         return cons(l.first, iter(l.rest));
       } else {
         return iter(l.rest);
-      };
+      }
     };
   };
 
@@ -293,7 +293,6 @@ var parse_$45_loop = function (args) {
   };
   var parse_$45_result = parse_$45_loop_$45_helper(args, null, null);
   var body = parse_$45_result[0];
-  body = body instanceof List && car(body) === "do" ? cdr(body) : body;
   var var_$45_names = parse_$45_result[1].reverse();
   var var_$45_vals = parse_$45_result[2].reverse();
   return cons(cons("fn", cons(var_$45_names, cons(body, null))), var_$45_vals);
@@ -306,11 +305,59 @@ if (typeof module != "undefined") {
 };
 var lisp_module = function () {
   var getIndexOfValidStar = function (input_string, end) {
-    return;
+    return (function (i) {
+      if (end === input_string.length || input_string[end] === " " || input_string[end] === "\n" || input_string[end] === "\t" || input_string[end] === "," || input_string[end] === ")" || input_string[end] === "(" || input_string[end] === "]" || input_string[end] === "[" || input_string[end] === "}" || input_string[end] === "{" || input_string[end] === "\"" || input_string[end] === "'" || input_string[end] === "`" || input_string[end] === "~" || input_string[end] === ";" || input_string[end] === ":" || input_string[end] === ".") {
+        return end;
+      } else {
+        return recur(end + 1);
+      };
+    })(end);
   };
 
   var lexer = function (input_string) {
-    return;
+    return (function (i, paren_count, output_list) {
+      if (i >= input_string.length) {
+        if (paren_count === 0) {
+          return output_list;
+        } else {
+          return null;
+        }
+      } else if (input_string[i] === "(") {
+        return recur(i + 1, paren_count + 1, append_$33_(output_list, "("));
+      } else if (input_string[i] === "[") {
+        if (i != 0 && input_string[i - 1] != " " && input_string[i - 1] != "\n" && input_string[i - 1] != "\t" && input_string[i - 1] != "'" && input_string[i - 1] != "`" && input_string[i - 1] != "~" && input_string[i - 1] != "(" && input_string[i - 1] != "{" && input_string[i - 1] != "[") {
+          var j = output_list.length - 1;
+          var p = _$61__$61__$61_(output_list[j], ")") ? 1 : 0;
+          if (p === 0) {
+            return recur(i + 1, paren_count + 1, (function () {
+              output_list = append(output_list, "get", output_list[j]);
+              output_list[j] = "(";
+              return output_list;
+            })());
+          } else {
+            return recur(i + 1, paren_count + 1, (function () {
+              output_list.push("");
+              output_list.push("");
+              output_list[j + 2] = output_list[j];
+              return (function (j, p, output_list) {
+                output_list[j + 2] = output_list[j];
+                if (output_list[j] === ")") {
+                  return recur(j - 1, p + 1, output_list);
+                } else if (output_list[j] === "(") {
+                  return recur(j - 1, p - 1, output_list);
+                } else if (p === 0) {
+                  output_list[j] = "(";
+                  output_list[j + 1] = "get";
+                  return output_list;
+                } else return null;;
+              })(j - 1, p, output_list);
+            })());
+          };
+        } else {
+          return recur(i + 1, paren_count + 1, append_$33_(output_list, "(", "Array"));
+        }
+      } else return null;
+    })(0, 0, []);
   };
 
   var lexer = null;
@@ -329,7 +376,7 @@ var lisp_module = function () {
         return y;
       } else {
         return cons(y, null);
-      };
+      }
     } else {
       return cons(car(x), append(cdr(x, y)));
     };

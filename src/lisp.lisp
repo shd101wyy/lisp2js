@@ -67,10 +67,6 @@
                                   (cons (car (cdr a)) var-vals))))
   (def parse-result (parse-loop-helper args '() '()))
   (def body parse-result[0])
-  (= body (if (&& (instanceof body List)
-		  (== (car body) "do"))
-	      (cdr body)
-              body))
   (def var-names (parse-result[1].reverse))
   (def var-vals (parse-result[2].reverse))
   ;;(console.log ((cons `(fn ~var-names ~body) var-vals).toString))
@@ -203,7 +199,7 @@
                   (!= (get input_string (- i 1))  "{")
                   (!= (get input_string (- i 1))  "["))
               (do  (def j (- output_list.length 1))
-                   (def p (if (=== output_list[j] ")") 1 0))
+                   (def p (if (== output_list[j] ")") 1 0))
                    (if (== p 0)   ;; x[0]
                      (recur (+ i 1)
                             (+ paren_count 1)
@@ -242,7 +238,7 @@
               (recur (+ i 1)
                      (+ paren_count 1)
                      (append! output_list "(" "Array"))
-            
+
             ;; {
             (== input_string[i] "{")
             (recur  (+ i 1)
@@ -297,19 +293,19 @@
               (def end
                 (loop a (+ i 1)
                       (cond   (== a input_string.length)
-                              a 
+                              a
                               (== input_string[a] "\\")
                               (recur (+ a 2))
                               (== input_string[a] "\"")
                               a
-                              else 
+                              else
                               (recur (+ a 1))
-                              ))) 
-              (recur  (+ end 1) 
+                              )))
+              (recur  (+ end 1)
                       paren_count
                       (append! (input_string.slice i (+ end 1)))))
             ;; symbol
-            else 
+            else
             (do (def end (getIndexOfValidStar input_string (+ i 1)))
                 (def t (input_string.slice i end))
                 (cond
@@ -357,9 +353,9 @@
 
                   ;; "abc".length
                   null
-                  null 
+                  null
 
-                  ;; else 
+                  ;; else
                   else
                   (recur end
                          paren_count
