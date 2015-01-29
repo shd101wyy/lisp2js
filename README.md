@@ -151,13 +151,32 @@ lisp2js beta
     (do  (+ 1 2)
          (- 3 4)
          (* 5 6))
+
+    (fn ()
+        (do (+ 1 2)
+            (- 3 4)
+            (* 5 6)))
+    (if 1
+        (do (def x 1) (def y 2))
+        (do (def x 2) (def y 1)))
 ```
 ```javascript
-    (function() {
+    (1 + 2);
+    (3 - 4);
+    (5 * 6);;
+
+    function() {
         (1 + 2);
         (3 - 4);
-        return (5 * 6);
-        })();
+        return (5 * 6);;
+    };
+    if (1) {
+        var x = 1;
+        var y = 2;
+    } else {
+        var x = 2;
+        var y = 1;
+    };
 ```
 
 - let
@@ -380,7 +399,7 @@ lisp2js beta
 ```
 ---------------------------------------
 #### recur
-##### similar like recur in clojure
+##### similar to recur in clojure
 ```lisp
     (def test (n)
       (cond (== n 0) 0
@@ -431,6 +450,9 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/1/26 </strong>
+    * Change <strong> do </strong> function.  
+      (do ...) will be wrapped as function when it is argument or assignment value.
 - <strong> Version 0.0.13 </strong>
     * add <strong> in </strong> support.
     ```lisp

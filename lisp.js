@@ -451,7 +451,7 @@ var lisp_module = function() {
                     var_value = l.rest.rest.first;
 
                 var_name = compiler(var_name);
-                var_value = compiler(var_value, null, null, null, true, var_name); // param_or_aasignment
+                var_value = compiler(var_value, null, null, null, true, var_name); // param_or_assignment
                 var o = (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + var_name + " = " + var_value + " ";
                 return (need_return_string) ? o + "; return " + var_name : o;
             } else if (tag === "Array") { // array
@@ -581,10 +581,7 @@ var lisp_module = function() {
                     params = params.rest.rest;
                 }
 
-                if (params.first instanceof $List && params.first.first === "do") {
-                    o += lisp_compiler(params.first.rest, true);
-                } else
-                    o += ("return " + compiler(params.first));
+                o += compiler(params.first, null, null, true);
                 o += "})())"
                 return (need_return_string ? "return " : "") + o; //+ "}";
             }
@@ -594,15 +591,10 @@ var lisp_module = function() {
                 var o = "if(";
                 if(param_or_assignment)
                     o = "(function(){" + o;
-                var test = compiler(clauses.first);
+                var test = compiler(clauses.first, null, null, null, true, null);
                 o = o + test + "){";
                 var body = clauses.rest.first;
-                if(body instanceof $List && body.first === "do"){
-                    o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
-                }
-                else{
-                    o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
-                }
+                o += compiler(body, null, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
                 o += "}"
                 clauses = clauses.rest.rest;
                 while(clauses != null){
@@ -612,12 +604,7 @@ var lisp_module = function() {
                         test = compiler(clauses.first);
                         o = o + test + "){"
                         body = clauses.rest.first;
-                        if(body instanceof $List && body.first === "do"){
-                            o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
-                        }
-                        else{
-                            o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
-                        }
+                        o += compiler(body, null, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
                         o += "}"
                         clauses = clauses.rest.rest;
                     }
@@ -625,12 +612,7 @@ var lisp_module = function() {
                         find_else = true;
                         o += "{"
                         body = clauses.rest.first;
-                        if(body instanceof $List && body.first === "do"){
-                            o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
-                        }
-                        else{
-                            o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
-                        }
+                        o += compiler(body, null, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
                         o += "}"
                         break;
                     }
@@ -652,8 +634,8 @@ var lisp_module = function() {
                 var alter = l.rest.rest.rest === null ? null : l.rest.rest.rest.first;
                 if(param_or_assignment){
                     o += (compiler(test) + " ? ");
-                    o += (compiler(conseq, is_last_exp, is_recur) + " : ");
-                    o += (compiler(alter, is_last_exp, is_recur) + ")");
+                    o += (compiler(conseq, is_last_exp, is_recur, null, true, null) + " : ");
+                    o += (compiler(alter, is_last_exp, is_recur, null, true, null) + ")");
                     return o;
                 }
                 else{
@@ -663,7 +645,12 @@ var lisp_module = function() {
                       return compiler(list("cond", test, conseq, "else", alter), is_last_exp, is_recur, need_return_string, param_or_assignment);
                 }
             } else if (tag === "do") {
-                return (need_return_string ? "return " : "") + "(function (){" + lisp_compiler(l.rest, true) + "})()";
+                if(param_or_assignment){
+                    return "(function (){" + lisp_compiler(l.rest, true) + "})()";
+                }
+                else{
+                    return lisp_compiler(l.rest, need_return_string, null, is_recur);
+                }
             } /*else if (tag === "begin"){   // begin will get return, while do wont
                // return lisp_compiler(l.rest, true, null, is_recur);
             }*/ else if (tag === "apply") {
@@ -731,12 +718,7 @@ var lisp_module = function() {
                var o = "try{"
                var clauses = l.rest;
                var body = clauses.first;
-               if(body instanceof $List && body.first === "do"){
-                 o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
-               }
-               else{
-                 o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
-               }
+               o += compiler(body, null, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
                o += "}"
                clauses = clauses.rest;
                if(clauses != null && clauses.first === "catch"){ // catch
@@ -744,24 +726,14 @@ var lisp_module = function() {
                  var error = compiler(clauses.rest.first);  // e
                  o += (error + "){");
                  var body = clauses.rest.rest.first;
-                 if(body instanceof $List && body.first === "do"){
-                   o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
-                 }
-                 else{
-                   o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
-                 }
+                 o += compiler(body, null, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
                  o += "}"
                  clauses = clauses.rest.rest.rest;
                }
                if(clauses != null && clauses.first === "finally"){// finally
                  var body = clauses.rest.first;
                  o += "finally {"
-                 if(body instanceof $List && body.first === "do"){
-                   o += lisp_compiler(body.rest, need_return_string || param_or_assignment ? true: false, false, is_recur);
-                 }
-                 else{
-                   o += lisp_compiler(cons(body, null), need_return_string || param_or_assignment ? true: false, false, is_recur);
-                 }
+                 o += compiler(body, null, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
                  o += "}"
                }
                return o;
