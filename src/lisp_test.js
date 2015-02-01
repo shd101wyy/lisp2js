@@ -191,18 +191,17 @@ var lisp_module = function () {
         if (t[0] === "." && output_list[output_list.length - 1] === ")") {
           var p = 1;
           var j = output_list.length - 1;
-          append_$33_(output_list, "", "", "");
-          output_list[j + 3] = output_list[j];
+          append_$33_(output_list, "", "");
+          output_list[j + 2] = output_list[j];
           return __lisp__recur__$6(end, paren_count, (function __lisp__recur__$18(j, p, output_list) {
-            output_list[j + 3] = output_list[j];
+            output_list[j + 2] = output_list[j];
             if (output_list[j] === ")") {
               return __lisp__recur__$18(j - 1, p + 1, output_list);
             } else if (output_list[j] === "(") {
               if (p - 1 === 0) {
                 output_list[j] = "(";
-                output_list[j + 1] = GET_DOT;
-                output_list[j + 2] = t;
-                return append_$33_(output_list, ")");
+                output_list[j + 1] = "get";
+                return append_$33_(output_list, "\"" + t.slice(1) + "\"", ")");
               } else {
                 return __lisp__recur__$18(j - 1, p - 1, output_list);
               }
@@ -338,100 +337,164 @@ var lisp_module = function () {
     var need_return_string = arguments[3] === undefined ? null : arguments[3];
     var param_or_assignment = arguments[4] === undefined ? null : arguments[4];
     var current_fn_name = arguments[5] === undefined ? null : arguments[5];
-    if (l === null) {
-      if (need_return_string) {
-        return "return null";
-      } else {
-        return "null";
-      }
-    } else if (l instanceof List) {
-      if (l.first === "def" || l.first === "=" || l.first === "set!" || l.first === "const") {
-        var var_name = compiler(car(cdr(l)));
-        var var_value = compiler((function () {
-          if (cdr(cdr(l)) === null) {
-            return null;
-          } else if (cdr(cdr(cdr(l))) != null) {
-            return cons("fn", cons(car(cdr(cdr(l))), cdr(cdr(cdr(l)))));
-          } else {
-            return l.rest.rest.first;
-          }
-        })(), current_fn_name = var_name);
-        var o = (function () {
-          if (l.first === "def") {
-            return "var";
-          } else if (l.first === "const") {
-            return "const";
-          } else {
-            return "";
-          }
-        })() + var_name + " = " + var_value + " ";
+    return (function () {
+      if (l === null) {
         if (need_return_string) {
-          return o + "; return " + var_name;
+          return "return null";
         } else {
-          return o;
-        };
-      } else if (l.first === "Array") {
-        return (need_return_string ? "return [" : "[") + (function __lisp__recur__$30(l, output) {
-          if (l === null) {
-            return output;
-          } else {
-            return __lisp__recur__$30(cdr(l), output + compiler(car(l), param_or_assignment = true) + (cdr(l) === null ? "" : ", "));
-          };
-        })(cdr(l), "") + "]";
-      } else if (l.first === "Object") {
-        return (need_return_string ? "return {" : "{") + (function __lisp__recur__$33(l, output) {
-          if (l === null) {
-            return o + "}";
-          } else {
-            var key = compiler(l.first, param_or_assignment = true);
-            if (key[0] === ":") {
-              if (l.rest != null && l.rest.first[0] != ":") {
-                return __lisp__recur__$33(l.rest.rest, o + formatKey(key.slice(1)) + ": " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
-              } else {
-                return __lisp__recur__$33(l.rest, o + key.slice(1) + (l.rest != null ? ", " : ""));
-              }
-            } else if (key[0] === "'" || key[0] === "\"") {
-              return __lisp__recur__$33(l.rest.rest, o + key + ": " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+          return "null";
+        }
+      } else if (l instanceof List) {
+        if (l.first === "def" || l.first === "=" || l.first === "set!" || l.first === "const") {
+          var var_name = compiler(car(cdr(l)));
+          var var_value = compiler((function () {
+            if (cdr(cdr(l)) === null) {
+              return null;
+            } else if (cdr(cdr(cdr(l))) != null) {
+              return cons("fn", cons(car(cdr(cdr(l))), cdr(cdr(cdr(l)))));
             } else {
-              return __lisp__recur__$33(l.rest.rest, o + "[" + key + "]: " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+              return l.rest.rest.first;
+            }
+          })(), current_fn_name = var_name);
+          var o = (function () {
+            if (l.first === "def") {
+              return "var";
+            } else if (l.first === "const") {
+              return "const";
+            } else {
+              return "";
+            }
+          })() + var_name + " = " + var_value + " ";
+          if (need_return_string) {
+            return o + "; return " + var_name;
+          } else {
+            return o;
+          };
+        } else if (l.first === "Array") {
+          return (need_return_string ? "return [" : "[") + (function __lisp__recur__$30(l, output) {
+            if (l === null) {
+              return output;
+            } else {
+              return __lisp__recur__$30(cdr(l), output + compiler(car(l), param_or_assignment = true) + (cdr(l) === null ? "" : ", "));
             };
-          };
-        })(cdr(l), "");
-      } else if (l.first === GET_DOT) {
-        var k = formatKey(l.rest.first.slice(1));
-        return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + (k[0] === "\"" ? "[" + k + "]" : "." + k);
-      } else if (l.first === "quote" || l.first === "quasiquote") {
-        if (l.rest.first instanceof List) {
-          var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
-          if (need_return_string) {
-            return "return " + v;
+          })(cdr(l), "") + "]";
+        } else if (l.first === "Object") {
+          return (need_return_string ? "return {" : "{") + (function __lisp__recur__$33(l, output) {
+            if (l === null) {
+              return o + "}";
+            } else {
+              var key = compiler(l.first, param_or_assignment = true);
+              if (key[0] === ":") {
+                if (l.rest != null && l.rest.first[0] != ":") {
+                  return __lisp__recur__$33(l.rest.rest, o + formatKey(key.slice(1)) + ": " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+                } else {
+                  return __lisp__recur__$33(l.rest, o + key.slice(1) + (l.rest != null ? ", " : ""));
+                }
+              } else if (key[0] === "'" || key[0] === "\"") {
+                return __lisp__recur__$33(l.rest.rest, o + key + ": " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+              } else {
+                return __lisp__recur__$33(l.rest.rest, o + "[" + key + "]: " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+              };
+            };
+          })(cdr(l), "");
+        } else if (l.first === GET_DOT) {
+          var k = formatKey(l.rest.first.slice(1));
+          return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + (k[0] === "\"" ? "[" + k + "]" : "." + k);
+        } else if (l.first === "quote" || l.first === "quasiquote") {
+          if (l.rest.first instanceof List) {
+            var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
+            if (need_return_string) {
+              return "return " + v;
+            } else {
+              return v;
+            };
+          } else if (l.rest === null) {
+            if (need_return_string) {
+              return "return null";
+            } else {
+              return "null";
+            }
+          } else if (isNaN(l.rest.first)) {
+            if (need_return_string) {
+              return "return \"" + l.rest.first + "\"";
+            } else {
+              return "\"" + l.rest.first + "\"";
+            }
           } else {
-            return v;
-          };
-        } else if (l.rest === null) {
-          if (need_return_string) {
-            return "return null";
-          } else {
-            return "null";
+            if (need_return_string) {
+              return "return " + l.rest.first;
+            } else {
+              return l.rest.first;
+            }
           }
-        } else if (isNaN(l.rest.first)) {
-          if (need_return_string) {
-            return "return \"" + l.rest.first + "\"";
+        } else if (l.first === "fn" || l.first === "fn*") {
+          var o = (need_return_string ? "return " : "") + (tag === "fn" ? "function" : "function*");
+          var o2 = "";
+          var params = null;
+          var body = null;
+          if (typeof l.rest.first === "string") {
+            current_fn_name = l.rest.first;
+            o2 = o2 + l.rest.first + "(";
+            params = l.rest.rest.first;
+            body = l.rest.rest.rest;
           } else {
-            return "\"" + l.rest.first + "\"";
-          }
+            o2 = "(";
+            params = l.rest.first;
+            body = l.rest.rest;
+          };
+          o2 = (function __lisp__recur__$36(params, o2) {
+            var p = compiler(params.first);
+            if (p[0] === ":") {
+              return __lisp__recur__$36(params.rest, o2 + p.slice(1) + "=");
+            } else if (p === "&") {
+              return o2 + "..." + compiler(params.rest.first);
+            } else if (p === ".") {
+              var p = compiler(params.rest.first);
+              body = cons(list("=", p, list("list.apply", "null", p)), body);
+              return o2 + "..." + p;
+            } else {
+              return __lisp__recur__$36(params.rest, o2 + p + (params.rest != null ? ", " : ""));
+            };;
+          })(params, o2);
+          var is_recur = [current_fn_name ? current_fn_name : false];
+          o2 = o2 + "){" + lisp_compiler(body, need_return_string = true, is_recur = is_recur) + "}";
+          return o + (is_recur[0] != false && is_recur[0] != current_fn_name ? is_recur[0] : "") + o2;
+        } else if (l.first === "let") {
+          return null;
+        } else if (l.first === "cond") {
+          return null;
+        } else if (l.first === "if") {
+          return null;
+        } else if (l.first === "do") {
+          return null;
+        } else if (l.first === "apply") {
+          return null;
+        } else if (l.first === "new") {
+          return null;
+        } else if (l.first === "+" || l.first === "-" || l.first === "*" || l.first === "/" || l.first === "%" || l.first === "==" || l.first === "<" || l.first === ">" || l.first === "!=" || l.first === "<=" || l.first === ">=" || l.first === "&&" || l.first === "||" || l.first === "&" || l.first === "|") {
+          return null;
+        } else if (l.first === "instanceof") {
+          return null;
+        } else if (l.first === "get") {
+          return null;
+        } else if (l.first === "try") {
+          return null;
+        } else if (l.first === "in") {
+          return null;
+        } else if (l.first === "defmacro") {
+          return null;
         } else {
-          if (need_return_string) {
-            return "return " + l.rest.first;
-          } else {
-            return l.rest.first;
-          }
+          return null;
         }
       } else return null;
-    } else return null;
+    })();
   };
 
-  var lisp_compiler = function () {};
+  var lisp_compiler = function (l) {
+    var need_return_string = arguments[1] === undefined ? null : arguments[1];
+    var eval_$ = arguments[2] === undefined ? null : arguments[2];
+    var is_recur = arguments[3] === undefined ? null : arguments[3];
+  };
 
   var macro = {};
   var GET_DOT = 1;

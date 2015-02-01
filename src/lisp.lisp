@@ -317,15 +317,15 @@
                           ")"))
                   (do (def p 1)
                       (def j (- output_list.length 1))
-                      (append! output_list "" "" "") ;; save space
-                      (= (get output_list (+ j 3))
+                      (append! output_list "" "") ;; save space
+                      (= (get output_list (+ j 2))
                          (get output_list j))
                       (recur end
                              paren_count
                              (loop j (- j 1)
                                    p p
                                    output_list output_list
-                                   (do (= (get output_list (+ j 3))
+                                   (do (= (get output_list (+ j 2))
 					  (get output_list j))
                                        (cond
                                         ;; meet )
@@ -338,12 +338,13 @@
 					(== output_list[j] "(")
 					(if (== (- p 1) 0)
 					    (do (= (get output_list j) "(")
-						(= (get output_list (+ j 1)) GET_DOT)
-						(= (get output_list (+ j 2)) t)
-						(append! output_list ")"))
-					  (recur (- j 1)
-						 (- p 1)
-						 output_list))
+						(= (get output_list (+ j 1)) "get")
+						(append! output_list
+							 (+ "\"" (t.slice 1) "\"")
+							 ")"))
+					    (recur (- j 1)
+						   (- p 1)
+						   output_list))
 					;; else
 					else
 					(recur (- j 1)
@@ -697,9 +698,123 @@
                   else
                   (if need_return_string (+ "return " l.rest.first) l.rest.first))
 
+	    ;; fn fn*
+	    (|| (== l.first "fn")
+                (== l.first "fn*"))
+            (do (def o (+ (if need_return_string "return " "") ;; o is part ahead (){}
+                          (if (== tag "fn") "function" "function*"))) 
+                (def o2 "") ;; o2 is (){}
+                (def params)
+                (def body)
+                (if (== (typeof l.rest.first) "string")
+                  ;;solve ((function test (){})()) problem
+                  (do (= current_fn_name l.rest.first) ;; set recur fn name
+                      (= o2 (+ o2 l.rest.first "("))
+                      (= params l.rest.rest.first)
+                      (= body l.rest.rest.rest))
+                  (do (= o2 "(")
+                      (= params l.rest.first)
+                      (= body l.rest.rest)))
+                (= o2 (loop params params
+                            o2 o2
+                            (do (def p (compiler params.first))
+                                (cond
+                                  ;; default param
+                                  (== p[0] ":") 
+                                  (recur params.rest
+                                         (+ o2 (p.slice 1) "="))
+                                  
+                                  ;; es6 rest parameters
+                                  (== p "&")
+                                  (+ o2 "..." (compiler params.rest.first))
+                                  
+                                  ;; es6 rest parameters. convert to list
+                                  (== p ".")
+                                  (do (def p (compiler params.rest.first))
+                                      (= body (cons (list "="
+                                                          p
+                                                          (list "list.apply" "null" p))
+                                                    body))
+                                      (+ o2 "..." p))
+
+                                  ;; else
+                                  else
+                                  (recur params.rest
+                                         (+ o2 p (if (!= params.rest null) ", " "")))))))
+                (def is_recur [(if current_fn_name current_fn_name false)])
+                (= o2 (+ o2
+                         "){"
+                         (lisp_compiler body
+                                        :need_return_string true
+                                        :is_recur is_recur)
+                         "}"))
+                (+ o
+                   (if (&& (!= is_recur[0] false)
+                           (!= is_recur[0] current_fn_name)) ;; is recur
+                     is_recur[0]
+                     "")
+                   o2))
+
+            (== l.first "let")
+            null
+
+            (== l.first "cond")
+            null
+
+            (== l.first "if")
+            null
+
+            (== l.first "do")
+            null
+
+            (== l.first "apply")
+            null
+
+            (== l.first "new")
+            null
+
+            (|| (== l.first "+")
+                (== l.first "-")
+                (== l.first "*")
+                (== l.first "/")
+                (== l.first "%")
+                (== l.first "==")
+                (== l.first "<")
+                (== l.first ">")
+                (== l.first "!=")
+                (== l.first "<=")
+                (== l.first ">=")
+                (== l.first "&&")
+                (== l.first "||")
+                (== l.first "&")
+                (== l.first "|"))
+            null 
+
+            (== l.first "instanceof")
+            null
+
+            (== l.first "get")
+            null
+
+            (== l.first "try")
+            null
+
+            (== l.first "in")
+            null
+
+            (== l.first "defmacro")
+            null
+
+            else ;; fn
+            null 
+            
+            
             )))
   
-    (fn lisp_compiler ()
+  (fn lisp_compiler (l
+                     :need_return_string null
+                     :eval_$ null
+                     :is_recur null)
       )
 
     ;; (console.log (-> (parser (lexer "(x.add[(+ 3 4)].Hi 12)")) ('toString)))

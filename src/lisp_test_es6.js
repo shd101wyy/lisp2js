@@ -201,18 +201,17 @@ var lisp_module = function() {
                 if (((t[0] === ".") && (output_list[(output_list.length - 1)] === ")"))) {
                     var p = 1;
                     var j = (output_list.length - 1);
-                    append_$33_(output_list, "", "", "");
-                    output_list[(j + 3)] = output_list[j];
+                    append_$33_(output_list, "", "");
+                    output_list[(j + 2)] = output_list[j];
                     return __lisp__recur__$6(end, paren_count, (function __lisp__recur__$18(j, p, output_list) {
-                        output_list[(j + 3)] = output_list[j];
+                        output_list[(j + 2)] = output_list[j];
                         if ((output_list[j] === ")")) {
                             return __lisp__recur__$18((j - 1), (p + 1), output_list)
                         } else if ((output_list[j] === "(")) {
                             if (((p - 1) === 0)) {
                                 output_list[j] = "(";
-                                output_list[(j + 1)] = GET_DOT;
-                                output_list[(j + 2)] = t;
-                                return append_$33_(output_list, ")");
+                                output_list[(j + 1)] = "get";
+                                return append_$33_(output_list, ("\"" + t.slice(1) + "\""), ")");
                             } else {
                                 return __lisp__recur__$18((j - 1), (p - 1), output_list)
                             }
@@ -432,11 +431,69 @@ var lisp_module = function() {
                         return l.rest.first
                     }
                 }
-            } else return null
+            } else if (((l.first === "fn") || (l.first === "fn*"))) {
+                var o = ((need_return_string ? "return " : "") + ((tag === "fn") ? "function" : "function*"));
+                var o2 = "";
+                var params = null;
+                var body = null;
+                if ((typeof(l.rest.first) === "string")) {
+                    current_fn_name = l.rest.first;
+                    o2 = (o2 + l.rest.first + "(");
+                    params = l.rest.rest.first;
+                    body = l.rest.rest.rest;
+                } else {
+                    o2 = "(";
+                    params = l.rest.first;
+                    body = l.rest.rest;
+                };
+                o2 = (function __lisp__recur__$36(params, o2) {
+                    var p = compiler(params.first);
+                    if ((p[0] === ":")) {
+                        return __lisp__recur__$36(params.rest, (o2 + p.slice(1) + "="))
+                    } else if ((p === "&")) {
+                        return (o2 + "..." + compiler(params.rest.first))
+                    } else if ((p === ".")) {
+                        var p = compiler(params.rest.first);
+                        body = cons(list("=", p, list("list.apply", "null", p)), body);
+                        return (o2 + "..." + p);
+                    } else {
+                        return __lisp__recur__$36(params.rest, (o2 + p + ((params.rest != null) ? ", " : "")))
+                    };;
+                })(params, o2);
+                var is_recur = [(current_fn_name ? current_fn_name : false)];
+                o2 = (o2 + "){" + lisp_compiler(body, need_return_string = true, is_recur = is_recur) + "}");
+                return (o + (((is_recur[0] != false) && (is_recur[0] != current_fn_name)) ? is_recur[0] : "") + o2);
+            } else if ((l.first === "let")) {
+                return null
+            } else if ((l.first === "cond")) {
+                return null
+            } else if ((l.first === "if")) {
+                return null
+            } else if ((l.first === "do")) {
+                return null
+            } else if ((l.first === "apply")) {
+                return null
+            } else if ((l.first === "new")) {
+                return null
+            } else if (((l.first === "+") || (l.first === "-") || (l.first === "*") || (l.first === "/") || (l.first === "%") || (l.first === "==") || (l.first === "<") || (l.first === ">") || (l.first === "!=") || (l.first === "<=") || (l.first === ">=") || (l.first === "&&") || (l.first === "||") || (l.first === "&") || (l.first === "|"))) {
+                return null
+            } else if ((l.first === "instanceof")) {
+                return null
+            } else if ((l.first === "get")) {
+                return null
+            } else if ((l.first === "try")) {
+                return null
+            } else if ((l.first === "in")) {
+                return null
+            } else if ((l.first === "defmacro")) {
+                return null
+            } else {
+                return null
+            }
         } else return null;
     };
 
-    function lisp_compiler() {};
+    function lisp_compiler(l, need_return_string = null, eval_$ = null, is_recur = null) {};
     return null;
 };
 lisp_module();
