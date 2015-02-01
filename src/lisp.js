@@ -479,6 +479,36 @@ var lisp_module = function () {
     };
   };
 
+  var quote_list = function (l) {
+    if (l === null) {
+      return null;
+    } else if (l.first instanceof List) {
+      return cons("cons", cons(quote_list(l.first), cons(quote_list(l.rest), null)));
+    } else if (l.first === ".") {
+      return cons("quote", cons(l.rest.first, null));
+    } else {
+      return cons("cons", cons(cons("quote", cons(l.first, null)), cons(quote_list(l.rest), null)));
+    };
+  };
+
+  var quasiquote_list = function (l) {
+    if (l === null) {
+      return null;
+    } else if (l.first instanceof List) {
+      if (l.first === "unquote") {
+        return cons("cons", cons(l.rest.first, cons(quasiquote_list(l.rest), null)));
+      } else if (l.first === "unquote-splice") {
+        return cons("append", cons(l.rest.first, cons(quasiquote_list(l.rest), null)));
+      } else {
+        return cons("cons", cons(quasiquote_list(l.first), cons(quasiquote_list(l.rest), null)));
+      }
+    } else if (l.first === ".") {
+      return cons("quote", cons(l.rest.first, null));
+    } else {
+      return cons("cons", cons(cons("quote", cons(l.first, null)), cons(quasiquote_list(l.rest), null)));
+    };
+  };
+
   var macro = {};
   var GET_DOT = 1;
   var ARRAY_OBJECT_GET = 3;
@@ -506,8 +536,10 @@ var lisp_module = function () {
   ;
 
   ;
-  console.log("Enter Here");
-  console.log(parser(lexer("(x.add[(+ 3 4)].Hi 12)")).toString());
+
+  ;
+
+  ;
   return null;
 };
 lisp_module();

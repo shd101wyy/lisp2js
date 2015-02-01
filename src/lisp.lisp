@@ -447,6 +447,66 @@
 				   current_list_pointer)
 			     (get l i)))
 		    ))))
+
+  ;; quote a list
+  (fn quote_list (l)
+      (cond (== l null)
+	    null
+
+	    (instanceof l.first List)
+	    (cons "cons"
+		  (cons (quote_list l.first)
+			(cons (quote_list l.rest)
+			      null)))
+	    (== l.first ".")
+	    (cons "quote"
+		  (cons l.rest.first null))
+
+	    else
+	    (cons "cons"
+		  (cons (cons "quote"
+			      (cons l.first
+				    null))
+			(cons (quote_list l.rest)
+			      null)))))
+
+  (fn quasiquote_list (l)
+    (cond (== l null)
+          null
+
+          (instanceof l.first List)
+          (cond (== l.first "unquote")
+                (cons "cons"
+                      (cons l.rest.first
+                            (cons (quasiquote_list  l.rest)
+                                  null)))
+
+                (== l.first "unquote-splice")
+                (cons "append"
+                      (cons l.rest.first
+                            (cons (quasiquote_list l.rest)
+                                  null)))
+
+                else
+                (cons "cons"
+                      (cons (quasiquote_list l.first)
+                            (cons (quasiquote_list l.rest)
+                                  null))))
+
+          (== l.first ".")
+          (cons "quote"
+                (cons l.rest.first null))
+
+          else
+          (cons "cons"
+                (cons (cons "quote"
+                            (cons l.first null))
+                      (cons (quasiquote_list l.rest)
+                                             null)))))
+
+
+
+
   ;; (console.log (-> (parser (lexer "(x.add[(+ 3 4)].Hi 12)")) ('toString)))
   null)
 
