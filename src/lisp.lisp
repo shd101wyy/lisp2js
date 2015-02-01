@@ -505,7 +505,72 @@
                                              null)))))
 
 
+  (fn compiler (l
+                :is_last_exp null
+                :is_recur null
+                :need_return_string null
+                :param_or_assignment null
+                :current_fn_name null)
+    (cond (== l null)
+          (if need_return_string "return null" "null")
 
+          (instanceof l List)
+          (cond (|| (== l.first "def")
+                    (== l.first "=")
+                    (== l.first "set!")
+                    (== l.first "const"))
+                (do (def var_name (compiler (car (cdr l))))
+                    (def var_value (compiler (cond (== (cdr (cdr l)) null)       ;; null 
+                                                   null
+                                                   
+                                                   (!= (cdr (cdr (cdr l))) null) ;; fn 
+                                                   (cons "fn" (cons (car (cdr (cdr l)))
+                                                                    (cdr (cdr (cdr l)))))
+                                                   
+                                                   else
+                                                   l.rest.rest.first)
+                                             :current_fn_name var_name))
+                    (def o (+ (cond (== l.first "def") "var"
+                                    (== l.first "const") "const"
+                                    else "")
+                              var_name
+                              " = "
+                              var_value
+                              " "))
+                    (if need_return_string
+                      (+ o "; return " ;; return that var_name
+                         var_name)
+                      o))
+
+                ;; array
+                (== l.first "Array") ;; array
+                (+ (if need_return_string "return [" "[")
+                   (loop l (cdr l)
+                         output ""
+                         (if (== l null)
+                           output
+                           (recur (cdr l)
+                                  (+ output 
+                                     (compiler (car l)
+                                               :param_or_assignment true)
+                                     (if (== (cdr l) null) "" ", ")))))
+                   "]")
+
+                ;; object
+                (== l.first "Object")
+                (+ (if need_return_string "return {" "{")
+                   (loop l (cdr l)
+                         output ""
+                         (do (def key (compiler l.first :param_or_assignment true))
+                             (def value (compiler l.rest.first :param_or_assignment true))
+                             (recur
+                               TODO HERE
+                              ))))
+                
+                ))
+    
+  (fn lisp_compiler ()
+    )
 
   ;; (console.log (-> (parser (lexer "(x.add[(+ 3 4)].Hi 12)")) ('toString)))
   null)
