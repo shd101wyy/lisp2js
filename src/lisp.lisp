@@ -447,8 +447,7 @@
 				   current_list_pointer)
 			     (get l i)))
 		    ))))
-  (console.log "Enter Here")
-  (console.log (-> x ('success)))
+  ;; (console.log (-> (parser (lexer "(x.add[(+ 3 4)].Hi 12)")) ('toString)))
   null)
 
 

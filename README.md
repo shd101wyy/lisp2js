@@ -450,6 +450,8 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/1/31 </strong>
+    * Fix one macro bug.  
 - <strong> 2015/1/26 </strong>
     * Change <strong> do </strong> function.  
       (do ...) will be wrapped as function when it is argument or assignment value.

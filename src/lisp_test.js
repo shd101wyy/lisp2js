@@ -288,7 +288,7 @@ var lisp_module = function () {
 
   ;
   console.log("Enter Here");
-  console.log();
+  console.log(parser(lexer("(x.add[(+ 3 4)].Hi 12)")).toString());
   return null;
 };
 lisp_module();
