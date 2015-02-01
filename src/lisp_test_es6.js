@@ -77,17 +77,14 @@ if ((typeof(module) != "undefined")) {
     node_environment = true;
 };
 var lisp_module = function() {
-    var lexer = null;
-    var parser = null;
-    var compiler = null;
-    var lisp_compiler = null;
     var macro = {};
     var GET_DOT = 1;
     var ARRAY_OBJECT_GET = 3;
     var eval_result = "";
     var global_context = null;
     var recursion_function_name_count = 0;
-    var append = function(x, y) {
+
+    function append(x, y) {
         if ((x === null)) {
             if (((y instanceof List) || (y === null))) {
                 return y
@@ -113,7 +110,7 @@ var lisp_module = function() {
     };
 
     function getIndexOfValidStar(input_string, end) {
-        return (function __lisp__recur__$3(i) {
+        return (function __lisp__recur__$3(end) {
             if (((end === input_string.length) || (input_string[end] === " ") || (input_string[end] === "\n") || (input_string[end] === "\t") || (input_string[end] === ",") || (input_string[end] === ")") || (input_string[end] === "(") || (input_string[end] === "]") || (input_string[end] === "[") || (input_string[end] === "}") || (input_string[end] === "{") || (input_string[end] === "\"") || (input_string[end] === "\'") || (input_string[end] === "`") || (input_string[end] === "~") || (input_string[end] === ";") || (input_string[end] === ":") || (input_string[end] === "."))) {
                 return end
             } else {
@@ -240,5 +237,40 @@ var lisp_module = function() {
             };
         })(0, 0, []);
     };
+
+    function parser(l) {
+        var parser_get_tag = {
+            "'": "quote",
+            "~": "unquote",
+            "~@": "unquote-splice",
+            "`": "quasiquote"
+        };
+        if ((l === null)) {
+            return null
+        } else {
+            return (function __lisp__recur__$21(i, lists, current_list_pointer, temp) {
+                if ((i < 0)) {
+                    return current_list_pointer
+                } else if ((l[i] === ")")) {
+                    return __lisp__recur__$21((i - 1), cons(current_list_pointer, lists), null)
+                } else if ((l[i] === "(")) {
+                    if (((i != 0) && (l[(i - 1)] === "~@") && (l[(i - 1)] === "'") && (l[(i - 1)] === "~") && (l[(i - 1)] === "`"))) {
+                        return __lisp__recur__$21((i - 2), cdr(lists), cons(cons(parser_get_tag[l[(i - 1)]], cons(current_list_pointer, null)), car(lists)), lists)
+                    } else {
+                        return __lisp__recur__$21((i - 1), cdr(lists), cons(current_list_pointer, car(lists)), lists)
+                    }
+                } else {
+                    if (((i != 0) && (l[(i - 1)] === "~@") && (l[(i - 1)] === "'") && (l[(i - 1)] === "~") && (l[(i - 1)] === "`"))) {
+                        return __lisp__recur__$21((i - 2), lists, cons(cons(parser_get_tag[l[(i - 1)]], cons(l[i], null)), current_list_pointer), l[i])
+                    } else {
+                        return __lisp__recur__$21((i - 1), lists, cons(l[i], current_list_pointer), l[i])
+                    }
+                };
+            })((l.length - 1), null, null, null)
+        };
+    };
+    console.log("Enter Here");
+    console.log();
     return null;
 };
+lisp_module();

@@ -105,8 +105,7 @@
 
 (defmacro ->
   (f (property . args))  `((get ~f ~property) ~@args)
-  (f (property . args) . rest) `(-> ((get ~f ~property) ~@args) ~@rest)
-  )
+  (f (property . args) . rest) `(-> ((get ~f ~property) ~@args) ~@rest))
 
 ;; ########################################################
 ;; ########################################################
@@ -116,17 +115,14 @@
 ;; ########################################################
 ;; ########################################################
 (def lisp_module ()
-  (def lexer)
-  (def parser)
-  (def compiler)
-  (def lisp_compiler)
   (def macro {})
   (def GET_DOT 1)
   (def ARRAY_OBJECT_GET 3)
   (def eval_result "")
   (def global_context null)
   (def recursion_function_name_count 0)
-  (def append (x y)
+
+  (fn append (x y)
     (if (== x null)
       (if (|| (instanceof y List)
               (== y null))
@@ -147,7 +143,7 @@
     (= window.append append))
 
   (fn getIndexOfValidStar (input_string end)
-    (loop i end
+    (loop end end
           (if (|| (== end input_string.length)
                   (== input_string[end] " ")
                   (== input_string[end] "\n")
@@ -393,5 +389,67 @@
                          paren_count
 			 (append! output_list t))
 		  )))))
-  
+  ;; now define parser
+  (fn parser (l)
+      (def parser_get_tag
+	   {"'" "quote"
+	   "~" "unquote"
+	   "~@" "unquote-splice"
+	   "`" "quasiquote"})
+      (if (== l null) ;; lexer failure
+	  null
+	
+	(loop i (- l.length 1)
+	      lists null
+	      current_list_pointer null
+	      temp null
+	      (cond (< i 0)
+		    current_list_pointer
+		    
+		    (== l[i] ")")
+		    (recur (- i 1)
+			   (cons current_list_pointer lists)
+			   null)
+		    
+		    (== l[i] "(")
+		    (cond (&& (!= i 0)
+			      (== (get l (- i 1)) "~@")
+			      (== (get l (- i 1)) "'")
+			      (== (get l (- i 1)) "~")
+			      (== (get l (- i 1)) "`"))
+			  (recur (- i 2)
+				 (cdr lists)
+				 (cons (cons (get parser_get_tag (get l (- i 1)))
+					     (cons current_list_pointer null))
+				       (car lists))
+				 lists)
+			  
+			  else
+			  (recur (- i 1)
+				 (cdr lists)
+				 (cons current_list_pointer (car lists)) ;; append list
+				 lists))
+		    else
+		    (if (&& (!= i 0)
+			    (== (get l (- i 1)) "~@")
+			    (== (get l (- i 1)) "'")
+			    (== (get l (- i 1)) "~")
+			    (== (get l (- i 1)) "`"))
+			(recur (- i 2)
+			       lists
+			       (cons (cons (get parser_get_tag (get l (- i 1)))
+					   (cons (get l i) null))
+				     current_list_pointer)
+			       (get l i))
+		      (recur (- i 1)
+			     lists
+			     (cons (get l i)
+				   current_list_pointer)
+			     (get l i)))
+		    ))))
+  (console.log "Enter Here")
+  (console.log (-> x ('success)))
   null)
+
+
+(lisp_module)

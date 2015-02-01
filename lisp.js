@@ -358,6 +358,8 @@ var lisp_module = function() {
                     }
                     return cons("\"" + o + "\"", formatList(l.rest));
                 }
+		else if (l.first === null)
+		    return cons(l.first, formatList(l.rest));
                 else
                     return cons('"' + l.first + '"', formatList(l.rest));
                 // return cons(l.first[0] === "\"" ? ("'" + l.first + "'") : '"' + l.first + '"', formatList(l.rest)); // 这里是为了修复 ""abc""这种字符 eval 出问题的bug
@@ -374,15 +376,17 @@ var lisp_module = function() {
                     if(match[key] instanceof $List){
                         eval_macro += ("var " + key + " = " + compiler(cons("list", formatList(match[key]))) + "; ");
                     }
+		    else if (match[key] === null)
+			eval_macro += ("var " + key + " = null; ");
                     else
                         eval_macro += ("var " + key + " = " + compiler('"' + match[key]) + '"' + "; ");
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
-                if(node_environment)
+		if(node_environment)
                     try{
                         var result = vm.runInContext(eval_macro, global_context, "lisp.vm");
-                        return result;
+			return result;
                     }
                     catch(e){
                         console.log(e);
