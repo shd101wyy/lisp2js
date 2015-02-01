@@ -1,3 +1,5 @@
+var _$35_t = true;
+var _$35_f = false;
 var obj_foreach = function(obj, func) {
     var keys = Object.keys(obj);
     return (function __lisp__recur__$0(count) {
@@ -111,17 +113,17 @@ var lisp_module = function() {
     };
 
     function getIndexOfValidStar(input_string, end) {
-        return (function(i) {
+        return (function __lisp__recur__$3(i) {
             if (((end === input_string.length) || (input_string[end] === " ") || (input_string[end] === "\n") || (input_string[end] === "\t") || (input_string[end] === ",") || (input_string[end] === ")") || (input_string[end] === "(") || (input_string[end] === "]") || (input_string[end] === "[") || (input_string[end] === "}") || (input_string[end] === "{") || (input_string[end] === "\"") || (input_string[end] === "\'") || (input_string[end] === "`") || (input_string[end] === "~") || (input_string[end] === ";") || (input_string[end] === ":") || (input_string[end] === "."))) {
                 return end
             } else {
-                return recur((end + 1))
+                return __lisp__recur__$3((end + 1))
             };
         })(end);
     };
 
     function lexer(input_string) {
-        return (function(i, paren_count, output_list) {
+        return (function __lisp__recur__$6(i, paren_count, output_list) {
             if ((i >= input_string.length)) {
                 if ((paren_count === 0)) {
                     return output_list
@@ -129,40 +131,113 @@ var lisp_module = function() {
                     return null
                 }
             } else if ((input_string[i] === "(")) {
-                return recur((i + 1), (paren_count + 1), append_$33_(output_list, "("))
+                return __lisp__recur__$6((i + 1), (paren_count + 1), append_$33_(output_list, "("))
             } else if ((input_string[i] === "[")) {
                 if (((i != 0) && (input_string[(i - 1)] != " ") && (input_string[(i - 1)] != "\n") && (input_string[(i - 1)] != "\t") && (input_string[(i - 1)] != "\'") && (input_string[(i - 1)] != "`") && (input_string[(i - 1)] != "~") && (input_string[(i - 1)] != "(") && (input_string[(i - 1)] != "{") && (input_string[(i - 1)] != "["))) {
                     var j = (output_list.length - 1);
-                    var p = (_$61__$61__$61_(output_list[j], ")") ? 1 : 0);
+                    var p = ((output_list[j] === ")") ? 1 : 0);
                     if ((p === 0)) {
-                        return recur((i + 1), (paren_count + 1), (function() {
-                            output_list = append(output_list, "get", output_list[j]);
+                        return __lisp__recur__$6((i + 1), (paren_count + 1), (function() {
+                            append_$33_(output_list, "get", output_list[j]);
                             output_list[j] = "(";
                             return output_list;
                         })())
                     } else {
-                        return recur((i + 1), (paren_count + 1), (function() {
-                            output_list.push("");
-                            output_list.push("");
+                        return __lisp__recur__$6((i + 1), (paren_count + 1), (function() {
+                            append_$33_(output_list, "", "");
                             output_list[(j + 2)] = output_list[j];
-                            return (function(j, p, output_list) {
+                            return (function __lisp__recur__$9(j, p, output_list) {
                                 output_list[(j + 2)] = output_list[j];
                                 if ((output_list[j] === ")")) {
-                                    return recur((j - 1), (p + 1), output_list)
+                                    return __lisp__recur__$9((j - 1), (p + 1), output_list)
                                 } else if ((output_list[j] === "(")) {
-                                    return recur((j - 1), (p - 1), output_list)
-                                } else if ((p === 0)) {
-                                    output_list[j] = "(";
-                                    output_list[(j + 1)] = "get";
-                                    return output_list;
-                                } else return null;;
+                                    if (((p - 1) === 0)) {
+                                        output_list[j] = "(";
+                                        output_list[(j + 1)] = "get";
+                                        return output_list;
+                                    } else {
+                                        return __lisp__recur__$9((j - 1), (p - 1), output_list)
+                                    }
+                                } else {
+                                    return __lisp__recur__$9((j - 1), p, output_list)
+                                };;
                             })((j - 1), p, output_list);
                         })())
                     };
                 } else {
-                    return recur((i + 1), (paren_count + 1), append_$33_(output_list, "(", "Array"))
+                    return __lisp__recur__$6((i + 1), (paren_count + 1), append_$33_(output_list, "(", "Array"))
                 }
-            } else return null;
+            } else if ((input_string[i] === "{")) {
+                return __lisp__recur__$6((i + 1), (paren_count + 1), append_$33_(output_list, "(", "Object"))
+            } else if (((input_string[i] === ")") || (input_string[i] === "}") || (input_string[i] === "]"))) {
+                return __lisp__recur__$6((i + 1), (paren_count - 1), append_$33_(output_list, ")"))
+            } else if (((input_string[i] === " ") || (input_string[i] === "\n") || (input_string[i] === "\t") || (input_string[i] === ","))) {
+                return __lisp__recur__$6((i + 1), paren_count, output_list)
+            } else if (((input_string[i] === "~") && (i != input_string.length) && (input_string[(i + 1)] === "@"))) {
+                return __lisp__recur__$6((i + 2), paren_count, append_$33_(output_list, "~@"))
+            } else if (((input_string[i] === "`") || (input_string[i] === "~") || (input_string[i] === "'"))) {
+                return __lisp__recur__$6((i + 1), paren_count, append_$33_(output_list, input_string[i]))
+            } else if ((input_string[i] === ";")) {
+                return __lisp__recur__$6((function __lisp__recur__$12(j) {
+                    if (((j === input_string.length) || (input_string[j] === "\n"))) {
+                        return j
+                    } else {
+                        return __lisp__recur__$12((j + 1))
+                    };
+                })(i), paren_count, output_list)
+            } else if ((input_string[i] === "\"")) {
+                var end = (function __lisp__recur__$15(a) {
+                    if ((a === input_string.length)) {
+                        return a
+                    } else if ((input_string[a] === "\\")) {
+                        return __lisp__recur__$15((a + 2))
+                    } else if ((input_string[a] === "\"")) {
+                        return a
+                    } else {
+                        return __lisp__recur__$15((a + 1))
+                    };
+                })((i + 1));
+                return __lisp__recur__$6((end + 1), paren_count, append_$33_(output_list, input_string.slice(i, (end + 1))));
+            } else {
+                var end = getIndexOfValidStar(input_string, (i + 1));
+                var t = input_string.slice(i, end);
+                if (((t[0] === ".") && (output_list[(output_list.length - 1)] === ")"))) {
+                    var p = 1;
+                    var j = (output_list.length - 1);
+                    append_$33_(output_list, "", "", "");
+                    output_list[(j + 3)] = output_list[j];
+                    return __lisp__recur__$6(end, paren_count, (function __lisp__recur__$18(j, p, output_list) {
+                        output_list[(j + 3)] = output_list[j];
+                        if ((output_list[j] === ")")) {
+                            return __lisp__recur__$18((j - 1), (p + 1), output_list)
+                        } else if ((output_list[j] === "(")) {
+                            if (((p - 1) === 0)) {
+                                output_list[j] = "(";
+                                output_list[(j + 1)] = GET_DOT;
+                                output_list[(j + 2)] = t;
+                                return append_$33_(output_list, ")");
+                            } else {
+                                return __lisp__recur__$18((j - 1), (p - 1), output_list)
+                            }
+                        } else {
+                            return __lisp__recur__$18((j - 1), p, output_list)
+                        };;
+                    })((j - 1), p, output_list));
+                } else if (((t[0] === ".") && (i > 0) && (input_string[(i - 1)] != " ") && (input_string[(i - 1)] != "\t") && (input_string[(i - 1)] != "\n") && (input_string[(i - 1)] != "{") && (input_string[(i - 1)] != "(") && (input_string[(i - 1)] != "}") && (input_string[(i - 1)] != ")"))) {
+                    return __lisp__recur__$6(end, paren_count, (function() {
+                        var last = output_list[(output_list.length - 1)];
+                        output_list[(output_list.length - 1)] = "(";
+                        return append_$33_(output_list, "get", last, ("\"" + t.slice(1) + "\""), ")");
+                    })())
+                } else if (((t[0] === ".") && (input_string[(i - 1)] === "\""))) {
+                    return __lisp__recur__$6(end, paren_count, (function() {
+                        output_list[(output_list.length - 1)] = (output_list[(output_list.length - 1)] + t);
+                        return output_list;
+                    })())
+                } else {
+                    return __lisp__recur__$6(end, paren_count, append_$33_(output_list, t))
+                };
+            };
         })(0, 0, []);
     };
     return null;

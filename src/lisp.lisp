@@ -4,6 +4,9 @@
 ;; 2014/12/13
 ;; assume car cdr list List those 4 functions already exist as global.
 ;;
+
+(def #t true)
+(def #f false)
 ;; iteratre over object
 (def obj_foreach (obj func)
   (def keys (Object.keys obj))
@@ -165,7 +168,6 @@
                   (== input_string[end] "."))
             end
             (recur (+ end 1)))))
-
   ;; lexer
   (fn lexer (input_string)
     (loop i 0
@@ -186,7 +188,6 @@
             ;; [
             (== input_string[i] "[")
             (cond
-
               ;; x[0] x[1] (test)[0]
               (&& (!= i 0)
                   (!= (get input_string (- i 1)) " ")
@@ -203,19 +204,18 @@
                    (if (== p 0)   ;; x[0]
                      (recur (+ i 1)
                             (+ paren_count 1)
-                            (do (= output_list (append output_list "get" output_list[j]))
+                            (do (append! output_list "get" output_list[j])
                                 (= output_list[j] "(")
                                 output_list))
                      ;; (something-here)[0]
                      (recur (+ i 1)
                             (+ paren_count 1)
-                            (do (output_list.push "") ;; save space
-                                (output_list.push "") ;; save space
+                            (do (append! output_list "" "") ;; save space
                                 (= (get output_list (+ j 2)) output_list[j])
                                 (loop j (- j 1)
                                       p p
                                       output_list output_list
-                                      (do (= (get output_list (+ j 2))
+                                      (do (= (get output_list (+ j 2)) ;; shift
                                              (get output_list j))
                                           (cond
                                             ;; meet ")"
@@ -225,19 +225,24 @@
                                                    output_list)
                                             ;; meet "("
                                             (== output_list[j] "(")
+                                            (if (== (- p 1) 0) ;; p is 0
+                                              (do (= (get output_list j) "(")
+                                                  (= (get output_list (+ j 1)) "get")
+                                                  output_list)
+                                              (recur (- j 1)
+                                                     (- p 1)
+                                                     output_list))
+                                            
+                                            ;; else
+                                            else
                                             (recur (- j 1)
-                                                   (- p 1)
+                                                   p
                                                    output_list)
-
-                                            ;; p is 0
-                                            (== p 0)
-                                            (do (= (get output_list j) "(")
-                                                (= (get output_list (+ j 1)) "get")
-                                                output_list))))))))
+                                            )))))))
               else
               (recur (+ i 1)
                      (+ paren_count 1)
-                     (append! output_list "(" "Array"))
+                     (append! output_list "(" "Array")))
 
             ;; {
             (== input_string[i] "{")
@@ -257,13 +262,14 @@
             (|| (== input_string[i] " ")
                 (== input_string[i] "\n")
                 (== input_string[i] "\t")
-                (== input_string[i] ,))
+                (== input_string[i] ","))
             (recur  (+ i 1)
                     paren_count
                     output_list)
 
             ;; ~@
             (&& (== input_string[i] "~")
+                (!= i input_string.length)
                 (== (get input_string (+ i 1)) "@"))
             (recur (+ i 2)
                    paren_count
@@ -303,22 +309,19 @@
                               )))
               (recur  (+ end 1)
                       paren_count
-                      (append! (input_string.slice i (+ end 1)))))
+                      (append! output_list (input_string.slice i (+ end 1)))))
             ;; symbol
             else
             (do (def end (getIndexOfValidStar input_string (+ i 1)))
                 (def t (input_string.slice i end))
                 (cond
-
                   ;; exp like [0].x
                   (&& (== t[0] ".")
-                      (== (get output_list (- output_list 1))
+                      (== (get output_list (- output_list.length 1))
                           ")"))
                   (do (def p 1)
                       (def j (- output_list.length 1))
-                      (output_list.push "") ;; save space
-                      (output_list.push "") ;; save space
-                      (output_list.push "") ;; save space
+                      (append! output_list "" "" "") ;; save space
                       (= (get output_list (+ j 3))
                          (get output_list j))
                       (recur end
@@ -327,38 +330,68 @@
                                    p p
                                    output_list output_list
                                    (do (= (get output_list (+ j 3))
-                                          (get output_list j))
+					  (get output_list j))
                                        (cond
-                                         ;; meet )
-                                         (== output_list[j] ")")
-                                         (recur (- j 1)
-                                                (+ p 1)
-                                                output_list)
-
-                                         ;; meet (
-                                         (== output_list[j] "(")
-                                         (recur (- j 1)
-                                                (- p 1)
-                                                output_list)
-
-                                         (== p 0)
-                                         (do (= (get output_list j) "(")
-                                             (= (get output_list (+ j 1)) GET_DOT)
-                                             (= (get output_list (+ j 2)) t)
-                                             (append! output_list ")")))))))
-
+                                        ;; meet )
+                                        (== output_list[j] ")")
+					(recur (- j 1)
+                                               (+ p 1)
+					       output_list)
+					
+					;; meet (
+					(== output_list[j] "(")
+					(if (== (- p 1) 0)
+					    (do (= (get output_list j) "(")
+						(= (get output_list (+ j 1)) GET_DOT)
+						(= (get output_list (+ j 2)) t)
+						(append! output_list ")"))
+					  (recur (- j 1)
+						 (- p 1)
+						 output_list))
+					;; else
+					else
+					(recur (- j 1)
+					       p
+					       output_list)
+					)))))
+		  
                   ;; a.b
-                  null
-                  null
-
+                  (&& (== t[0] ".")
+                      (> i 0)
+                      (!= (get input_string (- i 1)) " ")
+                      (!= (get input_string (- i 1)) "\t")
+                      (!= (get input_string (- i 1)) "\n")
+                      (!= (get input_string (- i 1)) "{")
+                      (!= (get input_string (- i 1)) "(")
+                      (!= (get input_string (- i 1)) "}")
+                      (!= (get input_string (- i 1)) ")"))
+                  (recur end
+                         paren_count
+                         (do
+			  (def last (get output_list (- output_list.length 1)))
+			  (= (get output_list (- output_list.length 1)) "(")
+			  (append! output_list
+				   "get"
+				   last
+				   (+ "\"" (t.slice 1) "\"")
+				   ")")))
                   ;; "abc".length
-                  null
-                  null
+                  (&& (== t[0] ".")
+                      (== (get input_string (- i 1))
+                          "\""))
+                  (recur end
+                         paren_count
+                         (do (= (get output_list (- output_list.length 1))
+                                (+ (get output_list (- output_list.length 1))
+                                   t))
+                             output_list))
+                  
 
                   ;; else
                   else
                   (recur end
                          paren_count
-                         (append! output_list t))))))))
-
+			 (append! output_list t))
+		  )))))
+  
   null)
