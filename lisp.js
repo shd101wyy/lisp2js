@@ -30,7 +30,6 @@ list_module=function(){var d,e,f;d=function(b,a){this.first=b;this.rest=a;return
 var lisp_module = function() {
     var lexer, parser, compiler, lisp_compiler;
     var macros = {}; // used to save macro
-    var GET_DOT = 1;
     var eval_result = "";
     var global_context = null;
     var recursion_function_name_count = 0;
@@ -132,16 +131,18 @@ var lisp_module = function() {
                 var t = input_string.slice(i, end);
 
                 // check exp like [0].x
+                // (get x 0) .abc
+                // (get (get x 0) .abc)
                 if(t[0] === "." && output_list[output_list.length - 1] === ")"){
                     var p = 1;
                     var j = output_list.length - 1;
                     output_list.push(""); // save space;
                     output_list.push(""); // save space;
-                    output_list.push(""); // save space;
-                    output_list[j + 3] = output_list[j];
+                    //output_list.push(""); // save space;
+                    output_list[j + 2] = output_list[j];
                     j = j - 1;
                     while (1) {
-                        output_list[j + 3] = output_list[j];
+                        output_list[j + 2] = output_list[j];
                         if (output_list[j] === ")")
                             p++;
                         if (output_list[j] === "(")
@@ -151,9 +152,8 @@ var lisp_module = function() {
                         j--;
                     }
                     output_list[j] = "(";
-                    output_list[j + 1] = GET_DOT;
-                    output_list[j + 2] = t;
-
+                    output_list[j + 1] = "get";
+                    output_list.push("\"" + t.slice(1) + "\"");
                     output_list.push(")");
                 }
 
@@ -499,10 +499,7 @@ var lisp_module = function() {
                 return o;
             } /*else if (tag === ARRAY_OBJECT_GET) { // x[0] =? [[ x 0
                 return (need_return_string ? "return " : "") + compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
-            }*/ else if (tag === GET_DOT){ // x[0].a
-                var k = formatKey(l.rest.first.slice(1));
-                return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + (k[0] === "\"" ? "[" + k + "]" : "." + k);
-            } else if (tag === "quote" || tag === "quasiquote") {
+            }*/ else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
                     var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
                     return need_return_string ? "return " + v : v;

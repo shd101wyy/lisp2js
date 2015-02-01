@@ -504,7 +504,64 @@
                       (cons (quasiquote_list l.rest)
                                              null)))))
 
+  ;; validate variable name
+  ;; if one character in that variable name is invalid
+  ;; replace it with its char code
+  (fn validateName (var_name)
+    (loop o ""
+          i 0
+          (cond (== i var_name.length) ;; first letter is number, add _ ahead
+                (if (! (isNaN o[0]))
+                  (+ "_" o)
+                  o)
+                
+                else 
+                (do (def code (var_name.charCodeAt i))
+                    (if (|| (&& (> code 47) ;; numeric (0-9)
+                                (< code 58))
+                            (&& (> code 64) ;; upper alpha (A-Z)
+                                (< code 91))
+                            (&& (> code 96) ;; lower alpha (a-z)
+                                (< code 123))
+                            (== var_name[i] "$")
+                            (== var_name[i] "_")
+                            (== var_name[i] ".")
+                            (== var_name[i] "&")
+                            (> code 255)) ;; utf
+                      (recur (+ o var_name[i])
+                             (+ i 1))
+                      (recur (+ o "_$" code "_")
+                             (+ i 1)))))))
+  
+  ;; format parameters
+  (fn formatParams (params)
+    (loop o "("
+          params params
+          (cond (== params null) ;; done
+                (+ o ")")
 
+                else  ;; ekse
+                (do (def p (compiler params.first :param_or_assignment true))
+                    (if (&& (== (typeof p)
+                                "string")
+                            (== p[0] ":"))
+                      (recur (+ o (p.slice 1) "=")
+                             params.rest)
+                      (recur (+ o p (if (!= params.rest null) ", " ""))
+                             params.rest))))))
+
+  ;; format key
+  ;; eg key is ":a-b-c" ".a-b-c"
+  ;; then p is "a-b-c"  "a-b-c"
+
+  (fn formatKey (p)
+    (if (&& (== (validateName p)
+                p)
+            (isNaN p))
+      p
+      (+ "\"" p "\"")))
+
+  ;; now constructor compiler
   (fn compiler (l
                 :is_last_exp null
                 :is_recur null
@@ -514,66 +571,139 @@
     (cond (== l null)
           (if need_return_string "return null" "null")
 
+          ;; l is List
+          ;; so the exp is like
+          ;; (def x 1)
+          ;; (def y 2)
           (instanceof l List)
-          (cond (|| (== l.first "def")
-                    (== l.first "=")
-                    (== l.first "set!")
-                    (== l.first "const"))
-                (do (def var_name (compiler (car (cdr l))))
-                    (def var_value (compiler (cond (== (cdr (cdr l)) null)       ;; null 
-                                                   null
-                                                   
-                                                   (!= (cdr (cdr (cdr l))) null) ;; fn 
-                                                   (cons "fn" (cons (car (cdr (cdr l)))
-                                                                    (cdr (cdr (cdr l)))))
-                                                   
-                                                   else
-                                                   l.rest.rest.first)
-                                             :current_fn_name var_name))
-                    (def o (+ (cond (== l.first "def") "var"
-                                    (== l.first "const") "const"
-                                    else "")
-                              var_name
-                              " = "
-                              var_value
-                              " "))
-                    (if need_return_string
-                      (+ o "; return " ;; return that var_name
-                         var_name)
-                      o))
+          (cond
+            ;; (def x 1)
+            ;; (= y 2)
+            ;; (def add (a b) (+ a b))
+            ;; (set! z 3)            
+            (|| (== l.first "def")
+                (== l.first "=")
+                (== l.first "set!")
+                (== l.first "const"))
+            (do (def var_name (compiler (car (cdr l))))
+                (def var_value (compiler (cond (== (cdr (cdr l)) null)       ;; null 
+                                               null
+                                               
+                                               (!= (cdr (cdr (cdr l))) null) ;; fn 
+                                               (cons "fn" (cons (car (cdr (cdr l)))
+                                                                (cdr (cdr (cdr l)))))
+                                               
+                                               else
+                                               l.rest.rest.first)
+                                         :current_fn_name var_name))
+                (def o (+ (cond (== l.first "def") "var"
+                                (== l.first "const") "const"
+                                else "")
+                          var_name
+                          " = "
+                          var_value
+                          " "))
+                (if need_return_string
+                  (+ o "; return " ;; return that var_name
+                     var_name)
+                  o))
 
-                ;; array
-                (== l.first "Array") ;; array
-                (+ (if need_return_string "return [" "[")
-                   (loop l (cdr l)
-                         output ""
-                         (if (== l null)
-                           output
-                           (recur (cdr l)
-                                  (+ output 
-                                     (compiler (car l)
-                                               :param_or_assignment true)
-                                     (if (== (cdr l) null) "" ", ")))))
-                   "]")
+            ;; array
+            (== l.first "Array") ;; array
+            (+ (if need_return_string "return [" "[")
+               (loop l (cdr l)
+                     output ""
+                     (if (== l null)
+                       output
+                       (recur (cdr l)
+                              (+ output 
+                                 (compiler (car l)
+                                           :param_or_assignment true)
+                                 (if (== (cdr l) null) "" ", ")))))
+               "]")
 
-                ;; object
-                (== l.first "Object")
-                (+ (if need_return_string "return {" "{")
-                   (loop l (cdr l)
-                         output ""
-                         (do (def key (compiler l.first :param_or_assignment true))
-                             (def value (compiler l.rest.first :param_or_assignment true))
-                             (recur
-                               TODO HERE
-                              ))))
-                
-                ))
-    
-  (fn lisp_compiler ()
-    )
+            ;; object
+            (== l.first "Object")
+            (+ (if need_return_string "return {" "{")
+               (loop l (cdr l)
+                     output ""
+                     (if (== l null)
+                       (+ o "}")
+                       (do (def key (compiler l.first :param_or_assignment true))
+                           ;; (def value (compiler l.rest.first :param_or_assignment true))
+                           (cond
+                             ;; {:a 12}
+                             ;; {:a :b}
+                             (== key[0] ":")
+                             (if (&& (!= l.rest null)
+                                     ;; (!= l.rest.first[0] ":") ;; this has bug
+                                     (!= (get l 'rest 'first 0) ":"))
+                               (recur l.rest.rest
+                                      (+ o
+                                         (formatKey (key.slice 1)) ;; key
+                                         ": "
+                                         (compiler l.rest.first :param_or_assignment true) ;; value
+                                         (if (!= l.rest.rest null) ", " "")))
+                               (recur l.rest
+                                      (+ o
+                                         (key.slice 1)
+                                         (if (!= l.rest null) ", " "" ))))
 
-  ;; (console.log (-> (parser (lexer "(x.add[(+ 3 4)].Hi 12)")) ('toString)))
-  null)
+                             ;; key is "abc" like string
+                             (|| (== key[0] "'")
+                                 (== key[0] "\""))
+                             (recur l.rest.rest
+                                    (+ o
+                                       key ;; key
+                                       ": "
+                                       (compiler l.rest.first :param_or_assignment true) ;; value
+                                       (if (!= l.rest.rest null) ", " "")))
+
+                             else
+                             (recur l.rest.rest
+                                    (+ o
+                                       "["
+                                       key ;; key
+                                       "]: "
+                                       (compiler l.rest.first :param_or_assignment true) ;; value
+                                       (if (!= l.rest.rest null) ", " ""))))))))
+
+            ;; x[0].a like exp
+            (== l.first GET_DOT) ;; x[0].a
+            (do (def k (formatKey (l.rest.first.slice 1)))
+                (+ (if need_return_string "return " "")
+                   (compiler l.rest.rest.first)
+                   (if (== k[0] "\"")
+                     (+ "[" k "]")
+                     (+ "." k))))
+
+            ;; quote or quasiquote
+            (|| (== l.first "quote")
+                (== l.first "quasiquote"))
+            (cond (instanceof l.rest.first List)
+                  (do (def v (compiler (if (== tag "quote")
+                                         (quote_list l.rest.first)
+                                         (quasiquote_list l.rest.first))))
+                      (if need_return_string (+ "return " v) v))
+
+                  (== l.rest null)
+                  (if need_return_string "return null" "null")
+
+                  (isNaN l.rest.first) ;; not a number
+                  (if need_return_string
+                    (+ "return \"" l.rest.first "\"")
+                    (+ "\"" l.rest.first "\""))
+
+                  else
+                  (if need_return_string (+ "return " l.rest.first) l.rest.first))
+
+            )))
+  
+    (fn lisp_compiler ()
+      )
+
+    ;; (console.log (-> (parser (lexer "(x.add[(+ 3 4)].Hi 12)")) ('toString)))
+    null)
 
 
-(lisp_module)
+  (lisp_module)

@@ -290,6 +290,149 @@ var lisp_module = function () {
     };
   };
 
+  var validateName = function (var_name) {
+    return (function __lisp__recur__$24(o, i) {
+      if (i === var_name.length) {
+        if (_$33_(isNaN(o[0]))) {
+          return "_" + o;
+        } else {
+          return o;
+        }
+      } else {
+        var code = var_name.charCodeAt(i);
+        if (code > 47 && code < 58 || code > 64 && code < 91 || code > 96 && code < 123 || var_name[i] === "$" || var_name[i] === "_" || var_name[i] === "." || var_name[i] === "&" || code > 255) {
+          return __lisp__recur__$24(o + var_name[i], i + 1);
+        } else {
+          return __lisp__recur__$24(o + "_$" + code + "_", i + 1);
+        };
+      };
+    })("", 0);
+  };
+
+  var formatParams = function (params) {
+    return (function __lisp__recur__$27(o, params) {
+      if (params === null) {
+        return o + ")";
+      } else {
+        var p = compiler(params.first, param_or_assignment = true);
+        if (typeof p === "string" && p[0] === ":") {
+          return __lisp__recur__$27(o + p.slice(1) + "=", params.rest);
+        } else {
+          return __lisp__recur__$27(o + p + (params.rest != null ? ", " : ""), params.rest);
+        };
+      };
+    })("(", params);
+  };
+
+  var formatKey = function (p) {
+    if (validateName(p) === p && isNaN(p)) {
+      return p;
+    } else {
+      return "\"" + p + "\"";
+    };
+  };
+
+  var compiler = function (l) {
+    var is_last_exp = arguments[1] === undefined ? null : arguments[1];
+    var is_recur = arguments[2] === undefined ? null : arguments[2];
+    var need_return_string = arguments[3] === undefined ? null : arguments[3];
+    var param_or_assignment = arguments[4] === undefined ? null : arguments[4];
+    var current_fn_name = arguments[5] === undefined ? null : arguments[5];
+    if (l === null) {
+      if (need_return_string) {
+        return "return null";
+      } else {
+        return "null";
+      }
+    } else if (l instanceof List) {
+      if (l.first === "def" || l.first === "=" || l.first === "set!" || l.first === "const") {
+        var var_name = compiler(car(cdr(l)));
+        var var_value = compiler((function () {
+          if (cdr(cdr(l)) === null) {
+            return null;
+          } else if (cdr(cdr(cdr(l))) != null) {
+            return cons("fn", cons(car(cdr(cdr(l))), cdr(cdr(cdr(l)))));
+          } else {
+            return l.rest.rest.first;
+          }
+        })(), current_fn_name = var_name);
+        var o = (function () {
+          if (l.first === "def") {
+            return "var";
+          } else if (l.first === "const") {
+            return "const";
+          } else {
+            return "";
+          }
+        })() + var_name + " = " + var_value + " ";
+        if (need_return_string) {
+          return o + "; return " + var_name;
+        } else {
+          return o;
+        };
+      } else if (l.first === "Array") {
+        return (need_return_string ? "return [" : "[") + (function __lisp__recur__$30(l, output) {
+          if (l === null) {
+            return output;
+          } else {
+            return __lisp__recur__$30(cdr(l), output + compiler(car(l), param_or_assignment = true) + (cdr(l) === null ? "" : ", "));
+          };
+        })(cdr(l), "") + "]";
+      } else if (l.first === "Object") {
+        return (need_return_string ? "return {" : "{") + (function __lisp__recur__$33(l, output) {
+          if (l === null) {
+            return o + "}";
+          } else {
+            var key = compiler(l.first, param_or_assignment = true);
+            if (key[0] === ":") {
+              if (l.rest != null && l.rest.first[0] != ":") {
+                return __lisp__recur__$33(l.rest.rest, o + formatKey(key.slice(1)) + ": " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+              } else {
+                return __lisp__recur__$33(l.rest, o + key.slice(1) + (l.rest != null ? ", " : ""));
+              }
+            } else if (key[0] === "'" || key[0] === "\"") {
+              return __lisp__recur__$33(l.rest.rest, o + key + ": " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+            } else {
+              return __lisp__recur__$33(l.rest.rest, o + "[" + key + "]: " + compiler(l.rest.first, param_or_assignment = true) + (l.rest.rest != null ? ", " : ""));
+            };
+          };
+        })(cdr(l), "");
+      } else if (l.first === GET_DOT) {
+        var k = formatKey(l.rest.first.slice(1));
+        return (need_return_string ? "return " : "") + compiler(l.rest.rest.first) + (k[0] === "\"" ? "[" + k + "]" : "." + k);
+      } else if (l.first === "quote" || l.first === "quasiquote") {
+        if (l.rest.first instanceof List) {
+          var v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
+          if (need_return_string) {
+            return "return " + v;
+          } else {
+            return v;
+          };
+        } else if (l.rest === null) {
+          if (need_return_string) {
+            return "return null";
+          } else {
+            return "null";
+          }
+        } else if (isNaN(l.rest.first)) {
+          if (need_return_string) {
+            return "return \"" + l.rest.first + "\"";
+          } else {
+            return "\"" + l.rest.first + "\"";
+          }
+        } else {
+          if (need_return_string) {
+            return "return " + l.rest.first;
+          } else {
+            return l.rest.first;
+          }
+        }
+      } else return null;
+    } else return null;
+  };
+
+  var lisp_compiler = function () {};
+
   var macro = {};
   var GET_DOT = 1;
   var ARRAY_OBJECT_GET = 3;
@@ -311,6 +454,16 @@ var lisp_module = function () {
   } else {
     window.append = append;
   };
+
+  ;
+
+  ;
+
+  ;
+
+  ;
+
+  ;
 
   ;
 
