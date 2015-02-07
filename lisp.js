@@ -587,7 +587,6 @@ var lisp_module = function() {
                 o += compiler(params.first, null, null, (param_or_assignment ||
                                                         (is_recur && is_last_exp)) ? true : false);
                 o += param_or_assignment ? "})())" : "}";
-                console.log(((need_return_string && !(param_or_assignment)) ? "return " : "") + o);
                 return ((need_return_string && param_or_assignment) ? "return " : "") + o; //+ "}";
             }
             else if (tag === "cond"){
