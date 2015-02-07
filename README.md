@@ -79,13 +79,6 @@ lisp2js beta
     }
 ```
 
-- call function with assigned parameters
-```lisp
-    (add :a 20 :b 40)
-```
-```javascript
-    add(a = 20, b = 40);
-```
 - define function with rest parameters
 ```lisp
     (def add (a & b)   ;; b here is Array

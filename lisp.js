@@ -414,7 +414,9 @@ var lisp_module = function() {
             var p = params.first;
             p = compiler(p, null, null, null, true);
             if (typeof(p) === "string" && p[0] === ":") {
-                o += (p.slice(1) + "=");
+                console.log("Invalid paramete: " + p);
+                return "()";
+                // o += (p.slice(1) + "="); // stop supporting add(x = 12) like exp, which is invalid
             } else {
                 o += p;
                 if (params.rest != null)
