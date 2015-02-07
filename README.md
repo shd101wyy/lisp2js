@@ -172,32 +172,39 @@ lisp2js beta
     };
 ```
 
-- let
+- let (es6)
 ```lisp
     (let x 1
         y 2
         x (+ x y)
         z 4
         (+ x y z))
-    (let a 1
-         b 2
-        (do (+ a b)
-            (- a b)))
+    (+ (let x 1 y 2 (- x y))
+        3)
+    (def test ()
+        (let x 1 y 2 (+ x y)))
+
 ```
 ```javascript
-    ((function() {
-        var x = 1;
-        var y = 2;
+    {
+        let x = 1;
+        let y = 2;
         x = (x + y);
-        var z = 4;
-        return (x + y + z)
-    })());
-    ((function() {
-        var a = 1;
-        var b = 2;
-        (a + b);
-        return (a - b);
-    })());
+        let z = 4;
+        (x + y + z)
+    };
+    (((function() {
+        let x = 1;
+        let y = 2;
+        return (x - y)
+    })()) + 3);
+    var test = function() {
+        {
+            let x = 1;
+            let y = 2;
+            return (x + y)
+        };
+    };
 ```
 - try/catch/finally
 ```lisp
@@ -443,6 +450,8 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/2/7 </strong>
+    * Change <strong> let </strong> statement.
 - <strong> 2015/1/31 </strong>
     * Fix one macro bug.  
 - <strong> 2015/1/26 </strong>

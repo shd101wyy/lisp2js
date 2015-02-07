@@ -1,4 +1,9 @@
-(fn add (:x 12 :y 13)
-    (+ x y))
-
-(add :x 3 4)
+(let x 1
+    y 2
+    x (+ x y)
+    z 4
+    (+ x y z))
+(+ (let x 1 y 2 (- x y))
+    3)
+(def test ()
+    (let x 1 y 2 (+ x y)))

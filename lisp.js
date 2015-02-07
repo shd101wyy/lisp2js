@@ -576,7 +576,7 @@ var lisp_module = function() {
                             o += (var_name + " = " + compiler(var_val) + "; ");
                         } else {
                             vars[var_name] = true;
-                            o += ((param_or_assignment ? "var " : "let ") + var_name + " = " + compiler(var_val) + "; ");
+                            o += ((/*param_or_assignment ? "var " :*/ "let ") + var_name + " = " + compiler(var_val) + "; ");
                         }
                     } else {
                         console.log("let implementation not finished yet");
