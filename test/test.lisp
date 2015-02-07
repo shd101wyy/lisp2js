@@ -21,3 +21,16 @@
                   (if (== n 0)
                     acc
                     (recur (- n 1) (* n acc)))) 10 1)  ;; recur <=> that anonymous function
+
+
+(let x 1 y 2 (+ x y))
+
+(fn test ()
+    (let x 1
+         y 2
+         x (+ x y)
+         (+ x y))
+    (+ x y))
+
+(+ (let x 1 y 2 (+ x y))
+   3)

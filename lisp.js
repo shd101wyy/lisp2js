@@ -564,7 +564,7 @@ var lisp_module = function() {
             else if (tag === "let") {
                 var vars = {};
                 var params = cdr(l);
-                var o = "((function(){";
+                var o = param_or_assignment ? "((function(){" : "{";
                 while (params.rest != null) {
                     var var_name = params.first;
                     var var_val = params.rest.first;
@@ -574,17 +574,19 @@ var lisp_module = function() {
                             o += (var_name + " = " + compiler(var_val) + "; ");
                         } else {
                             vars[var_name] = true;
-                            o += ("var " + var_name + " = " + compiler(var_val) + "; ");
+                            o += ((param_or_assignment ? "var " : "let ") + var_name + " = " + compiler(var_val) + "; ");
                         }
                     } else {
                         console.log("let implementation not finished yet");
                     }
                     params = params.rest.rest;
                 }
-
-                o += compiler(params.first, null, null, true);
-                o += "})())"
-                return (need_return_string ? "return " : "") + o; //+ "}";
+                                                        // it is param or assignment, or inside function and is last exp
+                o += compiler(params.first, null, null, (param_or_assignment ||
+                                                        (is_recur && is_last_exp)) ? true : false);
+                o += param_or_assignment ? "})())" : "}";
+                console.log(((need_return_string && !(param_or_assignment)) ? "return " : "") + o);
+                return ((need_return_string && param_or_assignment) ? "return " : "") + o; //+ "}";
             }
             else if (tag === "cond"){
                 var find_else = false;

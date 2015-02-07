@@ -29,4 +29,23 @@ var test = function(n) {
     } else {
         return __lisp__recur__$3((n - 1), (n * acc))
     };
-})(10, 1);
+})(10, 1); {
+    let x = 1;
+    let y = 2;
+    (x + y)
+};
+
+function test() {
+    {
+        let x = 1;
+        let y = 2;
+        x = (x + y);
+        (x + y)
+    };
+    return (x + y);
+};
+(((function() {
+    var x = 1;
+    var y = 2;
+    return (x + y)
+})()) + 3);
