@@ -410,18 +410,40 @@ var lisp_module = function() {
 
     var formatParams = function(params) {
         var o = "(";
-        while (params != null) {
+        while (true) {
             var p = params.first;
             p = compiler(p, null, null, null, true);
             if (typeof(p) === "string" && p[0] === ":") {
-                console.log("Invalid paramete: " + p);
-                return "()";
+                o += "{" + p.slice(1) + ": " + compiler(params.rest.first, null, null, null, true);
+                params = params.rest.rest;
+                while(true){
+                    if(params === null){
+                        o += "}";
+                        break;
+                    }
+                    var default_param_name = compiler(params.first, null, null, null, true);
+                    if(default_param_name[0] !== ":"){
+                        o += "}, " + default_param_name;
+                        break;
+                    }
+                    if(params.rest === null){
+                        console.log ("ERROR: Invalid parameter name");
+                        return "";
+                    }
+                    var default_param_val = compiler(params.rest.first, null, null, null, true);
+                    o += ", " + default_param_name.slice(1) + ": " + default_param_val;
+                    params = params.rest.rest;
+                }
+                if(params !== null && params.rest !== null)
+                    o += ", ";
                 // o += (p.slice(1) + "="); // stop supporting add(x = 12) like exp, which is invalid
             } else {
                 o += p;
-                if (params.rest != null)
+                if (params.rest !== null)
                     o += ", ";
             }
+            if(params === null || params.rest === null)
+                break;
             params = params.rest;
         }
         o += ")";
@@ -529,20 +551,83 @@ var lisp_module = function() {
                     params = l.rest.first;
                     body = l.rest.rest;
                 }
+                // check default parameters
+                /*
+                    (def test (x :y 12)
+                      (+ x y))
+
+                    (test 3 :y 13)
+
+
+
+                    var test = function(x, args){
+                        args = (args == null ? {} : args)
+                        var y = (args.y == null ? 12 : args.y)
+                        return x + y;
+                    }
+
+                */
+                var __lisp_args__ = null;
+                var parameter_num = 0;
                 while (params != null) {
                     var p = params.first;
                     p = compiler(p);
-                    if (p[0] === ":") {
-                        o2 += (p.slice(1) + "=");
+                    if (p[0] === ":") { // default parameters
+                        __lisp_args__ = {};
+                        __lisp_args__[p.slice(1)] = compiler(params.rest.first);
+                        params = params.rest.rest;
+                        while(true){
+                            var default_param_name = compiler(params.first);
+                            if(default_param_name === "." ){
+                                parameter_num++;
+                                o2 += "__lisp_args__, ";
+                                var p = compiler(params.rest.first);
+                                o2 += ("..." + p);
+                                body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
+                                break;
+                            }
+                            if(default_param_name === "&"){
+                                parameter_num++;
+                                o2 += "__lisp_args__, ";
+                                o2 += ("..." + compiler(params.rest.first));
+                                console.log (o2);
+                                break;
+                            }
+                            if(default_param_name[0] !== ":"){
+                                console.log ("ERROR: Invalid default parameter name");
+                                return "";
+                            }
+                            default_param_name = default_param_name.slice(1);
+                            if (params.rest === null){
+                                console.log ("ERROR: Invalid default parameter name");
+                                return "";
+                            }
+                            var default_param_val = compiler(params.rest.first, null, null, null, true);
+                            __lisp_args__[default_param_name] = default_param_val;
+
+                            params = params.rest.rest;
+                            if(params === null){
+                                o2 += "__lisp_args__";
+                                break;
+                            }
+                        }
+                        parameter_num++;
+                        break;
+                        //o2 += (p.slice(1) + "=");
                     } else if (p === "&") { // ecmascript 6 rest parameters
+                        parameter_num++;
                         params = params.rest;
                         o2 += ("..." + compiler(params.first));
+                        break;
                     } else if (p === "."){  // es6 rest parameters. convert to list
+                        parameter_num++;
                         params = params.rest;
                         var p = compiler(params.first);
                         o2 += ("..." + p);
                         body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
+                        break;
                     } else {
+                        parameter_num++;
                         o2 += p;
                         if (params.rest != null)
                             o2 += ", ";
@@ -551,6 +636,12 @@ var lisp_module = function() {
                 }
                 var is_recur = [current_fn_name ? current_fn_name : false];
                 o2 += "){";
+                if(__lisp_args__){ // default parameter
+                    o2 += "__lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__); ";
+                    for(key in __lisp_args__){
+                        o2 += "var " + key + " = (__lisp_args__." + key + " == null ? "  + __lisp_args__[key] + " : __lisp_args__." + key + "); ";
+                    }
+                }
                 o2 += lisp_compiler(body, true, null, is_recur);
                 o2 += "}";
                 if(is_recur[0] !== false && is_recur[0] !== current_fn_name){ // is recur
