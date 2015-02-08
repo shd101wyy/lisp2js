@@ -73,10 +73,38 @@ lisp2js beta
         (+ a b))
 ```
 ```javascript
-    // es6
-    var add = function(a=12, b=3){
-        return a + b;
-    }
+    var add = function(__lisp_args__) {
+        var __lisp_args_v__;
+        __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
+        var a = ((__lisp_args_v__ = __lisp_args__.a) === void 0 ? 12 : __lisp_args_v__);
+        var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 3 : __lisp_args_v__);
+        return (a + b);
+    };
+```
+
+- call function with named parameters  
+```lisp
+    (def add (:a 1 :b 2) (+ a b))
+    (add)                  ;; => 3
+    (add :a 3 :b 4)        ;; => 7
+    (add :b 3)             ;; => 4
+```
+```javascript
+    var add = function(__lisp_args__) {
+        var __lisp_args_v__;
+        __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
+        var a = ((__lisp_args_v__ = __lisp_args__.a) === void 0 ? 1 : __lisp_args_v__);
+        var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 2 : __lisp_args_v__);
+        return (a + b);
+    };
+    add();
+    add({
+        a: 3,
+        b: 4
+    });
+    add({
+        b: 3
+    });
 ```
 
 - define function with rest parameters
@@ -104,7 +132,10 @@ lisp2js beta
 ```
 ```javascript
 // es6
-    function(a, b = 13, ...c) {
+    function(a, __lisp_args__, ...c) {
+        var __lisp_args_v__;
+        __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
+        var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 13 : __lisp_args_v__);
         return (a + b + c[0]);
     };
 ```
@@ -451,7 +482,7 @@ However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
 - <strong> 2015/2/7 </strong>
-    * Change <strong> let </strong> statement.
+    * Change the way of defining the default parameters and calling function with named parameters
 - <strong> 2015/1/31 </strong>
     * Fix one macro bug.  
 - <strong> 2015/1/26 </strong>
