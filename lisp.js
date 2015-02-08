@@ -639,9 +639,10 @@ var lisp_module = function() {
                 var is_recur = [current_fn_name ? current_fn_name : false];
                 o2 += "){";
                 if(__lisp_args__){ // default parameter
+                    o2 += "var __lisp_args_v__;"
                     o2 += "__lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__); ";
                     for(key in __lisp_args__){
-                        o2 += "var " + key + " = (__lisp_args__." + key + " == null ? "  + __lisp_args__[key] + " : __lisp_args__." + key + "); ";
+                        o2 += "var " + key + " = ((__lisp_args_v__ = __lisp_args__." + key + ") === void 0 ? "  + __lisp_args__[key] + " : __lisp_args_v__); ";
                     }
                 }
                 o2 += lisp_compiler(body, true, null, is_recur);

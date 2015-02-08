@@ -1,1 +1,4 @@
-(add :a 1 :b 2 2 :b 3)
+(def test (:a 12 :b 13)
+    (+ a b))
+(console.log (test))
+(console.log (test :b 14))
