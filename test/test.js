@@ -27,3 +27,22 @@ add({
 add({
     b: 3
 });
+((function() {
+    var x = 1;
+    var y = 2;
+    x = (x + y);
+    var z = 4;
+    return (x + y + z)
+})());
+(((function() {
+    var x = 1;
+    var y = 2;
+    return (x - y)
+})()) + 3);
+var test = function() {
+    return ((function() {
+        var x = 1;
+        var y = 2;
+        return (x + y)
+    })());
+};

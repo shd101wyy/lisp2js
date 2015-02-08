@@ -203,7 +203,7 @@ lisp2js beta
     };
 ```
 
-- let (es6)
+- let (es5)
 ```lisp
     (let x 1
         y 2
@@ -217,24 +217,24 @@ lisp2js beta
 
 ```
 ```javascript
-    {
-        let x = 1;
-        let y = 2;
+    ((function() {
+        var x = 1;
+        var y = 2;
         x = (x + y);
-        let z = 4;
-        (x + y + z)
-    };
+        var z = 4;
+        return (x + y + z)
+    })());
     (((function() {
-        let x = 1;
-        let y = 2;
+        var x = 1;
+        var y = 2;
         return (x - y)
     })()) + 3);
     var test = function() {
-        {
-            let x = 1;
-            let y = 2;
+        return ((function() {
+            var x = 1;
+            var y = 2;
             return (x + y)
-        };
+        })());
     };
 ```
 - try/catch/finally
