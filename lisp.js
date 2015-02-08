@@ -906,6 +906,7 @@ var lisp_module = function() {
                     }
                 else{
                     try{
+                        console.log(result);
                         window.eval(result);
                     }
                     catch(e){
