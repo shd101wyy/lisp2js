@@ -398,7 +398,7 @@ var lisp_module = function() {
                         return window.eval(eval_macro);
                     }
                     catch(e){
-                        alert(e);
+                        console.log(e);
                         return "";
                     }
             }
@@ -909,7 +909,7 @@ var lisp_module = function() {
                         window.eval(result);
                     }
                     catch(e){
-                        alert(e);
+                        console.log(e);
                     }
                 }
             }
