@@ -411,6 +411,8 @@ var lisp_module = function() {
     var formatParams = function(params) {
         var o = "(";
         while (true) {
+            if(params == null)
+                break;
             var p = params.first;
             p = compiler(p, null, null, null, true);
             if (typeof(p) === "string" && p[0] === ":") {
