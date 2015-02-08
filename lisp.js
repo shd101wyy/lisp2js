@@ -579,6 +579,10 @@ var lisp_module = function() {
                         __lisp_args__[p.slice(1)] = compiler(params.rest.first);
                         params = params.rest.rest;
                         while(true){
+                            if(params === null){
+                                o2 += "__lisp_args__";
+                                break;
+                            }
                             var default_param_name = compiler(params.first);
                             if(default_param_name === "." ){
                                 parameter_num++;
@@ -608,10 +612,6 @@ var lisp_module = function() {
                             __lisp_args__[default_param_name] = default_param_val;
 
                             params = params.rest.rest;
-                            if(params === null){
-                                o2 += "__lisp_args__";
-                                break;
-                            }
                         }
                         parameter_num++;
                         break;
