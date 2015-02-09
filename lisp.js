@@ -570,6 +570,8 @@ var lisp_module = function() {
 
                 */
                 var __lisp_args__ = null;
+                var __lisp_rest__ = null; // rest argument name.
+                var __lisp_rest_list__ = null; // arguments as list?
                 var parameter_num = 0;
                 while (params != null) {
                     var p = params.first;
@@ -586,17 +588,19 @@ var lisp_module = function() {
                             var default_param_name = compiler(params.first);
                             if(default_param_name === "." ){
                                 parameter_num++;
-                                o2 += "__lisp_args__, ";
+                                o2 += "__lisp_args__";
                                 var p = compiler(params.rest.first);
-                                o2 += ("..." + p);
-                                body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
+                                __lisp_rest__ = p;
+                                __lisp_rest_list__ = true;
+                                //o2 += ("..." + p);
+                                //body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
                                 break;
                             }
                             if(default_param_name === "&"){
                                 parameter_num++;
-                                o2 += "__lisp_args__, ";
-                                o2 += ("..." + compiler(params.rest.first));
-                                console.log (o2);
+                                o2 += "__lisp_args__";
+                                __lisp_rest__ = compiler(params.rest.first)
+                                //o2 += ("..." + compiler(params.rest.first));
                                 break;
                             }
                             if(default_param_name[0] !== ":"){
@@ -618,20 +622,22 @@ var lisp_module = function() {
                         //o2 += (p.slice(1) + "=");
                     } else if (p === "&") { // ecmascript 6 rest parameters
                         parameter_num++;
-                        params = params.rest;
-                        o2 += ("..." + compiler(params.first));
+                        __lisp_rest__ = compiler(params.rest.first);
+                        //o2 += ("..." + compiler(params.rest.first));
                         break;
                     } else if (p === "."){  // es6 rest parameters. convert to list
                         parameter_num++;
                         params = params.rest;
                         var p = compiler(params.first);
-                        o2 += ("..." + p);
-                        body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
+                        __lisp_rest__ = p;
+                        __lisp_rest_list__ = true;
+                        //o2 += ("..." + p);
+                        //body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
                         break;
                     } else {
                         parameter_num++;
                         o2 += p;
-                        if (params.rest != null)
+                        if (params.rest != null && params.rest.first !== "&" && params.rest.first !== ".")
                             o2 += ", ";
                     }
                     params = params.rest;
@@ -645,11 +651,19 @@ var lisp_module = function() {
                         o2 += "var " + key + " = ((__lisp_args_v__ = __lisp_args__." + key + ") === void 0 ? "  + __lisp_args__[key] + " : __lisp_args_v__); ";
                     }
                 }
+                if(__lisp_rest__){ // rest parameters
+                    o2 += "for(var " + __lisp_rest__ + " = [], $__0 = " + (parameter_num - 1) + "; $__0 < arguments.length; $__0++)" +
+                          __lisp_rest__ + "[$__0 - " + (parameter_num - 1) + "] = arguments[$__0];";
+                    if (__lisp_rest_list__)
+                        o2 += __lisp_rest__ + " = list.apply(null, " + __lisp_rest__ +");";
+                }
                 o2 += lisp_compiler(body, true, null, is_recur);
                 o2 += "}";
                 if(is_recur[0] !== false && is_recur[0] !== current_fn_name){ // is recur
                     o += is_recur[0];
                 }
+                //console.log("parameter num: "+parameter_num);
+                //console.log(o + o2);
                 return o + o2;
             }
             /*
