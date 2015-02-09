@@ -482,11 +482,11 @@ lisp2js beta
     (12 * 12);
     ((15 * 15) + (16 * 16));
 ```
-However, the macro implementation still has errors.
+###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
 - <strong> 2015/2/9 </strong>
-    * Improve compatibility to es5
+    * Improve compatibility with es5
 - <strong> 2015/2/7 </strong>
     * Change the way of defining the default parameters and calling function with named parameters
 - <strong> 2015/1/31 </strong>
