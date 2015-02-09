@@ -2,10 +2,13 @@ lisp2js beta
 =======
 #### By Yiyi Wang (shd101wyy)
 
-##### Simple Lisp that compiles to JavaScript (targeting ECMAScript 6)  
-##### So ECMAScript 5 might not work.  
+##### Simple Lisp that compiles to JavaScript ~~(targeting ECMAScript 6)~~
+##### ~~So ECMAScript 5 might not work.~~
+###### As es6 is not fully supported, the language will compile to es5.  
 ---------------
-
+#### npm / github
+[npm](https://www.npmjs.com/package/lisp2js)  
+[github](https://github.com/shd101wyy/lisp2js)
 #### Installation
 ```sh
     node -g install lisp2js  
@@ -22,7 +25,7 @@ lisp2js beta
 #### all comma, tab, space will be ignored.
 ----------------
 #### Examples
--     <strong> Basics </strong>
+<strong> Basics </strong>
 -     comment
 ```lisp
     ;; this is comment
@@ -115,11 +118,12 @@ lisp2js beta
         (+ a (car b)))
 ```
 ```javascript
-    // es6
-    var add = function(a, ...b){
-        return a + b[0];
-    }
-    var add = function(a, ...b) {
+    var add = function(a) {
+        for (var b = [], $__0 = 1; $__0 < arguments.length; $__0++) b[$__0 - 1] = arguments[$__0];
+        return (a + b[0]);
+    };
+    var add = function(a) {
+        for (var b = [], $__0 = 1; $__0 < arguments.length; $__0++) b[$__0 - 1] = arguments[$__0];
         b = list.apply(null, b);
         return (a + car(b));
     };
@@ -131,11 +135,11 @@ lisp2js beta
         (+ a b c[0]))
 ```
 ```javascript
-// es6
-    function(a, __lisp_args__, ...c) {
+    function(a, __lisp_args__) {
         var __lisp_args_v__;
         __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
         var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 13 : __lisp_args_v__);
+        for (var c = [], $__0 = 2; $__0 < arguments.length; $__0++) c[$__0 - 2] = arguments[$__0];
         return (a + b + c[0]);
     };
 ```
@@ -481,6 +485,8 @@ lisp2js beta
 However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/2/9 </strong>
+    * Improve compatibility to es5
 - <strong> 2015/2/7 </strong>
     * Change the way of defining the default parameters and calling function with named parameters
 - <strong> 2015/1/31 </strong>

@@ -1,48 +1,17 @@
-var add = function(__lisp_args__) {
-    var __lisp_args_v__;
-    __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
-    var a = ((__lisp_args_v__ = __lisp_args__.a) === void 0 ? 12 : __lisp_args_v__);
-    var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 3 : __lisp_args_v__);
-    return (a + b);
+var add = function(a) {
+    for (var b = [], $__0 = 1; $__0 < arguments.length; $__0++) b[$__0 - 1] = arguments[$__0];
+    return (a + b[0]);
+};
+var add = function(a) {
+    for (var b = [], $__0 = 1; $__0 < arguments.length; $__0++) b[$__0 - 1] = arguments[$__0];
+    b = list.apply(null, b);
+    return (a + car(b));
 };
 
-function(a, __lisp_args__, ...c) {
+function(a, __lisp_args__) {
     var __lisp_args_v__;
     __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
     var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 13 : __lisp_args_v__);
+    for (var c = [], $__0 = 2; $__0 < arguments.length; $__0++) c[$__0 - 2] = arguments[$__0];
     return (a + b + c[0]);
-};
-var add = function(__lisp_args__) {
-    var __lisp_args_v__;
-    __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
-    var a = ((__lisp_args_v__ = __lisp_args__.a) === void 0 ? 1 : __lisp_args_v__);
-    var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 2 : __lisp_args_v__);
-    return (a + b);
-};
-add();
-add({
-    a: 3,
-    b: 4
-});
-add({
-    b: 3
-});
-((function() {
-    var x = 1;
-    var y = 2;
-    x = (x + y);
-    var z = 4;
-    return (x + y + z)
-})());
-(((function() {
-    var x = 1;
-    var y = 2;
-    return (x - y)
-})()) + 3);
-var test = function() {
-    return ((function() {
-        var x = 1;
-        var y = 2;
-        return (x + y)
-    })());
 };
