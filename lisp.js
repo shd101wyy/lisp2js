@@ -852,7 +852,7 @@ var lisp_module = function() {
                return o;
             }
             else if (tag === "throw" || tag === "yield"){
-                return /*(need_return_string ? "return " : "") +*/ tag + " " + compiler(l.rest.first, null, null, null, true);
+                return /*(need_return_string ? "return " : "") +*/ tag + " " + compiler(l.rest.first, null, null, null, true) + (need_return_string ? "; return null " : "");
             }
             // (in 'a {:a 12}) => true
             else if (tag === "in"){
