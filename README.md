@@ -250,6 +250,37 @@ lisp2js beta
     finally (do
         (console.log "This is finally")))
 ```
+- throw
+```lisp
+    (throw "Too Big")
+```
+```javascript
+    throw "Too Big";
+```
+
+- yield
+```lisp
+    (def test ()
+        (yield 1)
+        (yield 2))
+    (def x (test))
+    (x.next)   ;; 1
+    (x.next)   ;; 2
+    (x.next)   ;; stop
+```
+```javascript
+    var test = function() {
+        yield 1;
+        yield 2;
+        return;
+    };
+    var x = test();
+    x.next();
+    x.next();
+    x.next();
+```
+
+
 ```javascript
     try {
       console.log("This is try");
