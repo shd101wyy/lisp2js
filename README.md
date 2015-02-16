@@ -516,6 +516,7 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.18 </strong>
 - <strong> 2015/2/16 </strong>
     * Add <strong>yield</strong> and <strong> throw </strong> support.
 - <strong> 2015/2/9 </strong>
