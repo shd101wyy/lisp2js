@@ -850,7 +850,10 @@ var lisp_module = function() {
                  o += "}"
                }
                return o;
-             }
+            }
+            else if (tag === "throw" || tag === "yield"){
+                return /*(need_return_string ? "return " : "") +*/ tag + " " + compiler(l.rest.first, null, null, null, true);
+            }
             // (in 'a {:a 12}) => true
             else if (tag === "in"){
                 return (need_return_string ? "return " : "") + "("+ compiler(l.rest.first) +" in " + compiler(l.rest.rest.first) + ")";
