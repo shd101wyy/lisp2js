@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>lisp2js demo</title>
+    <style type="text/css">
+    #editor {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 50%;
+        float: right
+        width: 50%;
+    }
+    #editor2{
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        float: left;
+        width: 50%;
+    }
+    #wraper{
+        position: absolute;
+        right: 5%;
+        top: 5%;
+        color:white;
+        z-index: 998;
+        width: 85px;
+    }
+    /*#compile_btn{*/
+    .my_button{
+        z-index: 999;
+        width: 80px;
+        height: 30px;
+        margin-top: 10px;
+    }
+    </style>
+</head>
+<body>
+    <div id="editor">
+
+
+    </div>
+    <div id="editor2">
+
+    ;; This is the comment
+    ;; Please use Firefox to run compiled ECMAScript 6
+    ;; Please open Web Console to see console.log result.
+    ;; github link : https://github.com/shd101wyy/lisp2js
+    ;; npm link    : https://www.npmjs.com/package/lisp2js
+
+    ;; hello world
+    (console.log "Hello World")
+
+    ;; define a variable
+    (def x 12)
+    (def y [1 2 3])
+    (def z 'This-is-string )
+    (def o {:a 12 :b 13 z "Hi There"})
+
+    ;; change a variable value
+    (= x 13)
+    (= y[0] 4)
+    (= o.a 15)
+    (= o[z] 17)
+
+    ;; define a function
+    (def add (a b)
+        (+ a b))
+
+    ;; call a function
+    (add 3 4)
+
+    ;; if statement
+    (def abs (x)
+        (if (> x 0)
+            x
+            (- x)))
+
+    (def greater_than_0 (if (> x 0) x 0))
+
+    ;; anonymous function call
+    ((fn (input-string) (console.log input-string)) "Hi There")
+
+    ;; let
+    (def value
+        (let x 1
+             y 2
+             z (+ x y)
+             (* x y z)))
+
+    ;; new
+    (def my_array (new Array 1 2 3 4 5))
+    (console.log my_array)
+
+    ;; do
+    (do (def x 1)
+        (def y 2)
+        (def z 3)
+        (+ x y z))
+
+    ;; macro
+    (defmacro square (x) `(* ~x ~x))
+    (square 12)
+
+    (defmacro square-with-different-params
+      (x) `(* ~x ~x)
+      (x y) `(+ (* ~x ~x) (* ~y ~y)))
+
+    (square-with-different-params 12)
+    (square-with-different-params 15 16)
+
+
+    ;; list data type
+    ;; need to include list.js from https://github.com/shd101wyy/List_for_FP
+
+    ;; define a list
+    (def x '(1 2 3 4))
+
+    ;; quasiquote
+    (def a 1)
+    (def b 2)
+    (def c 3)
+    (def d `(~a a ~b b (~c c)))
+    (console.log (d.toString))
+
+    ;; list function
+    (def x (list a b c d ))
+
+    ;; car function
+    ;; get first element of a list
+    (def x '(1 2 3))
+    (car x)  ;; => 1
+
+    ;; cdr function
+    (def x '(1 2 3))
+    (cdr x) ;; => (2 3)
+
+    ;; see doc in https://github.com/shd101wyy/List_for_FP  for more information.
+
+
+    ;; array map
+    ([1 2 3 4].map (fn (i) (* i 2)))
+
+    </div>
+
+    <div id="wraper">
+        <button id="compile_btn" class="my_button">Run</button>
+        <button id="clear_btn" class="my_button">Clear</button>
+        <!--<button id="save_btn" class="my_button" display="none">Save</button>
+        <button id="load_btn" class="my_button" display="none">Load</button>-->
+    </div>
+</body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://ace.ajax.org/build/src/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="../lisp.js"></script>
+<script src="js/beautify.js"></script>
+<script>
+
+$(document).ready(function(){
+    if(navigator.userAgent.search("Firefox") < 0){
+        alert("Sorry, your browser doesnt support ECMAScript6(es6), please use Firefox");
+    }
+    var js_editor = ace.edit("editor");
+    js_editor.setTheme("ace/theme/monokai");
+    js_editor.getSession().setMode("ace/mode/javascript");
+
+    var lisp_editor = ace.edit("editor2");
+    lisp_editor.setTheme("ace/theme/monokai");
+    lisp_editor.getSession().setMode("ace/mode/clojure");
+
+    var content = lisp_editor.getSession().getValue();
+    var compiled = lisp.compile(content);
+    js_editor.setValue("\n"+js_beautify(compiled), 1);
+
+    // compile and run
+    $("#compile_btn").click(function(){
+        var content = lisp_editor.getSession().getValue();
+        var compiled = lisp.compile(content);
+        js_editor.setValue("\n"+js_beautify(compiled), 1);
+    })
+
+    // clear editors
+    $("#clear_btn").click(function(){
+        lisp_editor.setValue("");
+        js_editor.setValue("");
+    })
+
+    /*
+    // save current content
+    $("#save_btn").click(function(){
+        try{
+            var file_name = prompt("Save to local storage\nFilename: ");
+            var content = lisp_editor.getSession().getValue();
+            var v;
+            if(!window.localStorage["lisp"]){
+                v = {};
+            }
+            else{
+                v = JSON.parse(window.localStorage["lisp"]);
+            }
+            v[file_name] = content;
+            console.log(v);
+            window.localStorage["lisp"] = JSON.stringify(v);
+        }
+        catch(e){
+            window.localStorage["lisp"] = "{}";
+        }
+    })
+
+    // load local storage Filename
+    $("#load_btn").click(function(){
+        if(window.localStorage["lisp"]){
+            var v = JSON.parse(window.localStorage["lisp"]);
+            var keys = Object.keys(v);
+            var o = "Existed Files: ";
+            for(var i = 0; i < keys.length; i++){
+                o += (keys[i] + "\n");
+            }
+            console.log(o);
+            var f = prompt(o);
+            var content = v[f];
+            lisp_editor.setValue(content);
+            var compiled = lisp.compile(content);
+            js_editor.setValue("\n" + js_beautify(compiled), 1);
+        }
+        else{
+            alert("No file saved");
+        }
+    })
+    */
+})
+
+</script>
+</html>

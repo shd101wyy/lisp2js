@@ -852,7 +852,7 @@ var lisp_module = function() {
                return o;
             }
             else if (tag === "throw" || tag === "yield"){
-                return /*(need_return_string ? "return " : "") +*/ tag + " " + compiler(l.rest.first, null, null, null, true) + (need_return_string ? "; return null " : "");
+                return /*(need_return_string ? "return " : "") +*/ tag + " " + compiler(l.rest.first, null, null, null, true) + (need_return_string ? "; return;" : "");
             }
             // (in 'a {:a 12}) => true
             else if (tag === "in"){
@@ -914,6 +914,10 @@ var lisp_module = function() {
                 //o += "return ";
             }
             result = compiler(l.first, l.rest === null? true : false, is_recur, need_return_string);
+            if(typeof(result) === "string") result = result.trim();
+            if (typeof(result) === "string" && result.length !== 0 && result[result.length - 1] !== ";" /*&& result[result.length - 1] !== "}"*/){
+                result += "; ";
+            }
             if(eval_$){    // eval
                 if(node_environment)
                     try{
@@ -931,8 +935,7 @@ var lisp_module = function() {
                     }
                 }
             }
-            if (!(typeof(result) === "string" && result.trim().length === 0))
-                o += (result + "; ");
+            o += result;
             l = l.rest;
         }
         return o;
