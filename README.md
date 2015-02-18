@@ -20,7 +20,7 @@ lisp2js beta
     lisp   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]
 ```
 ----------------
-Use lisp2js in Browser
+#### Use lisp2js in Browser
 ```html
 <script src="lisp.min.js"></script>
 <script>
