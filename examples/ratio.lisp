@@ -101,4 +101,4 @@
     (print_r (r/ 12 16))               ;; =>
     )
 ;; uncomment to run demo
-(demo)
+;; (demo)

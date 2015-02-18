@@ -36,7 +36,7 @@ lisp2js beta
 <strong> Basics </strong>
 -     comment
 ```lisp
-    ; semicolon is used comment
+    ; semicolon is used as comment
     ;; this is comment
 ```
 
