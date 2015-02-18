@@ -20,6 +20,14 @@ lisp2js beta
     lisp   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]
 ```
 ----------------
+Use lisp2js in Browser
+```html
+<script src="lisp.min.js"></script>
+<script>
+    var output = lisp.compile("(def x 12)"); // compile/eval expression, then return compiled result.
+</script>
+```
+----------------
 ### [Try it Online](http://rawgit.com/shd101wyy/lisp2js_demo/master/index.html)
 ----------------
 #### all comma, tab, space will be ignored.
@@ -625,5 +633,6 @@ lisp2js beta
     * fix several bugs.
 - <strong>2015/1/5 First Release</strong>
     * There are still lots of bugs.  
+    * ...
 ---------------------------------------
 MIT License ;)
