@@ -547,10 +547,11 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
-- <strong> Version 0.0.20 </strong>
+- <strong> Version 0.0.20 / 0.0.21 </strong>
 - <strong> 2015/2/17 </strong>
     * <strong> Happy New Year []~(￣▽￣)~* </strong>
-    * Change default parameters and keyword parameters.
+    * Add <strong> and, or, not </strong> macros that behave the same as <strong> &&  ||  !</strong>
+    * Change <strong>default parameters</strong> and <strong>keyword parameters</strong>.
     * For example:
     * <strong> Default Parameters </strong>
     ```lisp

@@ -33,6 +33,10 @@
 (def Ratio (n d)
     (= this.n n)
     (= this.d d))
+(= Ratio.prototype.toString (fn ()
+    (if (== this.d 1)
+        this.n
+        (+ this.n "/" this.d))))
 (def make-rat (n d)
     (let g (gcd n d)
         (new Ratio (/ n g) (/ d g))))
@@ -41,9 +45,7 @@
 
 ;; print ratio
 (def print_rat (x)
-    (if (== (denom x) 1)
-        (console.log (numer x))
-        (console.log (+ (numer x) "/" (denom x)))))
+    (console.log (x.toString)))
 
 (def print_r (x)
     (if (== x.constructor Ratio)
@@ -94,6 +96,9 @@
     (print_rat (mul-rat (make-rat 4 3) (make-rat 12 18)))
     (print_r (r/ 3 4))
     (print_r (r+ (r/ 3 4) (r/ 6 5)))
+    (print_r (r+ 3 4))                 ;; => 7
+    (print_r (r+ (r/ 1 2) (r/ 1 4)))   ;; =>
+    (print_r (r/ 12 16))               ;; =>
     )
 ;; uncomment to run demo
-;(demo)
+(demo)
