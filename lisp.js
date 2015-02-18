@@ -555,12 +555,12 @@ var lisp_module = function() {
                 }
                 // check default parameters
                 /*
-                    (def test (x :y 12)
+
+                    # keyword parameters
+                    (def test (x {:y 12})
                       (+ x y))
 
                     (test 3 :y 13)
-
-
 
                     var test = function(x, args){
                         args = (args == null ? {} : args)
@@ -568,59 +568,53 @@ var lisp_module = function() {
                         return x + y;
                     }
 
+                    # default parameters
+                    (def add (:a 12 :b 13)
+                        (+ a b))
+
+                    var add = function(a, b){
+                        a = (a === void 0) ? 12 : a;
+                        b = (b === void 0) ? 13 : b;
+                        a + b;
+                    }
+
                 */
-                var __lisp_args__ = null;
-                var __lisp_rest__ = null; // rest argument name.
-                var __lisp_rest_list__ = null; // arguments as list?
+
+                var default_and_keyword_params = []; // [(x, 12), (y, 13), {}]
+                var keyword_params = {};   // used to save default params and its value.
                 var parameter_num = 0;
+                var __lisp_rest_list__ = false; // check whether rest parameter is in list ds
+                var __lisp_rest__ = null; // save rest parameter.
                 while (params != null) {
                     var p = params.first;
-                    p = compiler(p);
-                    if (p[0] === ":") { // default parameters
-                        __lisp_args__ = {};
-                        __lisp_args__[p.slice(1)] = compiler(params.rest.first);
-                        params = params.rest.rest;
-                        while(true){
-                            if(params === null){
-                                o2 += "__lisp_args__";
-                                break;
-                            }
-                            var default_param_name = compiler(params.first);
-                            if(default_param_name === "." ){
-                                parameter_num++;
-                                o2 += "__lisp_args__";
-                                var p = compiler(params.rest.first);
-                                __lisp_rest__ = p;
-                                __lisp_rest_list__ = true;
-                                //o2 += ("..." + p);
-                                //body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
-                                break;
-                            }
-                            if(default_param_name === "&"){
-                                parameter_num++;
-                                o2 += "__lisp_args__";
-                                __lisp_rest__ = compiler(params.rest.first)
-                                //o2 += ("..." + compiler(params.rest.first));
-                                break;
-                            }
-                            if(default_param_name[0] !== ":"){
-                                console.log ("ERROR: Invalid default parameter name");
-                                return "";
-                            }
-                            default_param_name = default_param_name.slice(1);
-                            if (params.rest === null){
-                                console.log ("ERROR: Invalid default parameter name");
-                                return "";
-                            }
-                            var default_param_val = compiler(params.rest.first, null, null, null, true);
-                            __lisp_args__[default_param_name] = default_param_val;
-
-                            params = params.rest.rest;
+                    if(typeof(p) !== "string"){ // keyword parameters
+                        if (p.first !== "Object"){
+                            console.log("ERROR: Invalid parameters");
+                            return "";
                         }
                         parameter_num++;
-                        break;
-                        //o2 += (p.slice(1) + "=");
-                    } else if (p === "&") { // ecmascript 6 rest parameters
+                        p = p.rest;
+                        while(p !== null){
+                            // get var_name and var_val;
+                            var var_name = compiler(p.first);
+                            var_name = (var_name[0] === "\"" ? var_name.slice(1, -1) : var_name);
+                            var_name = (var_name[0] === ":" ? var_name.slice(1) : var_name);
+                            var var_value = compiler(p.rest.first, null, null, null, true);
+
+                            // save to table
+                            keyword_params[var_name] = var_value;
+
+                            p = p.rest.rest;
+                        }
+                        o2 += "__lisp_args__";
+                        params = params.rest;
+                        if(params !== null && params.first !== "&" && params.first !== ".")
+                            o2 += ", ";
+                        default_and_keyword_params.push(keyword_params);
+                        continue;
+                    }
+                    p = compiler(p);
+                    if (p === "&") { // ecmascript 6 rest parameters
                         parameter_num++;
                         __lisp_rest__ = compiler(params.rest.first);
                         //o2 += ("..." + compiler(params.rest.first));
@@ -634,7 +628,19 @@ var lisp_module = function() {
                         //o2 += ("..." + p);
                         //body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
                         break;
-                    } else {
+                    }
+                    else if (p[0] === ":"){
+                        parameter_num++;
+                        var default_param_name = p.slice(1); // get default param name.
+                        o2 += default_param_name; // add parameter name.
+                        default_and_keyword_params.push([default_param_name, compiler(params.rest.first, null, null, null, true)]);
+                        params = params.rest.rest;
+                        if(params != null && params.first !== "&" && params.first !== "."){
+                            o2 += ", ";
+                        }
+                        continue;
+                    }
+                    else {
                         parameter_num++;
                         o2 += p;
                         if (params.rest != null && params.rest.first !== "&" && params.rest.first !== ".")
@@ -644,6 +650,7 @@ var lisp_module = function() {
                 }
                 var is_recur = [current_fn_name ? current_fn_name : false];
                 o2 += "){";
+                /*
                 if(__lisp_args__){ // default parameter
                     o2 += "var __lisp_args_v__;"
                     o2 += "__lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__); ";
@@ -651,11 +658,29 @@ var lisp_module = function() {
                         o2 += "var " + key + " = ((__lisp_args_v__ = __lisp_args__." + key + ") === void 0 ? "  + __lisp_args__[key] + " : __lisp_args_v__); ";
                     }
                 }
+                */
                 if(__lisp_rest__){ // rest parameters
                     o2 += "for(var " + __lisp_rest__ + " = [], $__0 = " + (parameter_num - 1) + "; $__0 < arguments.length; $__0++)" +
                           __lisp_rest__ + "[$__0 - " + (parameter_num - 1) + "] = arguments[$__0];";
                     if (__lisp_rest_list__)
                         o2 += __lisp_rest__ + " = list.apply(null, " + __lisp_rest__ +");";
+                }
+
+                // check default_and_keyword_params.
+                for(var i = 0; i < default_and_keyword_params.length; i++){
+                    var v = default_and_keyword_params[i];
+                    if(v.constructor === Array){ // default parameters.
+                        var p_name = v[0];
+                        var p_val = v[1];
+                        o2 += (p_name + " = (" + p_name + " === void 0 ? " + p_val + " : " + p_name + " );");
+                    }
+                    else{ // keyword parameters.
+                        o2 += "var __lisp_args_v__;"
+                        o2 += "__lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__); ";
+                        for(key in v){
+                            o2 += "var " + key + " = ((__lisp_args_v__ = __lisp_args__." + key + ") === void 0 ? "  + v[key] + " : __lisp_args_v__); ";
+                        }
+                    }
                 }
                 o2 += lisp_compiler(body, true, null, is_recur);
                 o2 += "}";
