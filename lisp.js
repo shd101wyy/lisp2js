@@ -803,7 +803,7 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + o;
             } else if (tag === "+" || tag === "-" || tag === "*" || tag === "/" || tag === "%" ||
                 tag === "==" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=" ||
-                tag === "&&" || tag === "||" || tag === "&" || tag === "|") {
+                tag === "&&" || tag === "||" || tag === "&" || tag === "|" || tag === "and" || tag === "or") {
                 var o = "(";
                 var params = l.rest;
                 if(params.rest == null){ // only one params
@@ -819,11 +819,21 @@ var lisp_module = function() {
                 while (params != null) {
                     var p = compiler(params.first, null, null, null, true);
                     o += p;
-                    if (params.rest != null)
-                        o += (" " + (tag === "==" ? "===" : tag) + " ")
+                    if (params.rest != null){
+                        if (tag === "and")
+                            tag = "&&"
+                        else if (tag === "or")
+                            tag = "||"
+                        else if (tag == "==")
+                            tag = "==="
+                        o += (" " + tag + " ")
+                    }
                     params = params.rest;
                 }
                 return (need_return_string ? "return " : "") + o + ")";
+            }
+            else if (tag === "not"){
+                return (need_return_string ? "return " : "") + "(!" + compiler(l.rest.first, null, null, null, true) + ")";
             }
             else if (tag === "instanceof"){
                 return (need_return_string ? "return " : "") + "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";

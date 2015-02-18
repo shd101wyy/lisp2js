@@ -36,6 +36,7 @@ lisp2js beta
 <strong> Basics </strong>
 -     comment
 ```lisp
+    ; semicolon is used comment
     ;; this is comment
 ```
 
@@ -327,6 +328,9 @@ lisp2js beta
     (&& true false)
     (|| 1 2)
     (| 1 0x12)
+    (and true false)
+    (or true false)
+    (not true)
 ```
 ```javascript
     (1 === 1);
@@ -340,6 +344,9 @@ lisp2js beta
     (true && false);
     (1 || 2);
     (1 | 0x12);
+    (true && false);
+    (true || false);
+    (!true);
 ```
 
 - get  
