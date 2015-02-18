@@ -76,18 +76,37 @@ lisp2js beta
         (+ a b))
 ```
 ```javascript
-    var add = function(__lisp_args__) {
-        var __lisp_args_v__;
-        __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
-        var a = ((__lisp_args_v__ = __lisp_args__.a) === void 0 ? 12 : __lisp_args_v__);
-        var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 3 : __lisp_args_v__);
+    var add = function(a, b) {
+        a = (a === void 0 ? 12 : a);
+        b = (b === void 0 ? 3 : b);
         return (a + b);
     };
 ```
 
-- call function with named parameters  
+- define function with keyword parameters
 ```lisp
-    (def add (:a 1 :b 2) (+ a b))
+    (def add (x {:y 1 :z 2})
+        (+ x y z))
+    (add 0)        ;;  3
+    (add 1 :y 3)   ;;  6
+```
+```javascript
+    var add = function(x, __lisp_args__) {
+        var __lisp_args_v__;
+        __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
+        var y = ((__lisp_args_v__ = __lisp_args__.y) === void 0 ? 1 : __lisp_args_v__);
+        var z = ((__lisp_args_v__ = __lisp_args__.z) === void 0 ? 2 : __lisp_args_v__);
+        return (x + y + z);
+    };
+    add(0);
+    add(1, {
+        y: 3
+    });
+```
+
+- call function with named(keyword) parameters  
+```lisp
+    (def add ({:a 1 :b 2}) (+ a b))
     (add)                  ;; => 3
     (add :a 3 :b 4)        ;; => 7
     (add :b 3)             ;; => 4
@@ -135,11 +154,9 @@ lisp2js beta
         (+ a b c[0]))
 ```
 ```javascript
-    function(a, __lisp_args__) {
-        var __lisp_args_v__;
-        __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
-        var b = ((__lisp_args_v__ = __lisp_args__.b) === void 0 ? 13 : __lisp_args_v__);
+    function (a, b){
         for (var c = [], $__0 = 2; $__0 < arguments.length; $__0++) c[$__0 - 2] = arguments[$__0];
+        b = (b === void 0 ? 13 : b);
         return (a + b + c[0]);
     };
 ```
@@ -207,7 +224,7 @@ lisp2js beta
     };
 ```
 
-- let (es5)
+- let (es5)  // I might change this to es6 <strong>let</strong> in the future
 ```lisp
     (let x 1
         y 2
@@ -218,7 +235,6 @@ lisp2js beta
         3)
     (def test ()
         (let x 1 y 2 (+ x y)))
-
 ```
 ```javascript
     ((function() {
@@ -516,6 +532,30 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.20 </strong>
+- <strong> 2015/2/17 </strong>
+    * <strong> Happy New Year []~(￣▽￣)~* </strong>
+    * Change default parameters and keyword parameters.
+    * For example:
+    * <strong> Default Parameters </strong>
+    ```lisp
+        (def add (:a 1 :b 2)
+            (+ a b))
+        (add)     ;; => 3
+        (add 2)   ;; => 4
+        (add 3 4) ;; => 7
+    ```
+    * <strong> Keyword Parameters </strong>
+    *
+    ```lisp
+        (def add ({:x 1 :y 2})
+            (+ x y))
+        (add)            ;; => 3
+        (add :x 3)       ;; => 5
+        (add :y 6)       ;; => 7
+        (add :x 4 :y 5)  ;; => 9
+        (add :y 1 :x 5)  ;; => 6
+    ```
 - <strong> Version 0.0.18 </strong>
 - <strong> 2015/2/16 </strong>
     * Add <strong>yield</strong> and <strong> throw </strong> support.
