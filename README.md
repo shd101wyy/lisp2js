@@ -547,7 +547,7 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
-- <strong> Version 0.0.20 / 0.0.21 </strong>
+- <strong> Version 0.0.20 - 0.0.22 </strong>
 - <strong> 2015/2/17 </strong>
     * <strong> Happy New Year []~(￣▽￣)~* </strong>
     * Add <strong> and, or, not </strong> macros that behave the same as <strong> &&  ||  !</strong>
