@@ -11,7 +11,7 @@ lisp2js beta
 [github](https://github.com/shd101wyy/lisp2js)
 #### Installation
 ```sh
-    node -g install lisp2js  
+    npm -g install lisp2js  
 ```
 #### How to run  
 ```sh

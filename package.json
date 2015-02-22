@@ -1,6 +1,6 @@
 {
   "name": "lisp2js",
-  "version": "0.0.22",
+  "version": "0.0.22_1",
   "description": "A simple lisp to javascript translater",
   "main": "lisp.js",
   "scripts": {
