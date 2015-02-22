@@ -867,11 +867,11 @@ var lisp_module = function() {
              *
              */
             else if (tag === "->"){
-                var v = compiler(l.rest.first, null, null, null, true);
+                var v = compiler(l.rest.first, null, null, null, true); // get object
                 var o = v;
                 var args = l.rest.rest;
                 while(args !== null){
-                    var call_func = false;
+                    var call_func = false; // check whether it is a function call.
                     var key;
                     var val = null;
                     if (args.first instanceof $List){

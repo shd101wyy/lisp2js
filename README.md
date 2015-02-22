@@ -569,6 +569,7 @@ lisp2js beta
 ---------------------------------------
 #### Change Log
 - <strong> Version 0.0.24 </strong>
+- <strong> 2015/2/22 </strong>
     * add <strong> -> </strong> macro
     * eg:
     ```lisp
