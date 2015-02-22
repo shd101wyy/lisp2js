@@ -133,7 +133,9 @@ var lisp_module = function() {
                 // check exp like [0].x
                 // (get x 0) .abc
                 // (get (get x 0) .abc)
-                if(t[0] === "." && output_list[output_list.length - 1] === ")"){
+                if(t[0] === "."
+                    && output_list[output_list.length - 1] === ")"
+                    && (input_string[i - 1] !== " " && input_string[i - 1] !== "\n" && input_string[i - 1] !== "\t")){
                     var p = 1;
                     var j = output_list.length - 1;
                     output_list.push(""); // save space;
@@ -172,10 +174,10 @@ var lisp_module = function() {
                 else if (t[0] === "."  && input_string[i - 1] === "\""){
                     output_list[output_list.length - 1] += t;
                 }
-                // case like (get console .log)
+                /*// case like (get console .log)
                 else if (t[0] === "."){
                     output_list.push("\"" + t.slice(1) + "\"");
-                }
+                }*/
                 else
                     output_list.push(t);
                 i = end - 1;
@@ -412,14 +414,27 @@ var lisp_module = function() {
         return "";
     }
 
+    /**
+     *
+     * format parameters
+     *
+     */
     var formatParams = function(params) {
-        var o = "(";
+        var o = "";
+        var start_paren = false;
         while (true) {
             if(params == null)
                 break;
             var p = params.first;
             p = compiler(p, null, null, null, true);
             if (typeof(p) === "string" && p[0] === ":") {
+                if (start_paren === false){ // add left paren
+                    o += "(";
+                    start_paren = true;
+                }
+                else{
+                    o += ", ";
+                }
                 o += "{" + p.slice(1) + ": " + compiler(params.rest.first, null, null, null, true);
                 params = params.rest.rest;
                 while(true){
@@ -429,7 +444,17 @@ var lisp_module = function() {
                     }
                     var default_param_name = compiler(params.first, null, null, null, true);
                     if(default_param_name[0] !== ":"){
-                        o += "}, " + default_param_name;
+                        if (default_param_name[0] === "."){ // (a .test :x 12 .test2) => a.test({x: 12}).test2
+                            o += "})";
+                            o += formatKeyForObject(default_param_name);
+                            start_paren = false; // end paren
+                            if (params.rest === null || params.rest.first[0] === "."){ // eg: (a .test :x 12 .done) => a.test({x: 12}).done() instead of a.test({x: 12}).done
+                                o += "()";
+                            }
+                        }
+                        else{
+                            o += "}, " + default_param_name;
+                        }
                         break;
                     }
                     if(params.rest === null){
@@ -440,19 +465,35 @@ var lisp_module = function() {
                     o += ", " + default_param_name.slice(1) + ": " + default_param_val;
                     params = params.rest.rest;
                 }
-                if(params !== null && params.rest !== null)
-                    o += ", ";
                 // o += (p.slice(1) + "="); // stop supporting add(x = 12) like exp, which is invalid
-            } else {
-                o += p;
-                if (params.rest !== null)
+            }
+            else if (p[0] === "."){ // eg (console .log "Hello World")
+                if(start_paren === true){
+                    o += ")";
+                }
+                o += formatKeyForObject(p);
+                start_paren = false; // end paren
+                if (params.rest === null || params.rest.first[0] === "."){
+                    o += "()";
+                }
+            }
+            else {
+                if (start_paren === false){ // add left paren
+                    o += "(";
+                    start_paren = true;
+                }
+                else{
                     o += ", ";
+                }
+                o += p;
             }
             if(params === null || params.rest === null)
                 break;
             params = params.rest;
         }
-        o += ")";
+        if(start_paren)
+            o += ")";
+        console.log("Final: " + o);
         return o;
     }
 
@@ -466,6 +507,19 @@ var lisp_module = function() {
             return p;
         else
             return ("\"" + p + "\"");
+    }
+
+    var formatKeyForObject = function(key){
+        if(key[0] === "\"" || key[0] == "."){ // if "abc", then use .abc
+            var mid = (key[0] === "." ? key.slice(1) : key.slice(1, -1));
+            if(mid === validateName(mid) && isNaN(mid)){
+                return ("." + mid);
+            }
+            else
+                return ("[" + key + "]");
+        }
+        else
+            return ("[" + key + "]");
     }
 
     compiler = function(l, is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name) {
@@ -848,16 +902,7 @@ var lisp_module = function() {
                 var args = l.rest.rest;
                 while(args !== null){
                     var key = compiler(args.first, null, null, null, true);
-                    if(key[0] === "\""){ // if "abc", then use .abc
-                        var mid = key.slice(1, -1);
-                        if(mid === validateName(mid) && isNaN(mid)){
-                            o += ("." + mid);
-                        }
-                        else
-                            o += ("[" + key + "]");
-                    }
-                    else
-                        o += ("[" + key + "]");
+                    o += formatKeyForObject(key); // format key
                     args = args.rest;
                 }
                 return (need_return_string ? "return " : "") + o;
@@ -881,18 +926,7 @@ var lisp_module = function() {
                     else{
                         key = compiler(args.first, null, null, null, true);
                     }
-                    if(key[0] === "\""){ // if "abc", then use .abc
-                        var mid = key.slice(1, -1);
-                        if(mid === validateName(mid) && isNaN(mid)){
-                            o += ("." + mid);
-                        }
-                        else{
-                            o += ("[" + key + "]");
-                        }
-                    }
-                    else{
-                        o += ("[" + key + "]");
-                    }
+                    o += formatKeyForObject(key);
                     // call func
                     if (call_func){
                         var params = args.first.rest;

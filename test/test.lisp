@@ -1,14 +1,7 @@
-(console.log ((fn (n acc)
-      (if (== n 0)
-        acc
-        (recur (- n 1) (* n acc)))) 10 1))  ;; recur <=> that anonymo
+($ .post "test.php"
+   .done (fn () "done")
+   .fail (fn () "fail")
+   .test :x 1 :y 2
+   .done)
 
-
-
-(get console .log)
-(-> console (.log "Hello World"))
-(-> $ (.post "test.php")
-      (.done (fn () "done"))
-      (.fail (fn () "fail")))
-(-> "i am cool"
-  .length)
+(x .test .next .done)
