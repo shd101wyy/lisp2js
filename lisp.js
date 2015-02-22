@@ -172,6 +172,10 @@ var lisp_module = function() {
                 else if (t[0] === "."  && input_string[i - 1] === "\""){
                     output_list[output_list.length - 1] += t;
                 }
+                // case like (get console .log)
+                else if (t[0] === "."){
+                    output_list.push("\"" + t.slice(1) + "\"");
+                }
                 else
                     output_list.push(t);
                 i = end - 1;
@@ -839,11 +843,11 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + "(" + compiler(l.rest.first) + " instanceof " + compiler(l.rest.rest.first) +")";
             }
             else if (tag === "get"){ // (get a "length")  => a["length"]
-                var v = compiler(l.rest.first);
+                var v = compiler(l.rest.first, null, null, null, true);
                 var o = v;
                 var args = l.rest.rest;
-                while(args != null){
-                    var key = compiler(args.first);
+                while(args !== null){
+                    var key = compiler(args.first, null, null, null, true);
                     if(key[0] === "\""){ // if "abc", then use .abc
                         var mid = key.slice(1, -1);
                         if(mid === validateName(mid) && isNaN(mid)){
@@ -859,10 +863,50 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + o;
             }
             /*
+             *   (-> $ (.post ))
+             *
+             */
+            else if (tag === "->"){
+                var v = compiler(l.rest.first, null, null, null, true);
+                var o = v;
+                var args = l.rest.rest;
+                while(args !== null){
+                    var call_func = false;
+                    var key;
+                    var val = null;
+                    if (args.first instanceof $List){
+                        call_func = true;
+                        key = compiler(args.first.first, null, null, null, true);
+                    }
+                    else{
+                        key = compiler(args.first, null, null, null, true);
+                    }
+                    if(key[0] === "\""){ // if "abc", then use .abc
+                        var mid = key.slice(1, -1);
+                        if(mid === validateName(mid) && isNaN(mid)){
+                            o += ("." + mid);
+                        }
+                        else{
+                            o += ("[" + key + "]");
+                        }
+                    }
+                    else{
+                        o += ("[" + key + "]");
+                    }
+                    // call func
+                    if (call_func){
+                        var params = args.first.rest;
+                        o += formatParams(params);
+                    }
+                    args = args.rest;
+                }
+                return (need_return_string ? "return " : "") + o;
+            }
+            /*
              *  (try (do ...)   catch e (do ...) finally (do ...))
              *
              */
-             else if (tag === "try"){
+            else if (tag === "try"){
                var o = "try{"
                var clauses = l.rest;
                var body = clauses.first;

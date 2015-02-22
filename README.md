@@ -28,7 +28,7 @@ lisp2js beta
 </script>
 ```
 ----------------
-### [Try it Online](http://rawgit.com/shd101wyy/lisp2js_demo/master/index.html)
+### [Clik Me to Try it Online](http://rawgit.com/shd101wyy/lisp2js_demo/master/index.html)
 ----------------
 #### all comma, tab, space will be ignored.
 ----------------
@@ -352,9 +352,30 @@ lisp2js beta
 - get  
 ```lisp
     (get "abcd" 'length)
+    (get console .log)
 ```
 ```javascript
-    "abcd"["length"]
+    "abcd"["length"];
+    console.log;
+```
+
+- ->
+```lisp
+    (-> console (.log "Hello World"))
+    (-> $ (.post "test.php")
+          (.done (fn () "done"))
+          (.fail (fn () "fail")))
+    (-> "i am cool"
+        .length)
+```
+```javascript
+    console.log("Hello World");
+    $.post("test.php").done(function() {
+        return "done";
+    }).fail(function() {
+        return "fail";
+    });
+    "i am cool".length;
 ```
 
 - new
@@ -547,6 +568,26 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.24 </strong>
+    * add <strong> -> </strong> macro
+    * eg:
+    ```lisp
+        (-> console (.log "Hello World"))
+        (-> $ (.post "test.php")
+              (.done (fn () "done"))
+              (.fail (fn () "fail")))
+        (-> "i am cool"
+            .length)
+    ```
+    ```javascript
+        console.log("Hello World");
+        $.post("test.php").done(function() {
+            return "done";
+        }).fail(function() {
+            return "fail";
+        });
+        "i am cool".length;
+    ```
 - <strong> Version 0.0.20 - 0.0.22 </strong>
 - <strong> 2015/2/17 </strong>
     * <strong> Happy New Year []~(￣▽￣)~* </strong>
