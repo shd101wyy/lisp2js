@@ -493,7 +493,8 @@ var lisp_module = function() {
         }
         if(start_paren)
             o += ")";
-        console.log("Final: " + o);
+        if (o.trim().length === 0)
+            return "()";
         return o;
     }
 
