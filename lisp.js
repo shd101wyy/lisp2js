@@ -885,17 +885,24 @@ var lisp_module = function() {
                     else  // this part might be wrong.
                         return (need_return_string ? "return " : "") + "true";
                 }
+                p = compiler(params.first, null, null, null, true);
+                o += p;
+                params = params.rest;
                 while (params !== null) {
                     p = compiler(params.first, null, null, null, true);
+
+                    if (tag === "and")
+                        tag = "&&";
+                    else if (tag === "or")
+                        tag = "||";
+                    else if (tag == "==")
+                        tag = "===";
+                    o += (" " + tag + " ");
+
                     o += p;
-                    if (params.rest !== null){
-                        if (tag === "and")
-                            tag = "&&";
-                        else if (tag === "or")
-                            tag = "||";
-                        else if (tag == "==")
-                            tag = "===";
-                        o += (" " + tag + " ");
+                    if (params.rest !== null &&
+                        (tag === "===" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=")){
+                            o += " && " + p;
                     }
                     params = params.rest;
                 }

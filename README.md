@@ -571,6 +571,12 @@ lisp2js beta
 #### Change Log
 - <strong> 2015/2/23 </strong>
     * add REPL demo
+    * fix <= >= < > == != comparison operator bug, they now support multiple arguments.
+    * eg:
+    ```lisp
+        (== 1 1 1)
+        (<= 1 2 3 4 5 2)
+    ```
 - <strong> Version 0.0.24 </strong>
 - <strong> 2015/2/22 </strong>
     * add <strong> -> </strong> macro
