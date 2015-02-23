@@ -427,7 +427,7 @@ var lisp_module = function() {
                 break;
             var p = params.first;
             p = compiler(p, null, null, null, true);
-            if (typeof(p) === "string" && p[0] === ":") {
+            if (typeof(p) === "string" && p[0] === ":") { // named parameters
                 if (start_paren === false){ // add left paren
                     o += "(";
                     start_paren = true;
@@ -444,6 +444,7 @@ var lisp_module = function() {
                     }
                     var default_param_name = compiler(params.first, null, null, null, true);
                     if(default_param_name[0] !== ":"){
+                        /*
                         if (default_param_name[0] === "."){ // (a .test :x 12 .test2) => a.test({x: 12}).test2
                             o += "})";
                             o += formatKeyForObject(default_param_name);
@@ -454,7 +455,8 @@ var lisp_module = function() {
                         }
                         else{
                             o += "}, " + default_param_name;
-                        }
+                        }*/
+                        o += "}, " +  default_param_name;
                         break;
                     }
                     if(params.rest === null){
@@ -466,7 +468,7 @@ var lisp_module = function() {
                     params = params.rest.rest;
                 }
                 // o += (p.slice(1) + "="); // stop supporting add(x = 12) like exp, which is invalid
-            }
+            }/*
             else if (p[0] === "."){ // eg (console .log "Hello World")
                 if(start_paren === true){
                     o += ")";
@@ -476,7 +478,7 @@ var lisp_module = function() {
                 if (params.rest === null || params.rest.first[0] === "."){
                     o += "()";
                 }
-            }
+            }*/
             else {
                 if (start_paren === false){ // add left paren
                     o += "(";

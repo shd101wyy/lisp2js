@@ -9,3 +9,10 @@
 (def test ({:x 12 :y 13})
     (+ x y))
 (test)
+
+(-> $ (.post "test.php")
+      (.done (fn () "done"))
+      (.fail (fn () "fail"))
+      (.test (fn () "test")))
+
+(test :a 12 :b 13 x y)

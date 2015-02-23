@@ -6,3 +6,14 @@ var test = function(__lisp_args__) {
     return (x + y);
 };
 test();
+$.post("test.php").done(function() {
+    return "done";
+}).fail(function() {
+    return "fail";
+}).test(function() {
+    return "test";
+});
+test({
+    a: 12,
+    b: 13
+}, x, y);
