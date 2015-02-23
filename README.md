@@ -28,7 +28,8 @@ lisp2js beta
 </script>
 ```
 ----------------
-### [Clik Me to Try it Online](http://rawgit.com/shd101wyy/lisp2js_demo/master/index.html)
+### [Click Me to Try it Online](https://cdn.rawgit.com/shd101wyy/lisp2js/master/demo/translater.html)
+### [Online REPL](https://cdn.rawgit.com/shd101wyy/lisp2js/master/demo/repl.html)
 ----------------
 #### all comma, tab, space will be ignored.
 ----------------
@@ -568,6 +569,8 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/2/23 </strong>
+    * add REPL demo
 - <strong> Version 0.0.24 </strong>
 - <strong> 2015/2/22 </strong>
     * add <strong> -> </strong> macro
