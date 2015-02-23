@@ -1019,8 +1019,15 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + l; // number
         }
     }
+    /**
+        l: the expressions
+        need_return: need "return " keyword
+        eval_$:  whether eval or not
+        is_recur: recur object
+        print_eval_result$: whether print eval result or not
 
-    lisp_compiler = function(l, need_return, eval_$, is_recur) {
+    */
+    lisp_compiler = function(l, need_return, eval_$, is_recur, print_eval_result$) {
         var o = "";
         var result;
         var need_return_string = false;
@@ -1038,13 +1045,19 @@ var lisp_module = function() {
                 if(node_environment)
                     try{
                         eval_result = vm.runInContext(result, global_context, "lisp.vm");
+                        if(print_eval_result$){
+                            console.log(eval_result);
+                        }
                     }
                     catch(e){
                         console.log(e);
                     }
                 else{
                     try{
-                        window.eval(result);
+                        eval_result = window.eval(result);
+                        if(print_eval_result$){
+                            console.log(eval_result);
+                        }
                     }
                     catch(e){
                         console.log(e);
@@ -1057,13 +1070,13 @@ var lisp_module = function() {
         return o;
     }
 
-    var compile = function(input_string) {
+    var compile = function(input_string, print_eval_result$) {
         var l = lexer(input_string);
         if (l === null) {
             return null;
         }
         var p = parser(l);
-        return lisp_compiler(p, false, true);
+        return lisp_compiler(p, false, true, null, print_eval_result$);
     }
 
     var getEvalResult = function(){

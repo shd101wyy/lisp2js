@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title> Walley Language </title>
+		<meta charset='uff8'>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="js/jquery_terminal.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/jquery_terminal.css">
+		<script src="../lisp.js"></script>
+		<style type="text/css">
+			#term_demo{
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+		jQuery(function($, undefined) {
+		    $('body').terminal(function(command, term) {
+		    		console.log = term.echo;
+		    		console.error = term.echo;
+			        if (command !== '') {
+			            try {
+
+			            	// run command
+			            	var result = lisp.compile(command, true);
+
+			            	// add to console
+			            	//term.echo(result);
+
+			            } catch(e) {
+			                term.error(new String(e));
+			            }
+			        }
+			        else {
+			           term.echo('');
+			        }
+			    },
+			     {
+			        greetings: "\nlisp2js by Yiyi Wang (shd101wyy) 2015\n"+
+                              "Github: https://github.com/shd101wyy/lisp2js\n",
+			        name: 'lisp2js',
+			        height: 200,
+			        prompt: '> '});
+		});
+
+		</script>
+	</body>
+</html>
