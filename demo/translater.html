@@ -144,6 +144,15 @@
     ;; array map
     ([1 2 3 4].map (fn (i) (* i 2)))
 
+    ;; loop
+    ;; calculate factorial 10
+    (loop   i 10
+            acc 1
+            (if (== i 0)
+                acc
+                (recur (- i 1)
+                        (* i acc))))
+
     </div>
 
     <div id="wraper">

@@ -15,3 +15,7 @@ all:
 	#cat src/list.js >> src/lisp.js
 	#cat src/lisp_test.js >> src/lisp.js
 	#echo "Done compile. src/lisp.js generated"
+
+publish:
+	closure-compiler lisp.js --js_output_file lisp.min.js
+	npm publish
