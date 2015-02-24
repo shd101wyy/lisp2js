@@ -306,7 +306,12 @@ lisp2js beta
     x.next();
 ```
 
-
+- try
+```lisp
+    (try (console.log "This is try")
+    catch e (console.log "This is catch")
+    finally (console.log "This is finally"))
+```
 ```javascript
     try {
       console.log("This is try");
@@ -340,8 +345,8 @@ lisp2js beta
     (1 * 2 * 3);
     (1 / 2 / 3);
     ((1 + 2) * (3 - 4));
-    (1 > 2 > 3 > 4);
-    (1 <= 2 <= 3 <= 4);
+    (1 > 2 && 2 > 3 && 3 > 4);
+    (1 <= 2 && 2 <= 3 && 3 <= 4);
     (true && false);
     (1 || 2);
     (1 | 0x12);
@@ -377,6 +382,26 @@ lisp2js beta
         return "fail";
     });
     "i am cool".length;
+```
+
+- loop
+```lisp
+    ;; calculate factorial 10
+    (loop i 10
+          acc 1
+        (if (== i 0)
+            acc
+            (recur (- i 1)
+                   (* i acc))))
+```
+```javascript
+    (function __lisp__recur__$0(i, acc) {
+        if ((i === 0)) {
+            return acc
+        } else {
+            return __lisp__recur__$0((i - 1), (i * acc))
+        };
+    })(10, 1);
 ```
 
 - new
@@ -519,6 +544,7 @@ lisp2js beta
 ---------------------------------------
 #### recur
 ##### similar to recur in clojure
+- recur
 ```lisp
     (def test (n)
       (cond (== n 0) 0
@@ -569,6 +595,18 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/2/24 </strong>
+    * add <strong>loop</strong> macro
+    * eg:
+    ```lisp
+        ;; calculate factorial 10
+        (loop i 10
+              acc 1
+            (if (== i 0)
+                acc
+                (recur (- i 1)
+                       (* i acc))))
+    ```
 - <strong> 2015/2/23 </strong>
     * add REPL demo
     * fix <= >= < > == != comparison operator bug, they now support multiple arguments.
