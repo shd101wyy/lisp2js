@@ -539,7 +539,7 @@ var lisp_module = function() {
             return (need_return_string) ? "return null" : "null";
         else if (l instanceof $List) {
             var tag = car(l);
-            var o, var_name, var_value, v, key, params, body, test, func, p, args, clauses;
+            var o, var_name, var_value, v, key, params, body, test, func, p, args, clauses, i;
             if (tag === "def" || tag === "=" || tag === "set!" || tag === "const") {
                 var_name = car(cdr(l));
                 var_value = null;
@@ -736,7 +736,7 @@ var lisp_module = function() {
                 }
 
                 // check default_and_keyword_params.
-                for(var i = 0; i < default_and_keyword_params.length; i++){
+                for(i = 0; i < default_and_keyword_params.length; i++){
                     v = default_and_keyword_params[i];
                     if(v.constructor === Array){ // default parameters.
                         var p_name = v[0];
@@ -952,6 +952,31 @@ var lisp_module = function() {
                     args = args.rest;
                 }
                 return (need_return_string ? "return " : "") + o;
+            }
+            /**
+             * (loop i 10 (if (== i 0) 'done (recur (- i 1))))
+             * => ((fn (i) (if (== i 0) 'done (recur (- i 1)))) 10)
+             * => ((function (i){if(i == 0) return done; else return recur(i - 1)})(10))
+             */
+            else if (tag === "loop"){
+                var loop_params = [];
+                var loop_args = [];
+                clauses = l.rest;
+                while (clauses.rest !== null){
+                    var_name = compiler(clauses.first);
+                    var_value = compiler(clauses.rest.first, null, null, null, true);
+                    loop_params.push(var_name);
+                    loop_args.push(var_value);
+                    clauses = clauses.rest.rest;
+                }
+                var loop_params_list = null;
+                var loop_args_list = null;
+                for(i = loop_params.length - 1; i >= 0; i--){
+                    loop_params_list = cons(loop_params[i], loop_params_list);
+                    loop_args_list = cons(loop_args[i], loop_args_list);
+                }
+                body = clauses.first;
+                return compiler(cons(list("fn", loop_params_list, body), loop_args_list), is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name);
             }
             /*
              *  (try (do ...)   catch e (do ...) finally (do ...))
