@@ -608,8 +608,8 @@ var lisp_module = function() {
                     else
                         return need_return_string ? "return " + l.rest.first : l.rest.first;
                 }
-            } else if (tag === "fn" || tag === "fn*") {
-                o = tag === "fn" ? "function " : "function* "; // o is part ahead (){}
+            } else if (tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*") {
+                o = (tag === "fn" || tag === "λ") ? "function " : "function* "; // o is part ahead (){}
                 if(need_return_string) o = "return " + o;
                 var o2 = "";                                       // o2 is (){}
                 if(typeof(l.rest.first) === "string"){ // solve ((function test (){})()) problem

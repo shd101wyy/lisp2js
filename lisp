@@ -16,7 +16,7 @@ global.$List = list.$List;
 global.list = list.list;
 */
 if (argv.length === 2){
-    console.log("lisp2js by Yiyi Wang (shd101wyy) 2015");
+    console.log("lisp2js by Yiyi Wang (shd101wyy) 2015 λ");
     console.log("Interactive Mode");
     console.log("Press ctrl + c to quit\n");
     var input_lines = "";
