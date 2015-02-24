@@ -177,7 +177,11 @@ lisp2js beta
     (def x (if 1 2 3))
 ```
 ```javascript
-    (1 ? 2 : 3);
+    if (1) {
+        2
+    } else {
+        3
+    };
     var x = (1 ? 2 : 3);
 ```
 
@@ -267,15 +271,7 @@ lisp2js beta
         })());
     };
 ```
-- try/catch/finally
-```lisp
-    (try (do
-        (console.log "This is try"))
-    catch e (do
-        (console.log "This is catch"))
-    finally (do
-        (console.log "This is finally")))
-```
+
 - throw
 ```lisp
     (throw "Too Big")
@@ -306,7 +302,7 @@ lisp2js beta
     x.next();
 ```
 
-- try
+- try/catch/finally
 ```lisp
     (try (console.log "This is try")
     catch e (console.log "This is catch")
