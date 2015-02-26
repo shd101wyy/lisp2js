@@ -28,8 +28,8 @@ lisp2js beta
 </script>
 ```
 ----------------
-### [Click Me to Try it Online](https://cdn.rawgit.com/shd101wyy/lisp2js/master/demo/translater.html)
-### [Online REPL](https://cdn.rawgit.com/shd101wyy/lisp2js/master/demo/repl.html)
+### [Click Me to Try it Online](https://rawgit.com/shd101wyy/lisp2js/master/demo/translater.html)
+### [Online REPL](https://rawgit.com/shd101wyy/lisp2js/master/demo/repl.html)
 ----------------
 #### all comma, tab, space will be ignored.
 ----------------
