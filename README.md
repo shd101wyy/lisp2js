@@ -591,6 +591,8 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/2/25 </strong>
+    * fix demo link error.
 - <strong> 2015/2/24 </strong>
     * add <strong>loop</strong> macro
     * eg:
