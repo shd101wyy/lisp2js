@@ -22,7 +22,7 @@ lisp2js beta
 ----------------
 #### Use lisp2js in Browser
 ```html
-<script src="lisp.min.js"></script>
+<script src="lisp.js"></script>
 <script>
     var output = lisp.compile("(def x 12)"); // compile/eval expression, then return compiled result.
 </script>
