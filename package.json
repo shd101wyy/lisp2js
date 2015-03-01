@@ -1,6 +1,6 @@
 {
   "name": "lisp2js",
-  "version": "0.0.29",
+  "version": "0.0.28",
   "description": "A simple lisp to javascript translater",
   "main": "lisp.js",
   "scripts": {
@@ -15,9 +15,12 @@
   },
   "keywords": [
     "lisp",
-    "fun",
+    "Lisp",
+    "LISP",
     "compiler",
     "interpreter",
+    "parser",
+    "fun",
     "eval",
     "shd101wyy",
     "yiyi",

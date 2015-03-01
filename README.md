@@ -613,7 +613,7 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
-- <strong> Version 0.0.25 ~ 0.0.29 </strong>
+- <strong> Version 0.0.28 </strong>
 - <strong> 2015/3/1 </strong>
     * add <strong>case</strong> statement.  
     * eg:  
