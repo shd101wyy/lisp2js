@@ -389,12 +389,12 @@ var lisp_module = function() {
                 var eval_macro = "(function(){";
                 for (var key in match) {
                     if(match[key] instanceof $List){
-                        eval_macro += ("var " + key + " = " + compiler(cons("list", formatList(match[key]))) + "; ");
+                        eval_macro += ("var " + key + " = " + compiler(cons("list", formatList(match[key]))) + ";");
                     }
 		    else if (match[key] === null)
 			eval_macro += ("var " + key + " = null; ");
                     else
-                        eval_macro += ("var " + key + " = " + compiler('"' + match[key]) + '"' + "; ");
+                        eval_macro += ("var " + key + " = " + compiler('"' + match[key]) + '"' + ";");
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
@@ -539,8 +539,8 @@ var lisp_module = function() {
             return (need_return_string) ? "return null" : "null";
         else if (l instanceof $List) {
             var tag = car(l);
-            var o, var_name, var_value, v, key, params, body, test, func, p, args, clauses, i;
-            if (tag === "def" || tag === "=" || tag === "set!" || tag === "const") {
+            var o, var_name, var_value, v, key, params, body, test, func, p, args, clauses, i, find_else;
+            if (tag === "def" || tag === ":=" || tag === "=" || tag === "set!" || tag === "const") {
                 var_name = car(cdr(l));
                 var_value = null;
                 if (cdr(cdr(l)) === null)
@@ -553,7 +553,7 @@ var lisp_module = function() {
 
                 var_name = compiler(var_name);
                 var_value = compiler(var_value, null, null, null, true, var_name); // param_or_assignment
-                o = (tag === "def" ? "var " : (tag === "const" ? "const " : "")) + var_name + " = " + var_value + " ";
+                o = ( (tag === "def" || tag === ":=") ? "var " : (tag === "const" ? "const " : "")) + var_name + " = " + var_value + " ";
                 return (need_return_string) ? o + "; return " + var_name : o;
             } else if (tag === "Array") { // array
                 o = need_return_string ? "return [" : "[";
@@ -776,10 +776,10 @@ var lisp_module = function() {
 
                     if (typeof(var_name === "string")) {
                         if (var_name in vars) {
-                            o += (var_name + " = " + compiler(var_val) + "; ");
+                            o += (var_name + " = " + compiler(var_val) + ";");
                         } else {
                             vars[var_name] = true;
-                            o += ((/*param_or_assignment ? "var " :*/ /*"let "*/"var ") + var_name + " = " + compiler(var_val) + "; ");
+                            o += ((/*param_or_assignment ? "var " :*/ /*"let "*/"var ") + var_name + " = " + compiler(var_val) + ";");
                         }
                     } else {
                         console.log("let implementation not finished yet");
@@ -793,7 +793,7 @@ var lisp_module = function() {
                 return ((need_return_string /*&& param_or_assignment*/) ? "return " : "") + o; //+ "}";
             }
             else if (tag === "cond"){
-                var find_else = false;
+                find_else = false;
                 clauses = l.rest;
                 o = "if(";
                 if(param_or_assignment)
@@ -808,7 +808,7 @@ var lisp_module = function() {
                     o += " else ";
                     if(clauses.first !== "else"){ // else if
                         o += "if (";
-                        test = compiler(clauses.first);
+                        test = compiler(clauses.first, null, null, null, true);
                         o = o + test + "){";
                         body = clauses.rest.first;
                         o += compiler(body, true, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
@@ -840,7 +840,7 @@ var lisp_module = function() {
                 var conseq = l.rest.rest.first;
                 var alter = l.rest.rest.rest === null ? null : l.rest.rest.rest.first;
                 if(param_or_assignment){
-                    o += (compiler(test) + " ? ");
+                    o += (compiler(test, null, null, null, true) + " ? ");
                     o += (compiler(conseq, is_last_exp, is_recur, null, true, null) + " : ");
                     o += (compiler(alter, is_last_exp, is_recur, null, true, null) + ")");
                     return o;
@@ -907,6 +907,56 @@ var lisp_module = function() {
                     params = params.rest;
                 }
                 return (need_return_string ? "return " : "") + o + ")";
+            }
+            /*  (def x 12)
+             *  (case x
+                    'apple "This is apple"
+                    'yoo   "This is yooo"
+                    else   "Hoo")
+             *
+             *
+             *
+             */
+            else if (tag === "case"){
+                find_else = false;
+                var switch_object = l.rest.first; // get switch object
+                switch_object = compiler(switch_object, null, null, null, true); // compile switch object
+                clauses = l.rest.rest;
+                o = "switch (" + switch_object + "){";
+                if(param_or_assignment) // case inside param or assignment.
+                    o = "(function(){" + o;
+                while(clauses !== null){
+                    if(clauses.first !== "else"){ // not default
+                        o += " case ";
+                        test = compiler(clauses.first, null, null, null, true); // compile case
+                        o += test + ":";
+                        body = clauses.rest.first;
+                        o += compiler(body, true, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
+                        o += (o[o.length - 1] === ";" ? "" : ";");
+                        if (! (need_return_string || param_or_assignment)){
+                            o += " break;";
+                        }
+                        clauses = clauses.rest.rest;
+                    }
+                    else{ // default
+                        find_else = true;
+                        o += " default: ";
+                        body = clauses.rest.first;
+                        o += compiler(body, true, is_recur, need_return_string || param_or_assignment, null, current_fn_name);
+                        o += (o[o.length - 1] === ";" ? "" : ";");
+                        if (! (need_return_string || param_or_assignment)){
+                            o += " break;";
+                        }
+                        break;
+                    }
+                }
+                if(find_else === false && need_return_string){
+                    o += " default: return null;";
+                }
+                o += "}";
+                if(param_or_assignment)
+                    o = o + "})()";
+                return o;
             }
             else if (tag === "not"){
                 return (need_return_string ? "return " : "") + "(!" + compiler(l.rest.first, null, null, null, true) + ")";
@@ -1078,7 +1128,7 @@ var lisp_module = function() {
             result = compiler(l.first, l.rest === null? true : false, is_recur, need_return_string);
             if(typeof(result) === "string") result = result.trim();
             if (typeof(result) === "string" && result.length !== 0 && result[result.length - 1] !== ";" /*&& result[result.length - 1] !== "}"*/){
-                result += "; ";
+                result += ";";
             }
             if(eval_$){    // eval
                 if(node_environment)
