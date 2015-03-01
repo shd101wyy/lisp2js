@@ -171,6 +171,39 @@ lisp2js beta
     };
 ```
 
+- do. run a series of exps.
+```lisp
+    (do  (+ 1 2)
+         (- 3 4)
+         (* 5 6))
+
+    (fn ()
+        (do (+ 1 2)
+            (- 3 4)
+            (* 5 6)))
+    (if 1
+        (do (def x 1) (def y 2))
+        (do (def x 2) (def y 1)))
+```
+```javascript
+    (1 + 2);
+    (3 - 4);
+    (5 * 6);;
+
+    function() {
+        (1 + 2);
+        (3 - 4);
+        return (5 * 6);;
+    };
+    if (1) {
+        var x = 1;
+        var y = 2;
+    } else {
+        var x = 2;
+        var y = 1;
+    };
+```
+
 - if
 ```lisp
     (if 1 2 3)
@@ -205,36 +238,25 @@ lisp2js beta
       stm6;
     };
 ```
-- do. run a series of exps.
-```lisp
-    (do  (+ 1 2)
-         (- 3 4)
-         (* 5 6))
 
-    (fn ()
-        (do (+ 1 2)
-            (- 3 4)
-            (* 5 6)))
-    (if 1
-        (do (def x 1) (def y 2))
-        (do (def x 2) (def y 1)))
+- case
+```lisp
+    (def test (x)
+        (case x
+            "apple" "This is apple"
+            "orange" "This is orange"
+            else "This is nothing"))
 ```
 ```javascript
-    (1 + 2);
-    (3 - 4);
-    (5 * 6);;
-
-    function() {
-        (1 + 2);
-        (3 - 4);
-        return (5 * 6);;
-    };
-    if (1) {
-        var x = 1;
-        var y = 2;
-    } else {
-        var x = 2;
-        var y = 1;
+    var test = function(x) {
+        switch (x) {
+            case "apple":
+                return "This is apple";
+            case "orange":
+                return "This is orange";
+            default:
+                return "This is nothing";
+        };
     };
 ```
 
@@ -591,6 +613,21 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.28 </strong>
+- <strong> 2015/3/1 </strong>
+    * add <strong>case</strong> statement.
+    * eg:
+        ```lisp
+            (def test (x)
+                (case x
+                    "apple" "This is apple"
+                    "orange" "This is orange"
+                    else "This is nothing"))
+            (test "pear")    ;; => This is nothing
+            (test "apple")   ;; => This is apple
+            (test "orange")  ;; => This is orange
+        ```
+    * fix one <strong>if</strong> and <strong>cond</strong> bug.
 - <strong> 2015/2/25 </strong>
     * fix demo link error.
 - <strong> 2015/2/24 </strong>
