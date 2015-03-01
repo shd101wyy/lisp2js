@@ -613,20 +613,20 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
-- <strong> Version 0.0.28 </strong>
+- <strong> Version 0.0.25 ~ 0.0.29 </strong>
 - <strong> 2015/3/1 </strong>
-    * add <strong>case</strong> statement.
-    * eg:
-        ```lisp
-            (def test (x)
-                (case x
-                    "apple" "This is apple"
-                    "orange" "This is orange"
-                    else "This is nothing"))
-            (test "pear")    ;; => This is nothing
-            (test "apple")   ;; => This is apple
-            (test "orange")  ;; => This is orange
-        ```
+    * add <strong>case</strong> statement.  
+    * eg:  
+    ```lisp
+        (def test (x)
+            (case x
+                "apple" "This is apple"
+                "orange" "This is orange"
+                else "This is nothing"))
+        (test "pear")    ;; => This is nothing
+        (test "apple")   ;; => This is apple
+        (test "orange")  ;; => This is orange
+    ```
     * fix one <strong>if</strong> and <strong>cond</strong> bug.
 - <strong> 2015/2/25 </strong>
     * fix demo link error.
