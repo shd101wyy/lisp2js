@@ -281,6 +281,9 @@ var lisp_module = function() {
             }
         }
         if (!isNaN(o[0])) o =  "_" + o ; // first letter is number, add _ ahead.
+        //if (o === "super"){
+        //    return "this.__proto__.__proto__";
+        //}
         return o;
     };
 
@@ -1080,12 +1083,48 @@ var lisp_module = function() {
 
                 super => this.proto;
                 super(12) => this.proto = new Animal(12);
+
+
+                eg:
+                (class A
+                    :constructor (fn (x)
+                                    (= this.x x))
+                    :showX (fn ()
+                                (console.log this.x)))
+                (class B extends A
+                    :constructor (fn (x y)
+                                    (= this.y y)
+                                    (super y))
+                    :showX (fn ()
+                                (console.log "This is B")
+                                (super.showX)))
+                =>
+                function A(x){
+                    this.x = x
+                }
+                A.prototype = {
+                    constructor: A,
+                    showX: function(){ console.log (this.x) }
+                }
+
+                function B(x, y){
+                    this.y = y;
+                    A.call(this, y);
+                }
+                B.prototype = {
+                    __proto__: A.prototype,
+                    constructor: B,
+                    showX: function(){
+                        console.log("This is B");
+                        this.__proto__.__proto__.showX();
+                    }
+                }
              */
             else if (tag === "class"){
                 var class_name = l.rest.first;
                 var constructor_value = null;
                 var constructor_string;
-                o = class_name + ".prototype = {"; // used to add prototype
+                o = class_name + ".prototype = {"; //constructor: " + class_name + ""; // used to add prototype
                 // todo check extends.
                 l = l.rest.rest;
                 while (l !== null) {
