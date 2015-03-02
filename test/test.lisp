@@ -22,3 +22,6 @@
 
 (def x (new B 1 2))
 (x.showX)
+
+(def y (class X
+            :constructor (fn (x) (= this.x x))))

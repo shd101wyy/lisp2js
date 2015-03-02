@@ -1114,14 +1114,14 @@ var lisp_module = function() {
 
                 function B(x, y){
                     this.y = y;
-                    A.call(this, y);
+                    A.call(this, y); // A is this.__proto__.__proto__.constructor
                 }
                 B.prototype = {
                     __proto__: A.prototype,
                     constructor: B,
                     showX: function(){
                         console.log("This is B");
-                        this.__proto__.__proto__.showX();
+                        this.__proto__.__proto__.showX.apply(this);
                     }
                 }
              */
@@ -1179,7 +1179,11 @@ var lisp_module = function() {
                     return o + "; return " + class_name + ";";
                 }
                 else{
-                    return o;
+                    if (param_or_assignment){
+                        return "(function(){" + o + " return " + class_name + ";}())";
+                    } else {
+                        return o;
+                    }
                 }
             }
             /*

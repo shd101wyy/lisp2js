@@ -34,3 +34,13 @@ B.prototype = {
 };
 var x = (new B(1, 2));
 x.showX();
+var y = (function() {
+    var X = function(x) {
+        this.x = x;
+        return this.x;
+    };
+    X.prototype = {
+        constructor: X
+    };
+    return X;
+}());
