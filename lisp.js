@@ -537,7 +537,12 @@ var lisp_module = function() {
             return ("[" + key + "]");
     };
 
-    compiler = function(l, is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name) {
+    compiler = function(l,
+                        is_last_exp,
+                        is_recur,
+                        need_return_string,
+                        param_or_assignment,
+                        current_fn_name) {
         if (l === null)
             return (need_return_string) ? "return null" : "null";
         else if (l instanceof $List) {
@@ -1121,10 +1126,16 @@ var lisp_module = function() {
                 }
              */
             else if (tag === "class"){
-                var class_name = l.rest.first;
+                var class_name = l.rest.first;  // get class name
                 var constructor_value = null;
                 var constructor_string;
-                o = class_name + ".prototype = {"; //constructor: " + class_name + ""; // used to add prototype
+                var extends_class_name = null;
+                o = class_name + ".prototype = {constructor: " + class_name + ""; // used to add prototype
+                if (l.rest.rest.first === "extends"){
+                    extends_class_name = l.rest.rest.rest.first; // get superclass name
+                    l = l.rest.rest;
+                    o += ", __proto__: " + extends_class_name + ".prototype";
+                }
                 // todo check extends.
                 l = l.rest.rest;
                 while (l !== null) {
@@ -1137,19 +1148,20 @@ var lisp_module = function() {
                             continue;
                         }
                         else{
+                            o += ", ";
                             o += (key + ": ");
                         }
                     } else if (key[0] === "'" || key[0] === "\""){
+                        o += ", ";
                         o += (key + ": ");
                     }
                     else{
+                        o += ", ";
                         o += ("[" + key + "]: ");
                     }
 
                     var_value = compiler(l.rest.first, null, null, null, true);
                     o += (var_value);
-                    if (l.rest.rest !== null)
-                        o += ", ";
                     l = l.rest.rest;
                 }
                 o += "};";
@@ -1157,7 +1169,6 @@ var lisp_module = function() {
                     constructor_string = compiler(list("def", class_name, constructor_value));
                 }
                 o = constructor_string + ";" + o;
-                console.log(o);
                 if (need_return_string){
                     return o + "; return " + class_name + ";";
                 }
@@ -1182,7 +1193,7 @@ var lisp_module = function() {
             } else { // fn
                 func = l.first;
                 params = l.rest;
-                func = compiler(func);
+                func = compiler(func, null, null, null, true);
                 if(func === "recur" && is_last_exp){
                     if(is_recur[0] === false){
                         is_recur[0] = "__lisp__recur__$" + recursion_function_name_count; // last exp;
@@ -1190,6 +1201,16 @@ var lisp_module = function() {
                     }
                     func = is_recur[0];
                     l.first = func;
+                }
+                else if (func === "super"){ // super constructor. eg (super 1 2)
+                    params = formatParams(params);
+                    o = "this.__proto__.__proto__.constructor.call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
+                    return (need_return_string ? "return " : "") + o;
+                }
+                else if (typeof(func) === "string" && func.slice(0, 6) === "super." || func.slice(0, 6) === "super["){ // super function. eg (super.showX);
+                    params = formatParams(params);
+                    o = "this.__proto__.__proto__" + func.slice(5) + ".call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
+                    return (need_return_string ? "return " : "") + o;
                 }
                 o = func;
                 if(func[func.length - 1] === "}" || (!isNaN(func))){ // solve ((fn () "Hi")) bug
