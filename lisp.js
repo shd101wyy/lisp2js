@@ -1064,6 +1064,69 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + "("+ compiler(l.rest.first) +" in " + compiler(l.rest.rest.first) + ")";
             }
             /*
+                ;; define Animal class
+                (class Animal
+                    :constructor (fn (age)
+                                    (= this.age age))
+                    :showAge (fn () (console.log this.age)))
+
+                ;; Dog class extends Animal class
+                (class Dog extends Animal
+                    :constructor (fn (age)
+                                    (super age))
+                    :showAge (fn ()
+                                (super.showAge)
+                                (console.log "This is dog")))
+
+                super => this.proto;
+                super(12) => this.proto = new Animal(12);
+             */
+            else if (tag === "class"){
+                var class_name = l.rest.first;
+                var constructor_value = null;
+                var constructor_string;
+                o = class_name + ".prototype = {"; // used to add prototype
+                // todo check extends.
+                l = l.rest.rest;
+                while (l !== null) {
+                    key = compiler(l.first, null, null, null, true);
+                    if (key[0] === ":") {
+                        key = formatKey(key.slice(1));
+                        if (key === "constructor"){
+                            constructor_value = l.rest.first; // get constructor value
+                            l = l.rest.rest;
+                            continue;
+                        }
+                        else{
+                            o += (key + ": ");
+                        }
+                    } else if (key[0] === "'" || key[0] === "\""){
+                        o += (key + ": ");
+                    }
+                    else{
+                        o += ("[" + key + "]: ");
+                    }
+
+                    var_value = compiler(l.rest.first, null, null, null, true);
+                    o += (var_value);
+                    if (l.rest.rest !== null)
+                        o += ", ";
+                    l = l.rest.rest;
+                }
+                o += "};";
+                if (constructor_value !== null){ // compile constructor
+                    constructor_string = compiler(list("def", class_name, constructor_value));
+                }
+                o = constructor_string + ";" + o;
+                console.log(o);
+                if (need_return_string){
+                    return o + "; return " + class_name + ";";
+                }
+                else{
+                    return o;
+                }
+            }
+            /*
              * (defmacro macro-name
              *      var0 pattern0
              *      var1 pattern1 ... )
