@@ -44,3 +44,31 @@ var y = (function() {
     };
     return X;
 }());
+var Animal = function(age) {
+    this.age = age;
+    return this.age;
+};
+Animal.prototype = {
+    constructor: Animal,
+    showAge: function() {
+        console.log("Called from Animal");
+        return console.log(this.age);
+    }
+};
+var Dog = function(age) {
+    return this.__proto__.__proto__.constructor.call(this, age);
+};
+Dog.prototype = {
+    constructor: Dog,
+    __proto__: Animal.prototype,
+    showAge: function() {
+        console.log("Called from Dog");
+        return this.__proto__.__proto__.showAge.call(this);
+    },
+    bark: function() {
+        return console.log("Bark!");
+    }
+};
+var dog = (new Dog(5));
+dog.showAge();
+dog.bark();

@@ -25,3 +25,23 @@
 
 (def y (class X
             :constructor (fn (x) (= this.x x))))
+
+
+(class Animal
+    :constructor (fn (age)                ;; define constructor
+                    (= this.age age))
+    :showAge (fn ()
+                (console.log "Called from Animal")
+                (console.log this.age)))
+(class Dog extends Animal
+    :constructor (fn (age)                ;; define constructor
+                    (super age))          ;; call superclass constructor
+    :showAge (fn ()
+                (console.log "Called from Dog")
+                (super.showAge))          ;; call superclass method
+    :bark (fn ()
+            (console.log "Bark!")))
+
+(def dog (new Dog 5))
+(dog.showAge)
+(dog.bark)

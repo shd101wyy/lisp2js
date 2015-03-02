@@ -402,6 +402,31 @@ lisp2js beta
     "i am cool".length;
 ```
 
+- class (this might be buggy, I will implement class in es6 in the future)
+```lisp
+    (class Animal
+        :constructor (fn (age)                ;; define constructor
+                        (= this.age age))
+        :showAge (fn ()                       ;; define method
+                    (console.log "Called from Animal")
+                    (console.log this.age)))
+    (class Dog extends Animal
+        :constructor (fn (age)                ;; define constructor
+                        (super age))          ;; call superclass constructor
+        :showAge (fn ()                       ;; define method
+                    (console.log "Called from Dog")
+                    (super.showAge))          ;; call superclass method
+        :bark (fn ()                          ;; define method
+                (console.log "Bark!")))
+
+    (def dog (new Dog 5))
+    (dog.showAge)  ;;  Called from Dog
+                   ;;  Called from Animal
+                   ;;  5
+
+    (dog.bark)     ;;  Bark!
+```
+
 - loop
 ```lisp
     ;; calculate factorial 10
@@ -613,6 +638,32 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.30 </strong>
+    * add <strong>class</strong> support (this might be buggy though)
+    * eg:
+    ```lisp
+        (class Animal
+            :constructor (fn (age)                ;; define constructor
+                            (= this.age age))
+            :showAge (fn ()
+                        (console.log "Called from Animal")
+                        (console.log this.age)))
+        (class Dog extends Animal
+            :constructor (fn (age)                ;; define constructor
+                            (super age))          ;; call superclass constructor
+            :showAge (fn ()
+                        (console.log "Called from Dog")
+                        (super.showAge))          ;; call superclass method
+            :bark (fn ()
+                    (console.log "Bark!")))
+
+        (def dog (new Dog 5))
+        (dog.showAge)  ;;  Called from Dog
+                       ;;  Called from Animal
+                       ;;  5
+
+        (dog.bark)     ;;  Bark!
+    ```
 - <strong> Version 0.0.28 </strong>
 - <strong> 2015/3/1 </strong>
     * add <strong>case</strong> statement.  
