@@ -1131,10 +1131,12 @@ var lisp_module = function() {
                 var constructor_string;
                 var extends_class_name = null;
                 o = class_name + ".prototype = {constructor: " + class_name + ""; // used to add prototype
+
+                // super class
                 if (l.rest.rest.first === "extends"){
                     extends_class_name = l.rest.rest.rest.first; // get superclass name
                     l = l.rest.rest;
-                    o += ", __proto__: " + extends_class_name + ".prototype";
+                    o += ", __proto__: " + extends_class_name + ".prototype"; // set __proto__
                 }
                 // todo check extends.
                 l = l.rest.rest;
@@ -1143,6 +1145,10 @@ var lisp_module = function() {
                     if (key[0] === ":") {
                         key = formatKey(key.slice(1));
                         if (key === "constructor"){
+                            if (constructor_value !== null){ // redefine the constructor.
+                                console.log("ERROR: redefine the constructor for class " + class_name);
+                                return "";
+                            }
                             constructor_value = l.rest.first; // get constructor value
                             l = l.rest.rest;
                             continue;
