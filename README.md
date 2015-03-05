@@ -638,6 +638,8 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/3/4 </strong>
+    * fix one macro bug.
 - <strong> Version 0.0.30 </strong>
     * add <strong>class</strong> support (this might be buggy though)
     * eg:

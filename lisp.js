@@ -1228,7 +1228,7 @@ var lisp_module = function() {
                 }
                 if (func in macros) {
                     var expanded_value = macro_expand(macros[func], params);
-                    return (need_return_string ? "return " : "") + compiler(expanded_value);
+                    return (need_return_string ? "return " : "") + compiler(expanded_value, is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name);
                 }
 
                 o += formatParams(params);
