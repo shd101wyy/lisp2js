@@ -1207,14 +1207,16 @@ var lisp_module = function() {
             /*
              * expand macro
              * eg (defmacro square (x) `(* ~x ~x))
-             *    (macro-expand (square 12))
+             *    (macro-expand (square 12) 1)  expand once
              */
             else if (tag === "macro-expand"){
                 var macro_expr = l.rest.first;
+                var expand_time = l.rest.rest;
                 var result = compiler(macro_expr);
                 if(node_environment)
                     try{
                         eval_result = vm.runInContext(result, global_context, "lisp.vm");
+                        expand_time = (expand_time === null? -1 : vm.runInContext(expand_time.first, global_context, "lisp.vm"));
                     }
                     catch(e){
                         console.log(e);
@@ -1222,15 +1224,26 @@ var lisp_module = function() {
                 else{
                     try{
                         eval_result = window.eval(result);
+                        expand_time = (expand_time === null? -1 : window.eval(expand_time.first));
                     }
                     catch(e){
                         console.log(e);
                     }
                 }
                 // console.log("EVAL_RESULT: " + eval_result.toString());
-                func = eval_result.first;
-                if (func in macros){
-                    var expanded_value = macro_expand(macros[func], eval_result.rest);
+                if (eval_result.first in macros){
+                    // expand until the first element of list is not macro.
+                    var expanded_value = eval_result;
+                    i = 0;
+                    while(true){
+                        expanded_value = macro_expand(macros[expanded_value.first], expanded_value.rest);
+                        if (expanded_value === null || (!(expanded_value.first in macros))){
+                            break;
+                        }
+                        i++;
+                        if (i === expand_time)
+                            break;
+                    }
                     // console.log("EXPAND: " + expanded_value.toString());
                     return "\"" + expanded_value.toString() + "\"";
                 }
@@ -1295,7 +1308,6 @@ var lisp_module = function() {
         while (l !== null) {
             if (need_return && l.rest === null){
                 need_return_string = true; // need add return string.
-                //o += "return ";
             }
             result = compiler(l.first, l.rest === null? true : false, is_recur, need_return_string);
             if(typeof(result) === "string") result = result.trim();
