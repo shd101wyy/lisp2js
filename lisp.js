@@ -976,6 +976,7 @@ var lisp_module = function() {
             }
             else if (tag === "get"){ // (get a "length")  => a["length"]
                 v = compiler(l.rest.first, null, null, null, true);
+                if (v === "super") v = "this.__super__"; // check super object
                 o = v;
                 args = l.rest.rest;
                 while(args !== null){
@@ -991,6 +992,7 @@ var lisp_module = function() {
              */
             else if (tag === "->"){
                 v = compiler(l.rest.first, null, null, null, true); // get object
+                if (v === "super") v = "this.__super__"; // check super object
                 o = v;
                 args = l.rest.rest;
                 while(args !== null){
@@ -1266,12 +1268,13 @@ var lisp_module = function() {
                 }
                 else if (func === "super"){ // super constructor. eg (super 1 2)
                     params = formatParams(params);
-                    o = "this.__proto__.__proto__.constructor.call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
+                    o = "Object.defineProperty(this, '__super__', {value: this.__proto__.__proto__}); ";
+                    o += "this.__super__.constructor.call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
                     return (need_return_string ? "return " : "") + o;
                 }
-                else if (typeof(func) === "string" && func.slice(0, 6) === "super." || func.slice(0, 6) === "super["){ // super function. eg (super.showX);
+                else if (typeof(func) === "string" && func.slice(0, 15) === "this.__super__." || func.slice(0, 15) === "this.__super__["){ // super function. eg (super.showX);
                     params = formatParams(params);
-                    o = "this.__proto__.__proto__" + func.slice(5) + ".call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
+                    o = "this.__super__" + func.slice(14) + ".call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
                     return (need_return_string ? "return " : "") + o;
                 }
                 o = func;

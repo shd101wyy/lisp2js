@@ -620,7 +620,7 @@ lisp2js beta
 ```
 ---------------------------------------
 #### Macro
-- define a macro (unhygienic right now) 
+- define a macro (unhygienic right now)
 ```lisp
     (defmacro square (x) `(* ~x ~x))
     (square 12)
@@ -652,6 +652,7 @@ lisp2js beta
 ---------------------------------------
 #### Change Log
 - <strong> 2015/3/8 </strong>
+    * change code generation for <strong> class </strong>.
     * add <strong> macro-expand </strong> function.
     * eg:
     ```lisp
