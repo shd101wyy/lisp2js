@@ -1269,8 +1269,8 @@ var lisp_module = function() {
                 else if (func === "super"){ // super constructor. eg (super 1 2)
                     params = formatParams(params);
                     o = "Object.defineProperty(this, '__super__', {value: this.__proto__.__proto__}); ";
-                    o += "this.__super__.constructor.call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
-                    return (need_return_string ? "return " : "") + o;
+                    o += (need_return_string ? "return " : "") + "this.__super__.constructor.call(this" + (params === "()" ? ")" : (", " + params.slice(1)));
+                    return o;
                 }
                 else if (typeof(func) === "string" && func.slice(0, 15) === "this.__super__." || func.slice(0, 15) === "this.__super__["){ // super function. eg (super.showX);
                     params = formatParams(params);
