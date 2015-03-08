@@ -611,10 +611,13 @@ var lisp_module = function() {
                 } else if (l.rest === null) {
                     return need_return_string ? "return null" : "null";
                 } else {
-                    if (isNaN(l.rest.first)) // not a number
-                        return need_return_string ? "return " + '"' + l.rest.first + '"' : '"' + l.rest.first + '"';
-                    else
+                    if (isNaN(l.rest.first)){ // not a number
+                        o = (l.rest.first[0] === "\"" ? l.rest.first : "\"" + l.rest.first + "\""); // if val is string, return itself; otherwise return "val"
+                        return need_return_string ? "return " + o : o;
+                    }
+                    else{
                         return need_return_string ? "return " + l.rest.first : l.rest.first;
+                    }
                 }
             } else if (tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*") {
                 o = (tag === "fn" || tag === "λ") ? "function " : "function* "; // o is part ahead (){}
@@ -1200,7 +1203,43 @@ var lisp_module = function() {
                 clauses = l.rest.rest;
                 macros[macro_name] = clauses;
                 return "";
-            } else { // fn
+            }
+            /*
+             * expand macro
+             * eg (defmacro square (x) `(* ~x ~x))
+             *    (macro-expand (square 12))
+             */
+            else if (tag === "macro-expand"){
+                var macro_expr = l.rest.first;
+                var result = compiler(macro_expr);
+                if(node_environment)
+                    try{
+                        eval_result = vm.runInContext(result, global_context, "lisp.vm");
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                else{
+                    try{
+                        eval_result = window.eval(result);
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                }
+                // console.log("EVAL_RESULT: " + eval_result.toString());
+                func = eval_result.first;
+                if (func in macros){
+                    var expanded_value = macro_expand(macros[func], eval_result.rest);
+                    // console.log("EXPAND: " + expanded_value.toString());
+                    return "\"" + expanded_value.toString() + "\"";
+                }
+                else{
+                    console.log("ERROR: macro-expand invalid macro: " + macro_expr.toString());
+                    return "";
+                }
+            }
+            else { // fn
                 func = l.first;
                 params = l.rest;
                 func = compiler(func, null, null, null, true);
