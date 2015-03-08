@@ -1245,7 +1245,8 @@ var lisp_module = function() {
                             break;
                     }
                     // console.log("EXPAND: " + expanded_value.toString());
-                    return "\"" + expanded_value.toString() + "\"";
+                    return compiler(list('quote', expanded_value));
+                    // return "\"" + expanded_value.toString() + "\"";
                 }
                 else{
                     console.log("ERROR: macro-expand invalid macro: " + macro_expr.toString());
