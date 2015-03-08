@@ -651,8 +651,9 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.31 </strong>
 - <strong> 2015/3/8 </strong>
-    * change code generation for <strong> class </strong>.
+    * change code generation for <strong> class </strong> statement.
     * add <strong> macro-expand </strong> function.
     * eg:
     ```lisp
