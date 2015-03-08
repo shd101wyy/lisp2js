@@ -620,7 +620,7 @@ lisp2js beta
 ```
 ---------------------------------------
 #### Macro
-- define a macro  
+- define a macro (unhygienic right now) 
 ```lisp
     (defmacro square (x) `(* ~x ~x))
     (square 12)
@@ -635,6 +635,19 @@ lisp2js beta
     (12 * 12);
     ((15 * 15) + (16 * 16));
 ```
+
+- macro-expand: expand a macro form
+```lisp
+    (defmacro square (x) `(* ~x ~x))
+    ;; the macro-expand function will expand the macro until it no longer represents a macro form.
+    (macro-expand '(square 12))  ; => '(* 12 12)
+
+    (defmacro test (x) `(test (+ 1 ~x)))
+    ;; macro-expand can also expand macro forms for n times.
+    (macro-expand '(test 1) 2)   ; => '(test (+ 1 (+ 1 1)))   this will expand macro twice.
+    (macro-expand '(test 1) 3)   ; => '(test (+ 1 (+ 1 (+ 1 1))))   this will expand macro for 3 times.
+```
+
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log

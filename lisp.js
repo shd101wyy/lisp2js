@@ -394,23 +394,22 @@ var lisp_module = function() {
                     if(match[key] instanceof $List){
                         eval_macro += ("var " + key + " = " + compiler(cons("list", formatList(match[key]))) + ";");
                     }
-		    else if (match[key] === null)
-			eval_macro += ("var " + key + " = null; ");
+		            else if (match[key] === null)
+			            eval_macro += ("var " + key + " = null; ");
                     else
                         eval_macro += ("var " + key + " = " + compiler('"' + match[key]) + '"' + ";");
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
-		if(node_environment)
+		        if(node_environment)
                     try{
                         var result = vm.runInContext(eval_macro, global_context, "lisp.vm");
-			return result;
+			            return result;
                     }
                     catch(e){
                         console.log(e);
                         return "";
                     }
-
                 else
                     try{
                         return window.eval(eval_macro);
@@ -1245,7 +1244,7 @@ var lisp_module = function() {
                             break;
                     }
                     // console.log("EXPAND: " + expanded_value.toString());
-                    return compiler(list('quote', expanded_value));
+                    return compiler(list('quote', expanded_value), null, null, null, param_or_assignment);
                     // return "\"" + expanded_value.toString() + "\"";
                 }
                 else{
