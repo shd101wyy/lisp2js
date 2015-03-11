@@ -618,8 +618,13 @@ var lisp_module = function() {
                         return need_return_string ? "return " + l.rest.first : l.rest.first;
                     }
                 }
-            } else if (tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*") {
-                o = (tag === "fn" || tag === "λ") ? "function " : "function* "; // o is part ahead (){}
+            } else if (tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*" || tag === "=>") {
+                if (tag === "fn" || tag === "λ") // o is part ahead (){}
+                    o = "function";
+                else if (tag === "fn*" || tag === "λ*")
+                    o = "function*";
+                else
+                    o = "";
                 if(need_return_string) o = "return " + o;
                 var o2 = "";                                       // o2 is (){}
                 if(typeof(l.rest.first) === "string"){ // solve ((function test (){})()) problem
@@ -728,7 +733,10 @@ var lisp_module = function() {
                     params = params.rest;
                 }
                 is_recur = [current_fn_name ? current_fn_name : false];
-                o2 += "){";
+                if (tag === "=>") // (a, b) => {a + b};
+                    o2 += ")=>{";
+                else
+                    o2 += "){";
                 /*
                 if(__lisp_args__){ // default parameter
                     o2 += "var __lisp_args_v__;"
