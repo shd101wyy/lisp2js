@@ -651,6 +651,7 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> 2015/3/15 </strong>
 - <strong> Version 0.0.33 </strong>
     * fix one macro bug
     * add <strong> => </strong>
