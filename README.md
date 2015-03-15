@@ -651,6 +651,13 @@ lisp2js beta
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.33 </strong>
+    * fix one macro bug
+    * add <strong> => </strong>
+    * eg:
+    ```lisp
+        (=> (x y) (+ x y))   ;; es6 (x, y) => {return x + y};
+    ```
 - <strong> Version 0.0.31 ~ 0.0.32 </strong>
 - <strong> 2015/3/8 </strong>
     * change code generation for <strong> class </strong> statement.

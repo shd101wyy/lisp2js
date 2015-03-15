@@ -376,10 +376,10 @@ var lisp_module = function() {
                     }
                     return cons("\"" + o + "\"", formatList(l.rest));
                 }
-		else if (l.first === null)
-		    return cons(l.first, formatList(l.rest));
+		        else if (l.first === null)
+		              return cons(l.first, formatList(l.rest));
                 else
-                    return cons('"' + l.first + '"', formatList(l.rest));
+                    return cons('"' + validateName(l.first) + '"', formatList(l.rest));
                 // return cons(l.first[0] === "\"" ? ("'" + l.first + "'") : '"' + l.first + '"', formatList(l.rest)); // 这里是为了修复 ""abc""这种字符 eval 出问题的bug
             }
         };
@@ -392,12 +392,12 @@ var lisp_module = function() {
                 var eval_macro = "(function(){";
                 for (var key in match) {
                     if(match[key] instanceof $List){
-                        eval_macro += ("var " + key + " = " + compiler(cons("list", formatList(match[key]))) + ";");
+                        eval_macro += ("var " + validateName(key) + " = " + compiler(cons("list", formatList(match[key]))) + ";");
                     }
 		            else if (match[key] === null)
-			            eval_macro += ("var " + key + " = null; ");
+			            eval_macro += ("var " + validateName(key) + " = null; ");
                     else
-                        eval_macro += ("var " + key + " = " + compiler('"' + match[key]) + '"' + ";");
+                        eval_macro += ("var " + validateName(key) + " = " + compiler('"' + match[key]) + '"' + ";");
                 }
                 eval_macro += ("return (" + compiler(clauses.rest.first) + ");");
                 eval_macro += "})();";
