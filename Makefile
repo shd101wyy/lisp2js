@@ -2,7 +2,7 @@
 # =======================================
 # make lisp.lisp file in src folder
 all:
-	closure-compiler lisp.js --js_output_file lisp.min.js
+	closure-compiler lisp2js.js --js_output_file lisp2js.min.js
 	#./lisp src/list.lisp src/list_es6.js
 	#./lisp src/lisp.lisp src/lisp_test_es6.js
 	## ====================================================
@@ -17,5 +17,5 @@ all:
 	#echo "Done compile. src/lisp.js generated"
 
 publish:
-	closure-compiler lisp.js --js_output_file lisp.min.js
+	closure-compiler lisp2js.js --js_output_file lisp2js.min.js
 	npm publish

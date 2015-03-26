@@ -2,7 +2,7 @@
 
 var fs = require("fs");
 var util = require("util");
-var lisp = require("./lisp.js");
+var lisp = require("./lisp2js.js");
 var list = require("./dependencies/list.js");
 var vm = require("vm");
 var repl = require("repl");

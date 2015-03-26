@@ -15,14 +15,14 @@ lisp2js beta
 ```
 #### How to run  
 ```sh
-    lisp                               # repl
-    lisp   [file1.lisp]                # run file1.lisp
-    lisp   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]
+    lisp2js                               # repl
+    lisp2js   [file1.lisp]                # run file1.lisp
+    lisp2js   [file1.lisp]  [file2.js]    # compile [file1.lisp] to js file [file2.js]
 ```
 ----------------
 #### Use lisp2js in Browser
 ```html
-<script src="lisp.js"></script>
+<script src="lisp2js.js"></script>
 <script>
     var output = lisp.compile("(def x 12)"); // compile/eval expression, then return compiled result.
 </script>
