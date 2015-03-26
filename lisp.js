@@ -620,9 +620,9 @@ var lisp_module = function() {
                 }
             } else if (tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*" || tag === "=>") {
                 if (tag === "fn" || tag === "λ") // o is part ahead (){}
-                    o = "function";
+                    o = "function ";
                 else if (tag === "fn*" || tag === "λ*")
-                    o = "function*";
+                    o = "function* ";
                 else
                     o = "";
                 if(need_return_string) o = "return " + o;
