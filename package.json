@@ -7,7 +7,7 @@
     "test": "lisp2js"
   },
   "bin": {
-      "lisp": "./lisp2js"
+      "lisp2js": "./lisp2js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
     "lisp",
     "Lisp",
     "LISP",
+    "lisp2js",
     "compiler",
     "interpreter",
     "eval"
