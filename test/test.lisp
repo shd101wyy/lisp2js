@@ -45,3 +45,6 @@
 (def dog (new Dog 5))
 (dog.showAge)
 (dog.bark)
+
+
+(def add (:a 12 :b 13) (+ a b))

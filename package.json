@@ -1,13 +1,13 @@
 {
   "name": "lisp2js",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "A simple lisp to javascript translater",
-  "main": "lisp.js",
+  "main": "lisp2js.js",
   "scripts": {
-    "test": "lisp"
+    "test": "lisp2js"
   },
   "bin": {
-      "lisp": "./lisp"
+      "lisp": "./lisp2js"
   },
   "repository": {
     "type": "git",
@@ -19,12 +19,7 @@
     "LISP",
     "compiler",
     "interpreter",
-    "parser",
-    "fun",
-    "eval",
-    "shd101wyy",
-    "yiyi",
-    "Yiyi Wang"
+    "eval"
   ],
   "author": "Yiyi Wang (shd101wyy)",
   "license": "MIT",
