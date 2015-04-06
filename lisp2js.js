@@ -890,7 +890,7 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + o;
             } else if (tag === "+" || tag === "-" || tag === "*" || tag === "/" || tag === "%" ||
                 tag === "==" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=" ||
-                tag === "&&" || tag === "||" || tag === "&" || tag === "|" || tag === "and" || tag === "or") {
+                tag === "&&" || tag === "||" || tag === "&" || tag === "|" || tag === "and" || tag === "or" || tag === "xor") {
                 o = "(";
                 params = l.rest;
                 if(params.rest === null){ // only one params
@@ -913,8 +913,10 @@ var lisp_module = function() {
                         tag = "&&";
                     else if (tag === "or")
                         tag = "||";
-                    else if (tag == "==")
+                    else if (tag === "==")
                         tag = "===";
+                    else if (tag === "xor")
+                        tag = "^";
                     o += (" " + tag + " ");
 
                     o += p;
