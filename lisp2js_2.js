@@ -1070,7 +1070,6 @@ var lisp_module = function() {
                 for(i = loop_params.length - 1; i >= 0; i--){
                     loop_args_list = cons(loop_args[i], loop_args_list);
                 }
-                console.log(cons(list("fn", loop_params, body), loop_args_list).toString());
                 return compiler(cons(cons("fn", cons(loop_params, body)), loop_args_list), is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name);
             }
             /*
@@ -1416,4 +1415,4 @@ if (typeof(module) !== "undefined") {
 //console.log(lisp.compile("(fn [x] (if (= x 0) 1 (recur (- x 1))))"))
 //console.log(lisp.compile("(loop [x 10] (if (= x 1) 'Done (recur (- x 1))))"));
 //console.log(lisp.compile("(test :a 12)"));
-console.log(lisp.compile("(defmacro square [x] `(* ~x ~x) [x y] `(- ~x ~x)) (square 3 4)"));
+//console.log(lisp.compile("(defmacro square [x] `(* ~x ~x) [x y] `(- ~x ~x)) (square 3 4)"));
