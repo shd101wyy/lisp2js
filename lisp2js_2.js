@@ -16,6 +16,7 @@ b=function(a,c){return a instanceof d?b(a.rest,e(a.first,c)):null===a?c:e(a,c)};
 d){return null===b?null:0===d?b.first:a(b.rest,d-1)};return a(this,b)};d.prototype.append=function(){var b,a;a=1<=arguments.length?slice.call(arguments,0):[];a=f.apply(f,a);b=function(a,d){return null===a?d:e(a.first,b(a.rest,d))};return b(this,a)};d.prototype.toArray=function(){var b,a;b=[];a=function(c){if(null===c)return b;b.push(c.first);return a(c.rest)};return a(this)};d.prototype.forEach=function(b){var a;a=function(c){if(null===c)return null;b(c.first);return a(c.rest)};return a(this)};d.prototype.foreach=
 d.prototype.forEach;d.prototype.map=function(b){var a;a=function(c){return null===c?null:e(b(c.first),a(c.rest))};return a(this)};d.prototype.filter=function(b){var a;a=function(c){return null===c?null:b(c.first)?e(c.first,a(c.rest)):a(c.rest)};return a(this)};e=function(b,a){return new d(b,a)};f=function(){var b,a;b=1<=arguments.length?slice.call(arguments,0):[];a=function(b,d){return d===b.length?null:e(b[d],a(b,d+1))};return a(b,0)};return{list:f,cons:e,List:d,car:function(b){return b.first},cdr:function(b){return b.rest}}}();
 $List=list_module.List;list=list_module.list;cons=list_module.cons;car=list_module.car;cdr=list_module.cdr;"undefined"!==typeof module&&(module.exports.$List=$List,module.exports.list=list,module.exports.cons=cons,module.exports.car=car,module.exports.cdr=cdr);
+
 /*
  * ########################################
  * ########################################
@@ -255,8 +256,32 @@ var lisp_module = function() {
         }
         return current_list_pointer;
     };
+    
+    function arrayToList(arr, f){
+        var output = null; 
+        for (var i = arr.length - 1; i >= 0; i--){
+            var a = arr[i]; 
+            if (typeof(a) === "number")
+                output = cons(a, output); 
+            else if (typeof(a) === "string" && a[0] === "\"")
+                output = cons(a, output);      
+            else if (typeof(a) === "string") 
+                output = cons("\"" + a + "\"", output);
+            else if (a instanceof Array)
+                output = cons(arrayToList(a), output);
+            else if (a instanceof $List){
+                if (a.first === "unquote" && f === quasiquote_list)
+                    output = cons(a.rest.first, output);
+                else
+                    output = cons(f(a), output)
+            } 
+            else 
+                output = cons(a, output);
+        }
+        return output;
+    }
 
-    var quote_list = function(l) {
+    function quote_list(l) {
         if (l === null) return null;
         var v = l.first;
         if (v instanceof $List) return cons("cons",
@@ -265,10 +290,12 @@ var lisp_module = function() {
                     null)));
         else if (typeof(v) === "string" && v === ".")
             return cons("quote", cons(l.rest.first, null));
+        else if (v instanceof Array)
+            return cons("cons", cons( cons("Array", arrayToList(v, quote_list)), cons(quote_list(l.rest), null)));
         else
             return cons("cons",
                 cons(cons("quote", cons(v, null)),
-                    cons(quote_list(cdr(l)), null)));
+                    cons(quote_list(l.rest), null)));
     };
 
     // validate variable name.
@@ -297,7 +324,7 @@ var lisp_module = function() {
         return o;
     };
 
-    var quasiquote_list = function(l) {
+    function quasiquote_list(l) {
         if (l === null) {
             return null;
         }
@@ -319,6 +346,8 @@ var lisp_module = function() {
                     cons(quasiquote_list(l.rest), null)));
         } else if (typeof(v) === "string" && v === ".")
             return cons("quote", cons(l.rest.first, null));
+        else if (v instanceof Array) // TODO: this has problem.
+            return cons("cons", cons( cons("Array", arrayToList(v, quasiquote_list)), cons(quote_list(l.rest), null)));
         else
             return cons("cons",
                 cons(cons("quote",
