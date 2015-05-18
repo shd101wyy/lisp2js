@@ -10,13 +10,314 @@ if(typeof(module) != "undefined"){ // nodejs
     node_environment = true;
 }
 
+/**
+ * ######################################################
+ * ######################################################
+ * ##################  List Prototype  ##################
+ * ######################################################
+ * ######################################################
+ */
+var $List, car, cdr, cons, list, list_module,
+  slice = [].slice;
+list_module = (function() {
+  /*
+      Construct List data structure
+   */
+  var List, car, cdr, cons, list;
+  List = function(first, rest) {
+    this.first = first;
+    this.rest = rest;
+    return null;
+  };
 
-var $List,car,cdr,cons,list,list_module,__slice=[].slice;
-list_module=function(){var d,e,f;d=function(b,a){this.first=b;this.rest=a;return null};d.prototype.length=function(){var b;b=function(a,c){return null===a?c:b(a.rest,c+1)};return b(this,0)};d.prototype.toString=function(){var b;b=function(a,c){return null===a?c+")":a instanceof d?b(a.rest,c+(null===a.first?"()":a.first.toString())+(null===a.rest?"":", ")):c.slice(0,-2)+" . "+a.toString()+")"};return b(this,"(")};d.prototype.reverse=function(){var b;b=function(a,c){return a instanceof d?b(a.rest,e(a.first,
-     c)):null===a?c:e(a,c)};return b(this,null)};d.prototype.slice=function(b,a){var c,d,f;null==a&&(a=null);if(null===a)return 0>b&&(b=this.length()+b),d=function(a,b){return 0===b?a:d(a.rest,b-1)},d(this,b);if(0>b||0>a)c=this.length(),b=0>b?c+b:b,a=0>a?c+a:a;f=function(a,b,c){return 0===b?0===c||null===a?null:e(a.first,f(a.rest,b,c-1)):f(a.rest,b-1,c)};return f(this,b,a-b)};d.prototype.ref=function(b){var a;0>b&&(b=this.length()+b);a=function(b,d){return null===b?null:0===d?b.first:a(b.rest,d-1)};return a(this,
-         b)};d.prototype.append=function(){var b,a;a=1<=arguments.length?__slice.call(arguments,0):[];a=f.apply(f,a);b=function(a,d){return null===a?d:e(a.first,b(a.rest,d))};return b(this,a)};d.prototype.toArray=function(){var b,a;b=[];a=function(c){if(null===c)return b;b.push(c.first);return a(c.rest)};return a(this)};d.prototype.forEach=function(b){var a;a=function(c){if(null===c)return null;b(c.first);return a(c.rest)};return a(this)};d.prototype.foreach=d.prototype.forEach;d.prototype.map=function(b){var a;
-             a=function(c){return null===c?null:e(b(c.first),a(c.rest))};return a(this)};d.prototype.filter=function(b){var a;a=function(c){return null===c?null:b(c.first)?e(c.first,a(c.rest)):a(c.rest)};return a(this)};e=function(b,a){return new d(b,a)};f=function(){var b,a;b=1<=arguments.length?__slice.call(arguments,0):[];a=function(b,d){return d===b.length?null:e(b[d],a(b,d+1))};return a(b,0)};return{list:f,cons:e,List:d,car:function(b){return b.first},cdr:function(b){return b.rest}}}();$List=list_module.List;
-             list=list_module.list;cons=list_module.cons;car=list_module.car;cdr=list_module.cdr;"undefined"!==typeof module&&(module.exports.$List=$List,module.exports.list=list,module.exports.cons=cons,module.exports.car=car,module.exports.cdr=cdr);
+  /*
+  get length of list
+  eg:
+      x = list(1, 2, 3)
+      x.length() => 3
+   */
+  List.prototype.length = function() {
+    var list_length;
+    list_length = function(l, acc) {
+      if (l === null) {
+        return acc;
+      } else {
+        return list_length(l.rest, acc + 1);
+      }
+    };
+    return list_length(this, 0);
+  };
+
+  /*
+  list to string
+   */
+  List.prototype.toString = function() {
+    function to_string(l, output) {
+      if (l === null) {
+        return output += ")";
+      } else if (l instanceof List) {
+        return to_string(l.rest, output + (l.first === null ? "()" : (l.first instanceof Array ? "[" + l.first.toString() + "]" : l.first.toString())) + (l.rest === null ? "" : ", "));
+      } else {
+        return output.slice(0, -2) + " . " + l.toString() + ")";
+      }
+    }
+    return to_string(this, "(");
+  };
+
+  /*
+  list reverse
+  eg:
+      x = list(1, 2, 3)
+      x.reverse() => (3, 2, 1)
+   */
+  List.prototype.reverse = function() {
+    var list_reverse;
+    list_reverse = function(l, output) {
+      if (l instanceof List) {
+        return list_reverse(l.rest, cons(l.first, output));
+      } else if (l === null) {
+        return output;
+      } else {
+        return cons(l, output);
+      }
+    };
+    return list_reverse(this, null);
+  };
+
+  /*
+  list slice
+  eg:
+      x = list(1, 2, 3, 4, 5)
+      x.slice(2) => list(3, 4, 5)
+      x.slice(3, 5) => list(4, 5)
+      x.slice(-2) => list(4, 5)
+   */
+  List.prototype.slice = function(start, end) {
+    var length, neg, slice1, slice2;
+    if (end === void 0) {
+      end = null;
+    }
+    if (end === null) {
+      if (start < 0) {
+        start = this.length() + start;
+      }
+      slice1 = function(l, i) {
+        if (i === 0) {
+          return l;
+        } else {
+          return slice1(l.rest, i - 1);
+        }
+      };
+      return slice1(this, start);
+    } else {
+      neg = start < 0 || end < 0;
+      if (neg) {
+        length = this.length();
+        start = (start < 0 ? length + start : start);
+        end = (end < 0 ? length + end : end);
+      }
+      slice2 = function(l, i, j) {
+        if (i === 0) {
+          if (j === 0 || l === null) {
+            return null;
+          } else {
+            return cons(l.first, slice2(l.rest, i, j - 1));
+          }
+        } else {
+          return slice2(l.rest, i - 1, j);
+        }
+      };
+      return slice2(this, start, end - start);
+    }
+  };
+
+  /*
+  list ref
+  eg:
+      x = list(1, 2, 3, 4)
+      x.ref(0) => 1
+   */
+  List.prototype.ref = function(i) {
+    var ref;
+    if (i < 0) {
+      i = this.length() + i;
+    }
+    ref = function(l, i) {
+      if (l === null) {
+        return null;
+      } else if (i === 0) {
+        return l.first;
+      } else {
+        return ref(l.rest, i - 1);
+      }
+    };
+    return ref(this, i);
+  };
+
+  /*
+  list append
+  eg:
+      x = list(1, 2, 3, 4)
+      x.append(5) => (1, 2, 3, 4, 5)
+      x.append(7, 8) => (1, 2, 3, 4, 7, 8)
+   */
+  List.prototype.append = function() {
+    var append, i, o;
+    i = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+    o = list.apply(list, i);
+    append = function(l, o) {
+      if (l === null) {
+        return o;
+      } else {
+        return cons(l.first, append(l.rest, o));
+      }
+    };
+    return append(this, o);
+  };
+
+  /*
+  list toArray
+  eg:
+      x = list(1, 2, 3)
+      x.toArray() => [1, 2, 3]
+   */
+  List.prototype.toArray = function() {
+    var output, to_array;
+    output = [];
+    to_array = function(l) {
+      if (l === null) {
+        return output;
+      } else {
+        output.push(l.first);
+        return to_array(l.rest);
+      }
+    };
+    return to_array(this);
+  };
+
+  /*
+  list forEach
+  eg:
+      x = list(1, 2, 3)
+      x.forEach(i => console.log(i)) => print 1, 2, 3
+   */
+  List.prototype.forEach = function(func) {
+    var iter;
+    iter = function(l) {
+      if (l === null) {
+        return null;
+      } else {
+        func(l.first);
+        return iter(l.rest);
+      }
+    };
+    return iter(this);
+  };
+  List.prototype.foreach = List.prototype.forEach;
+
+  /*
+  list map
+  eg:
+      x = list(1, 2, 3)
+      x.map(i=>i*2) => (2, 4, 6)
+   */
+  List.prototype.map = function(func) {
+    var iter;
+    iter = function(l) {
+      if (l === null) {
+        return null;
+      } else {
+        return cons(func(l.first), iter(l.rest));
+      }
+    };
+    return iter(this);
+  };
+
+  /*
+  list filter
+  eg:
+      x = list(1, 2, 3, 4)
+      x.filter(i => i > 2)  => (3, 4)
+   */
+  List.prototype.filter = function(func) {
+    var iter;
+    iter = function(l) {
+      if (l === null) {
+        return null;
+      } else {
+        if (func(l.first)) {
+          return cons(l.first, iter(l.rest));
+        } else {
+          return iter(l.rest);
+        }
+      }
+    };
+    return iter(this);
+  };
+
+  /*
+  cons two elements.  same as lisp
+  eg:
+      x = cons(3, 4)
+      y = cons(3, cons(4, null))
+   */
+  cons = function(a, b) {
+    return new List(a, b);
+  };
+
+  /*
+  car: get first element of list
+   */
+  car = function(l) {
+    return l.first;
+  };
+
+  /*
+  cdr: get rest elements of list
+   */
+  cdr = function(l) {
+    return l.rest;
+  };
+
+  /*
+  construct list. same as lisp
+  eg:
+      x = list(1, 2, 3, 4)
+   */
+  list = function() {
+    var a, create_list;
+    a = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+    create_list = function(a, i) {
+      if (i === a.length) {
+        return null;
+      } else {
+        return cons(a[i], create_list(a, i + 1));
+      }
+    };
+    return create_list(a, 0);
+  };
+  return {
+    list: list,
+    cons: cons,
+    List: List,
+    car: car,
+    cdr: cdr
+  };
+})();
+
+$List = list_module.List;
+list = list_module.list;
+cons = list_module.cons;
+car = list_module.car;
+cdr = list_module.cdr;
+
+if (typeof module !== "undefined") {
+  module.exports.$List = $List;
+  module.exports.list = list;
+  module.exports.cons = cons;
+  module.exports.car = car;
+  module.exports.cdr = cdr;
+}
 
 /*
  * ########################################
@@ -225,7 +526,19 @@ var lisp_module = function() {
                         car(lists));
                     i--;
                 } else {
-                    current_list_pointer = cons(current_list_pointer, car(lists)); // append list
+                    // check vector
+                    if (current_list_pointer !== null && current_list_pointer.first === "Array"){
+                        var arr = [];
+                        current_list_pointer = current_list_pointer.rest;
+                        while(current_list_pointer !== null){
+                            arr.push(current_list_pointer.first);
+                            current_list_pointer = current_list_pointer.rest;
+                        }
+                        current_list_pointer = cons(arr, car(lists)); // append array
+                    }
+                    else{
+                        current_list_pointer = cons(current_list_pointer, car(lists)); // append list
+                    }
                 }
                 temp = lists;
                 lists = cdr(lists);
@@ -246,7 +559,31 @@ var lisp_module = function() {
         return current_list_pointer;
     };
 
-    var quote_list = function(l) {
+    function arrayToList(arr, f){
+        var output = null;
+        for (var i = arr.length - 1; i >= 0; i--){
+            var a = arr[i];
+            if (typeof(a) === "number")
+                output = cons(a, output);
+            else if (typeof(a) === "string" && a[0] === "\"")
+                output = cons(a, output);
+            else if (typeof(a) === "string")
+                output = cons("\"" + a + "\"", output);
+            else if (a instanceof Array)
+                output = cons(arrayToList(a), output);
+            else if (a instanceof $List){
+                if (a.first === "unquote" && f === quasiquote_list)
+                    output = cons(a.rest.first, output);
+                else
+                    output = cons(f(a), output)
+            }
+            else
+                output = cons(a, output);
+        }
+        return output;
+    }
+
+    function quote_list(l) {
         if (l === null) return null;
         var v = l.first;
         if (v instanceof $List) return cons("cons",
@@ -255,10 +592,12 @@ var lisp_module = function() {
                     null)));
         else if (typeof(v) === "string" && v === ".")
             return cons("quote", cons(l.rest.first, null));
+        else if (v instanceof Array)
+            return cons("cons", cons( cons("Array", arrayToList(v, quote_list)), cons(quote_list(l.rest), null)));
         else
             return cons("cons",
                 cons(cons("quote", cons(v, null)),
-                    cons(quote_list(cdr(l)), null)));
+                    cons(quote_list(l.rest), null)));
     };
 
     // validate variable name.
@@ -287,7 +626,7 @@ var lisp_module = function() {
         return o;
     };
 
-    var quasiquote_list = function(l) {
+    function quasiquote_list(l) {
         if (l === null) {
             return null;
         }
@@ -309,46 +648,60 @@ var lisp_module = function() {
                     cons(quasiquote_list(l.rest), null)));
         } else if (typeof(v) === "string" && v === ".")
             return cons("quote", cons(l.rest.first, null));
+        else if (v instanceof Array) // TODO: this has problem.
+            return cons("cons", cons( cons("Array", arrayToList(v, quasiquote_list)), cons(quote_list(l.rest), null)));
         else
             return cons("cons",
                 cons(cons("quote",
                         cons(v, null)),
                     cons(quasiquote_list(l.rest),
                         null)));
-    };
+    }
 
     var macro_match = function(a, b, result) {
-        if (a === null && b === null)
-            return result;
-        else if ((a === null && b !== null) || (a !== null && b === null && a.first !== ".")) {
-            return 0; // doesn't match
-        } else if (a.first instanceof $List && b.first instanceof $List) {
-            var match = macro_match(a.first, b.first, result);
-            if (!match)
-                return 0; // doesn't match
-            return macro_match(a.rest, b.rest, result);
-        } else if (a.first instanceof $List && !(b.first instanceof $List)) {
-            return 0; // doesn't match
-        } else {
-            if (typeof(a.first) === "string" && a.first[0] === "#") {
-                // constant
-                if (typeof(b.first) !== "string") {
-                    return 0; // doesn't match
-                }
-                if (a.first.slice(1) === b.first)
-                    return macro_match(a.rest, b.rest, result);
-                else
-                    return 0;
-            } else if (typeof(a.first) === "string" && a.first === ".") {
-                result[a.rest.first] = b;
+        var i = 0;
+        while(true){
+            if (i === a.length && i === b.length){
                 return result;
-            } else {
-                result[a.first] = b.first;
-                return macro_match(a.rest, b.rest, result);
+            }
+            else if ((i === a.length && i !== b.length) || (i !== a.length && i === b.length && a[i] !== ".")) {
+                return 0; // doesn't match
+            }
+            else if (a[i] instanceof Array && b[i] instanceof Array){
+                var match = macro_match(a[i], b[i], result);
+                if (!match)
+                    return 0; // doesn't match
+                i += 1;
+                continue;
+            }
+            else if (a[i] instanceof Array && !( b[i] instanceof Array) ){
+                return 0; // doesn't match
+            }
+            else{
+                if (typeof(a[i]) === "string" && a[i][0] === "#"){
+                    // constant
+                    if (typeof(b[i]) !== "string") {
+                        return 0; // doesn't match
+                    }
+                    if (a[i].slice(1) === b[i]){
+                        i += 1;
+                        continue;
+                    }
+                    else
+                        return 0;
+                } else if (typeof(a[i]) === "string" && a[i] === ".") {
+                     result[a[i + 1]] = b;
+                     return result;
+                } else {
+                     result[a[i]] = b[i];
+                     i += 1;
+                     continue;
+                }
             }
         }
     };
     var macro_expand = function(clauses, exp) {
+        exp = exp.toArray();
         var formatList = function(l){ // add "" to values.
             if (l === null)
                 return null;
@@ -542,12 +895,25 @@ var lisp_module = function() {
                         need_return_string,
                         param_or_assignment,
                         current_fn_name) {
+        var i;
         if (l === null)
             return (need_return_string) ? "return null" : "null";
+
+        // Array value
+        else if (l instanceof Array){
+            o = need_return_string ? "return [" : "[";
+            for (i = 0; i < l.length; i++){
+                o += (compiler(l[i], null, null, null, true));
+                if (i !== l.length - 1)
+                    o += ", ";
+            }
+            o += "]";
+            return o;
+        }
         else if (l instanceof $List) {
             var tag = car(l);
-            var o, var_name, var_value, v, key, params, body, test, func, p, args, clauses, i, find_else;
-            if (tag === "def" || tag === ":=" || tag === "=" || tag === "set!" || tag === "const") {
+            var o, var_name, var_value, v, key, params, body, test, func, p, args, clauses, find_else;
+            if (tag === "def" || tag === ":=" || tag === "set!" || tag === "const") {
                 var_name = car(cdr(l));
                 var_value = null;
                 if (cdr(cdr(l)) === null)
@@ -601,9 +967,7 @@ var lisp_module = function() {
                 }
                 o += "}";
                 return o;
-            } /*else if (tag === ARRAY_OBJECT_GET) { // x[0] =? [[ x 0
-                return (need_return_string ? "return " : "") + compiler(l.rest.first) + "[" + compiler(l.rest.rest.first) + "]";
-            }*/ else if (tag === "quote" || tag === "quasiquote") {
+            } else if (tag === "quote" || tag === "quasiquote") {
                 if (l.rest.first instanceof $List) {
                     v = compiler(tag === "quote" ? quote_list(l.rest.first) : quasiquote_list(l.rest.first));
                     return need_return_string ? "return " + v : v;
@@ -618,8 +982,8 @@ var lisp_module = function() {
                         return need_return_string ? "return " + l.rest.first : l.rest.first;
                     }
                 }
-            } else if (tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*" || tag === "=>") {
-                if (tag === "fn" || tag === "λ") // o is part ahead (){}
+            } else if (tag === "defn" || tag === "fn" || tag === "fn*" || tag === "λ" || tag === "λ*" || tag === "=>") {
+                if (tag === "defn" || tag === "fn" || tag === "λ") // o is part ahead (){}
                     o = "function ";
                 else if (tag === "fn*" || tag === "λ*")
                     o = "function* ";
@@ -670,12 +1034,15 @@ var lisp_module = function() {
                 var parameter_num = 0;
                 var __lisp_rest_list__ = false; // check whether rest parameter is in list ds
                 var __lisp_rest__ = null; // save rest parameter.
-                while (params !== null) {
-                    p = params.first;
+                if (!(params instanceof Array)){
+                    throw "Invalid experssion: "; // TODO: print expression
+                }
+
+                for (i = 0; i < params.length; i++) {
+                    p = params[i];
                     if(typeof(p) !== "string"){ // keyword parameters
                         if (p.first !== "Object"){
-                            console.log("ERROR: Invalid parameters");
-                            return "";
+                            throw "ERROR: Invalid parameters";
                         }
                         parameter_num++;
                         p = p.rest;
@@ -692,8 +1059,7 @@ var lisp_module = function() {
                             p = p.rest.rest;
                         }
                         o2 += "__lisp_args__";
-                        params = params.rest;
-                        if(params !== null && params.first !== "&" && params.first !== ".")
+                        if(i < params.length - 1 && i + 1 < params.length && params[i + 1] !== "&" && params[i + 1] !== ".")
                             o2 += ", ";
                         default_and_keyword_params.push(keyword_params);
                         continue;
@@ -701,51 +1067,39 @@ var lisp_module = function() {
                     p = compiler(p);
                     if (p === "&") { // ecmascript 6 rest parameters
                         parameter_num++;
-                        __lisp_rest__ = compiler(params.rest.first);
+                        __lisp_rest__ = compiler(params[i + 1]);
                         //o2 += ("..." + compiler(params.rest.first));
                         break;
                     } else if (p === "."){  // es6 rest parameters. convert to list
                         parameter_num++;
-                        params = params.rest;
-                        __lisp_rest__ = compiler(params.first);
+                        __lisp_rest__ = compiler(params[i + 1]);
                         __lisp_rest_list__ = true;
-                        //o2 += ("..." + p);
-                        //body = cons(list("=", p, list("list.apply", "null", p)), body) // convert from arry to list
                         break;
                     }
                     else if (p[0] === ":"){
                         parameter_num++;
                         var default_param_name = p.slice(1); // get default param name.
                         o2 += default_param_name; // add parameter name.
-                        default_and_keyword_params.push([default_param_name, compiler(params.rest.first, null, null, null, true)]);
-                        params = params.rest.rest;
-                        if(params !== null && params.first !== "&" && params.first !== "."){
+                        default_and_keyword_params.push([default_param_name, compiler(params[i + 1], null, null, null, true)]);
+                        i += 1;
+                        if(i < params.length - 1 && i + 1 < params.length && params[i + 1] !== "&" && params[i + 1] !== ".")
                             o2 += ", ";
-                        }
                         continue;
                     }
                     else {
                         parameter_num++;
                         o2 += p;
-                        if (params.rest !== null && params.rest.first !== "&" && params.rest.first !== ".")
+                        if(i < params.length - 1 && i + 1 < params.length && params[i + 1] !== "&" && params[i + 1] !== ".")
                             o2 += ", ";
                     }
-                    params = params.rest;
                 }
+
                 is_recur = [current_fn_name ? current_fn_name : false];
                 if (tag === "=>") // (a, b) => {a + b};
                     o2 += ")=>{";
                 else
                     o2 += "){";
-                /*
-                if(__lisp_args__){ // default parameter
-                    o2 += "var __lisp_args_v__;"
-                    o2 += "__lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__); ";
-                    for(key in __lisp_args__){
-                        o2 += "var " + key + " = ((__lisp_args_v__ = __lisp_args__." + key + ") === void 0 ? "  + __lisp_args__[key] + " : __lisp_args_v__); ";
-                    }
-                }
-                */
+
                 if(__lisp_rest__){ // rest parameters
                     o2 += "for(var " + __lisp_rest__ + " = [], $__0 = " + (parameter_num - 1) + "; $__0 < arguments.length; $__0++)" +
                           __lisp_rest__ + "[$__0 - " + (parameter_num - 1) + "] = arguments[$__0];";
@@ -774,42 +1128,44 @@ var lisp_module = function() {
                 if(is_recur[0] !== false && is_recur[0] !== current_fn_name){ // is recur
                     o += is_recur[0];
                 }
-                //console.log("parameter num: "+parameter_num);
-                //console.log(o + o2);
                 return o + o2;
             }
             /*
-             * (let x 1 y 2 body)
+             * (let [x 1 y 2]
+             *  	body)
              * => // {let x = 1; let y = 2; ...} deprecated
              * => ((function(){var x = 1; var y = 2; body...}))
              */
             else if (tag === "let") {
                 var vars = {};
-                params = cdr(l);
-                // var o = param_or_assignment ? "((function(){" : "{";
+                var assignments = l.rest.first;
+
                 o = "((function(){";
-                while (params.rest !== null) {
-                    var_name = params.first;
-                    var var_val = params.rest.first;
+                for(i = 0; i < assignments.length; i+=2){
+                    var_name = assignments[i];
+                    var_value = assignments[i + 1];
 
                     if (typeof(var_name === "string")) {
                         if (var_name in vars) {
-                            o += (var_name + " = " + compiler(var_val) + ";");
+                            o += (var_name + " = " + compiler(var_value) + ";");
                         } else {
                             vars[var_name] = true;
-                            o += ((/*param_or_assignment ? "var " :*/ /*"let "*/"var ") + var_name + " = " + compiler(var_val) + ";");
+                            o += ((/*param_or_assignment ? "var " :*/ /*"let "*/"var ") + var_name + " = " + compiler(var_value) + ";");
                         }
                     } else {
                         console.log("let implementation not finished yet");
                     }
-                    params = params.rest.rest;
                 }
+
                                                         // it is param or assignment, or inside function and is last exp
-                o += compiler(params.first, null, null, /*(param_or_assignment ||
+                o += compiler(cons("do", l.rest.rest), null, null, /*(param_or_assignment ||
                                                         (is_recur && is_last_exp)) ? true : false*/ true);
                 o += "})())"; /*param_or_assignment ? "})())" : "}";*/
                 return ((need_return_string /*&& param_or_assignment*/) ? "return " : "") + o; //+ "}";
             }
+            /*
+             * (cond test1 body1 test2 body2 ...)
+             */
             else if (tag === "cond"){
                 find_else = false;
                 clauses = l.rest;
@@ -889,7 +1245,7 @@ var lisp_module = function() {
                 o += ")";
                 return (need_return_string ? "return " : "") + o;
             } else if (tag === "+" || tag === "-" || tag === "*" || tag === "/" || tag === "%" ||
-                tag === "==" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=" ||
+                tag === "=" || tag === "<" || tag === ">" || tag === "!=" || tag === "<=" || tag === ">=" ||
                 tag === "&&" || tag === "||" || tag === "&" || tag === "|" || tag === "and" || tag === "or" || tag === "xor") {
                 o = "(";
                 params = l.rest;
@@ -908,12 +1264,11 @@ var lisp_module = function() {
                 params = params.rest;
                 while (params !== null) {
                     p = compiler(params.first, null, null, null, true);
-
                     if (tag === "and")
                         tag = "&&";
                     else if (tag === "or")
                         tag = "||";
-                    else if (tag === "==")
+                    else if (tag === "=")
                         tag = "===";
                     else if (tag === "xor")
                         tag = "^";
@@ -1007,7 +1362,6 @@ var lisp_module = function() {
                 args = l.rest.rest;
                 while(args !== null){
                     var call_func = false; // check whether it is a function call.
-                    var val = null;
                     if (args.first instanceof $List){
                         call_func = true;
                         key = compiler(args.first.first, null, null, null, true);
@@ -1026,29 +1380,26 @@ var lisp_module = function() {
                 return (need_return_string ? "return " : "") + o;
             }
             /**
-             * (loop i 10 (if (== i 0) 'done (recur (- i 1))))
+             * (loop [i 10] (if (== i 0) 'done (recur (- i 1))))
              * => ((fn (i) (if (== i 0) 'done (recur (- i 1)))) 10)
              * => ((function (i){if(i == 0) return done; else return recur(i - 1)})(10))
              */
             else if (tag === "loop"){
                 var loop_params = [];
                 var loop_args = [];
-                clauses = l.rest;
-                while (clauses.rest !== null){
-                    var_name = compiler(clauses.first);
-                    var_value = compiler(clauses.rest.first, null, null, null, true);
+                clauses = l.rest.first;
+                body = l.rest.rest;
+                for(i = 0; i < clauses.length; i+=2){
+                    var_name = compiler(clauses[i]);
+                    var_value = compiler(clauses[i+1], null, null, null, true);
                     loop_params.push(var_name);
                     loop_args.push(var_value);
-                    clauses = clauses.rest.rest;
                 }
-                var loop_params_list = null;
                 var loop_args_list = null;
                 for(i = loop_params.length - 1; i >= 0; i--){
-                    loop_params_list = cons(loop_params[i], loop_params_list);
                     loop_args_list = cons(loop_args[i], loop_args_list);
                 }
-                body = clauses.first;
-                return compiler(cons(list("fn", loop_params_list, body), loop_args_list), is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name);
+                return compiler(cons(cons("fn", cons(loop_params, body)), loop_args_list), is_last_exp, is_recur, need_return_string, param_or_assignment, current_fn_name);
             }
             /*
              *  (try (do ...)   catch e (do ...) finally (do ...))
@@ -1204,12 +1555,14 @@ var lisp_module = function() {
              * (defmacro macro-name
              *      var0 pattern0
              *      var1 pattern1 ... )
+             *
+             * eg:
+             * (defmacro square [x] `(* ~x ~x))
              */
             else if (tag === "defmacro") {
                 var macro_name = compiler(l.rest.first);
-                if (typeof(macro_name) != "string") {
-                    console.log("ERROR: Invalid macro name: " + macro_name.toString());
-                    return "";
+                if (typeof(macro_name) !== "string") {
+                    throw "ERROR: Invalid macro name: " + macro_name.toString();
                 }
                 clauses = l.rest.rest;
                 macros[macro_name] = clauses;
@@ -1218,9 +1571,9 @@ var lisp_module = function() {
             /*
              * expand macro
              * eg (defmacro square (x) `(* ~x ~x))
-             *    (macro-expand (square 12) 1)  expand once
+             *    (macroexpand (square 12) 1)  expand once
              */
-            else if (tag === "macro-expand"){
+            else if (tag === "macroexpand"){
                 var macro_expr = l.rest.first;
                 var expand_time = l.rest.rest;
                 var result = compiler(macro_expr);
@@ -1379,9 +1732,16 @@ var lisp_module = function() {
     };
 };
 
+
 // test
 var lisp = lisp_module();
 if (typeof(module) !== "undefined") {
     module.exports.compile = lisp.compile;
     module.exports.getEvalResult = lisp.getEvalResult;
 }
+
+// console.log(lisp.compile("(defn add [x y] (+ x y))"));
+//console.log(lisp.compile("(fn [x] (if (= x 0) 1 (recur (- x 1))))"))
+//console.log(lisp.compile("(loop [x 10] (if (= x 1) 'Done (recur (- x 1))))"));
+//console.log(lisp.compile("(test :a 12)"));
+//console.log(lisp.compile("(defmacro square [x] `(* ~x ~x) [x y] `(- ~x ~x)) (square 3 4)"));
