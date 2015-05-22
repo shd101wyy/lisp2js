@@ -472,7 +472,7 @@ var lisp_module = function() {
                 // a.b
                 else if (t[0] === "." && i > 0 && (input_string[i - 1] !== " " && input_string[i - 1] !== "\t" && input_string[i - 1] !== "\n" &&
                                                     input_string[i - 1] !== "{" && input_string[i - 1] !=="(" &&
-                                                    input_string[i - 1] !== "}" && input_string[i - 1] !== ")")){
+                                                    input_string[i - 1] !== "}" && input_string[i - 1] !== ")" && input_string[i - 1] !== "[")){
                     var last = output_list[output_list.length - 1];
                     output_list[output_list.length - 1] = "(";
                     output_list.push("get");
