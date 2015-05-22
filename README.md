@@ -1,4 +1,4 @@
-lisp2js beta
+lisp2js beta (clojure like syntax)
 =======
 #### By Yiyi Wang (shd101wyy)
 
@@ -55,7 +55,7 @@ lisp2js beta
 
 - change variable value  
 ```lisp
-    (= x 15)  
+    (set! x 15)  
 ```
 ```javascript
     x = 15;
@@ -63,7 +63,7 @@ lisp2js beta
 
 - define function
 ```lisp
-    (def add (a b)
+    (defn add [a b]
         (+ a b))
 ```
 ```javascript
@@ -82,7 +82,7 @@ lisp2js beta
 
 - define function with default parameters
 ```lisp
-    (def add (:a 12 :b 3)
+    (defn add [:a 12 :b 3]
         (+ a b))
 ```
 ```javascript
@@ -95,7 +95,7 @@ lisp2js beta
 
 - define function with keyword parameters
 ```lisp
-    (def add (x {:y 1 :z 2})
+    (defn add [x {:y 1 :z 2}]
         (+ x y z))
     (add 0)        ;;  3
     (add 1 :y 3)   ;;  6
@@ -116,7 +116,7 @@ lisp2js beta
 
 - call function with named(keyword) parameters  
 ```lisp
-    (def add ({:a 1 :b 2}) (+ a b))
+    (defn add [{:a 1 :b 2}] (+ a b))
     (add)                  ;; => 3
     (add :a 3 :b 4)        ;; => 7
     (add :b 3)             ;; => 4
@@ -141,9 +141,9 @@ lisp2js beta
 
 - define function with rest parameters
 ```lisp
-    (def add (a & b)   ;; b here is Array
+    (defn add [a & b]   ;; b here is Array
         (+ a b[0]))
-    (def add (a . b)   ;; b here is List
+    (defn add [a . b]   ;; b here is List
         (+ a (car b)))
 ```
 ```javascript
@@ -160,7 +160,7 @@ lisp2js beta
 
 - anonymous function
 ```lisp
-    (fn (a :b 13 & c)
+    (fn [a :b 13 & c]
         (+ a b c[0]))
 ```
 ```javascript
@@ -177,7 +177,7 @@ lisp2js beta
          (- 3 4)
          (* 5 6))
 
-    (fn ()
+    (fn []
         (do (+ 1 2)
             (- 3 4)
             (* 5 6)))
@@ -241,7 +241,7 @@ lisp2js beta
 
 - case
 ```lisp
-    (def test (x)
+    (defn test [x]
         (case x
             "apple" "This is apple"
             "orange" "This is orange"
@@ -262,14 +262,14 @@ lisp2js beta
 
 - let (es5)  // I might change this to es6 <strong>let</strong> in the future
 ```lisp
-    (let x 1
-        y 2
-        x (+ x y)
-        z 4
+    (let [x 1
+          y 2
+          x (+ x y)
+          z 4]
         (+ x y z))
-    (+ (let x 1 y 2 (- x y))
+    (+ (let [x 1 y 2] (- x y))
         3)
-    (def test ()
+    (defn test []
         (let x 1 y 2 (+ x y)))
 ```
 ```javascript
@@ -304,7 +304,7 @@ lisp2js beta
 
 - yield
 ```lisp
-    (def test ()
+    (defn test []
         (yield 1)
         (yield 2))
     (def x (test))
@@ -341,7 +341,7 @@ lisp2js beta
 ```
 - some operators
 ```lisp
-    (== 1 1)
+    (= 1 1)
     (+ 1 2 3)
     (- 1 2 3)
     (* 1 2 3)
@@ -405,18 +405,18 @@ lisp2js beta
 - class (this might be buggy, I will implement class in es6 in the future)
 ```lisp
     (class Animal
-        :constructor (fn (age)                ;; define constructor
-                        (= this.age age))
-        :showAge (fn ()                       ;; define method
+        :constructor (fn [age]                ;; define constructor
+                        (set! this.age age))
+        :showAge (fn []                       ;; define method
                     (console.log "Called from Animal")
                     (console.log this.age)))
     (class Dog extends Animal
-        :constructor (fn (age)                ;; define constructor
+        :constructor (fn [age]                ;; define constructor
                         (super age))          ;; call superclass constructor
-        :showAge (fn ()                       ;; define method
+        :showAge (fn []                       ;; define method
                     (console.log "Called from Dog")
                     (super.showAge))          ;; call superclass method
-        :bark (fn ()                          ;; define method
+        :bark (fn []                          ;; define method
                 (console.log "Bark!")))
 
     (def dog (new Dog 5))
@@ -430,9 +430,9 @@ lisp2js beta
 - loop
 ```lisp
     ;; calculate factorial 10
-    (loop i 10
-          acc 1
-        (if (== i 0)
+    (loop [i 10
+           acc 1]
+        (if (= i 0)
             acc
             (recur (- i 1)
                    (* i acc))))
@@ -550,10 +550,10 @@ lisp2js beta
 - change value  
 ```lisp
     (def x [1 2 3])
-    (= x[0] 12)
+    (set! x[0] 12)
     (def y {:a 12 :b 13 :c (fn (a b) (+ a b))})
-    (= y.a 13)
-    (= y["a"] 13)
+    (set! y.a 13)
+    (set! y["a"] 13)
 ```
 ```javascript
     var x = [1, 2, 3];
@@ -589,14 +589,14 @@ lisp2js beta
 ##### similar to recur in clojure
 - recur
 ```lisp
-    (def test (n)
-      (cond (== n 0) 0
+    (defn test [n]
+      (cond (= n 0) 0
             1 (recur (- n 2))                ;; recur here means test
             else (recur (- n 1))))
 
     ;; anonymous function recur
-    ((fn (n acc)
-      (if (== n 0)
+    ((fn [n acc]
+      (if (= n 0)
         acc
         (recur (- n 1) (* n acc)))) 10 1)  ;; recur <=> that anonymous function
 ```
@@ -622,11 +622,11 @@ lisp2js beta
 #### Macro
 - define a macro (unhygienic right now)
 ```lisp
-    (defmacro square (x) `(* ~x ~x))
+    (defmacro square [x] `(* ~x ~x))
     (square 12)
     (defmacro square-with-different-params
-        (x) `(* ~x ~x)
-        (x y) `(+ (* ~x ~x) (* ~y ~y)))
+        [x] `(* ~x ~x)
+        [x y] `(+ (* ~x ~x) (* ~y ~y)))
     (square-with-different-params 12)
     (square-with-different-params 15 16)
 ```
@@ -638,11 +638,11 @@ lisp2js beta
 
 - macro-expand: expand a macro form
 ```lisp
-    (defmacro square (x) `(* ~x ~x))
+    (defmacro square [x] `(* ~x ~x))
     ;; the macro-expand function will expand the macro until it no longer represents a macro form.
     (macro-expand '(square 12))  ; => '(* 12 12)
 
-    (defmacro test (x) `(test (+ 1 ~x)))
+    (defmacro test [x] `(test (+ 1 ~x)))
     ;; macro-expand can also expand macro forms for n times.
     (macro-expand '(test 1) 2)   ; => '(test (+ 1 (+ 1 1)))   this will expand macro twice.
     (macro-expand '(test 1) 3)   ; => '(test (+ 1 (+ 1 (+ 1 1))))   this will expand macro for 3 times.

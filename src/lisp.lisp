@@ -4,40 +4,37 @@
 ;; 2014/12/13
 ;; assume car cdr list List those 4 functions already exist as global.
 ;;
-
-(def #t true)
-(def #f false)
 ;; iteratre over object
-(def obj_foreach (obj func)
+(defn obj_foreach [obj func]
   (def keys (Object.keys obj))
-  ((fn (count)
-     (if (== count keys.length)
+  ((fn [count]
+     (if (= count keys.length)
        '()   ;; done
        (do (func keys[count]
                  obj[keys[count]])
            (recur (+ count 1))))) 0))
 
 ;; foreach
-(def foreach (o func)
-  (cond (== o.constructor Object)  (obj_foreach o func) ;; it is object
+(defn foreach [o func]
+  (cond (= o.constructor Object)  (obj_foreach o func) ;; it is object
         else (do (o.forEach func)
                  '())))
 ;; map
-(def map (o func)
+(defn map [o func]
   (o.map func))
 
 ;; len
-(def len (o)
-  (cond (== o.constructor Object) (Object.keys o).length
-        (== (typeof o.length) "function") (o.length)
+(defn len [o]
+  (cond (= o.constructor Object) (Object.keys o).length
+        (= (typeof o.length) "function") (o.length)
         else o.length))
 
 ;; NON-destructive
 ;; append
-(def append (o & args)
-  (cond   (== o.constructor Array)    (do (def x (o.slice))
-                                          (x.push.apply x args)
-                                          x)
+(defn append [o & args]
+  (cond   (= o.constructor Array) (do (def x (o.slice))
+                                      (x.push.apply x args)
+                                      x)
           else (o.append.apply o args)))
 
 ;; destructive
@@ -51,33 +48,7 @@
 (def filter (o func)
   (o.filter func))
 
-(def null? (o) (== o '()))
-
-;; loop macro
-;; eg
-;; (loop n 10 acc 1
-;;     (if (== n 0)
-;;         acc
-;;         (recur (- n 1) (* acc 1))))
-;; =>
-;; ((fn (n acc) (if (= n 0) acc (recur (- n 1) (* acc 1)))) n 0)
-(def parse-loop (args)
-  (def parse-loop-helper (a var-names var-vals)
-    (cond (null? a) (console.log "ERROR: loop invalid statement: " args "\n")
-          (null? (cdr a)) [(car a), var-names, var-vals]
-          else (parse-loop-helper (cdr (cdr a))
-                                  (cons (car a) var-names)
-                                  (cons (car (cdr a)) var-vals))))
-  (def parse-result (parse-loop-helper args '() '()))
-  (def body parse-result[0])
-  (def var-names (parse-result[1].reverse))
-  (def var-vals (parse-result[2].reverse))
-  ;;(console.log ((cons `(fn ~var-names ~body) var-vals).toString))
-  (cons `(fn ~var-names ~body) var-vals)
-  )
-
-(defmacro loop
-  (. args) (parse-loop args))
+(def null? (o) (= o '()))
 
 ;; simple Lisp to JavaScript compiler
 (def node_environment null)
@@ -91,21 +62,8 @@
 ;; (when (== 1 1) (console.log "Hi") 12)
 ;; => (if (== 1 1) (do (console.log "Hi") 12))
 ;;
-(defmacro when (test . body)
+(defmacro when [test . body]
   `(if ~test (do ~@body)))
-
-
-;; series actions
-;; like js, ajax({}).success(function(){}).fail(function(){})
-;; eg
-;;       (-> (ajax {:data {:x 12}})
-;;           (:success (fn (data) (print "Success")))
-;;           (:fail)   (fn (data) (print "Fail")) )
-;;
-
-(defmacro ->
-  (f (property . args))  `((get ~f ~property) ~@args)
-  (f (property . args) . rest) `(-> ((get ~f ~property) ~@args) ~@rest))
 
 ;; ########################################################
 ;; ########################################################
@@ -228,7 +186,7 @@
                                               (recur (- j 1)
                                                      (- p 1)
                                                      output_list))
-                                            
+
                                             ;; else
                                             else
                                             (recur (- j 1)
@@ -333,7 +291,7 @@
 					(recur (- j 1)
                                                (+ p 1)
 					       output_list)
-					
+
 					;; meet (
 					(== output_list[j] "(")
 					(if (== (- p 1) 0)
@@ -351,7 +309,7 @@
 					       p
 					       output_list)
 					)))))
-		  
+
                   ;; a.b
                   (&& (== t[0] ".")
                       (> i 0)
@@ -382,7 +340,7 @@
                                 (+ (get output_list (- output_list.length 1))
                                    t))
                              output_list))
-                  
+
 
                   ;; else
                   else
@@ -399,19 +357,19 @@
 	   "`" "quasiquote"})
       (if (== l null) ;; lexer failure
 	  null
-	
+
 	(loop i (- l.length 1)
 	      lists null
 	      current_list_pointer null
 	      temp null
 	      (cond (< i 0)
 		    current_list_pointer
-		    
+
 		    (== l[i] ")")
 		    (recur (- i 1)
 			   (cons current_list_pointer lists)
 			   null)
-		    
+
 		    (== l[i] "(")
 		    (cond (&& (!= i 0)
 			      (== (get l (- i 1)) "~@")
@@ -424,7 +382,7 @@
 					     (cons current_list_pointer null))
 				       (car lists))
 				 lists)
-			  
+
 			  else
 			  (recur (- i 1)
 				 (cdr lists)
@@ -515,8 +473,8 @@
                 (if (! (isNaN o[0]))
                   (+ "_" o)
                   o)
-                
-                else 
+
+                else
                 (do (def code (var_name.charCodeAt i))
                     (if (|| (&& (> code 47) ;; numeric (0-9)
                                 (< code 58))
@@ -533,7 +491,7 @@
                              (+ i 1))
                       (recur (+ o "_$" code "_")
                              (+ i 1)))))))
-  
+
   ;; format parameters
   (fn formatParams (params)
     (loop o "("
@@ -581,19 +539,19 @@
             ;; (def x 1)
             ;; (= y 2)
             ;; (def add (a b) (+ a b))
-            ;; (set! z 3)            
+            ;; (set! z 3)
             (|| (== l.first "def")
                 (== l.first "=")
                 (== l.first "set!")
                 (== l.first "const"))
             (do (def var_name (compiler (car (cdr l))))
-                (def var_value (compiler (cond (== (cdr (cdr l)) null)       ;; null 
+                (def var_value (compiler (cond (== (cdr (cdr l)) null)       ;; null
                                                null
-                                               
-                                               (!= (cdr (cdr (cdr l))) null) ;; fn 
+
+                                               (!= (cdr (cdr (cdr l))) null) ;; fn
                                                (cons "fn" (cons (car (cdr (cdr l)))
                                                                 (cdr (cdr (cdr l)))))
-                                               
+
                                                else
                                                l.rest.rest.first)
                                          :current_fn_name var_name))
@@ -617,7 +575,7 @@
                      (if (== l null)
                        output
                        (recur (cdr l)
-                              (+ output 
+                              (+ output
                                  (compiler (car l)
                                            :param_or_assignment true)
                                  (if (== (cdr l) null) "" ", ")))))
@@ -702,7 +660,7 @@
 	    (|| (== l.first "fn")
                 (== l.first "fn*"))
             (do (def o (+ (if need_return_string "return " "") ;; o is part ahead (){}
-                          (if (== tag "fn") "function" "function*"))) 
+                          (if (== tag "fn") "function" "function*")))
                 (def o2 "") ;; o2 is (){}
                 (def params)
                 (def body)
@@ -720,14 +678,14 @@
                             (do (def p (compiler params.first))
                                 (cond
                                   ;; default param
-                                  (== p[0] ":") 
+                                  (== p[0] ":")
                                   (recur params.rest
                                          (+ o2 (p.slice 1) "="))
-                                  
+
                                   ;; es6 rest parameters
                                   (== p "&")
                                   (+ o2 "..." (compiler params.rest.first))
-                                  
+
                                   ;; es6 rest parameters. convert to list
                                   (== p ".")
                                   (do (def p (compiler params.rest.first))
@@ -788,7 +746,7 @@
                 (== l.first "||")
                 (== l.first "&")
                 (== l.first "|"))
-            null 
+            null
 
             (== l.first "instanceof")
             null
@@ -806,11 +764,11 @@
             null
 
             else ;; fn
-            null 
-            
-            
+            null
+
+
             )))
-  
+
   (fn lisp_compiler (l
                      :need_return_string null
                      :eval_$ null
