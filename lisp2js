@@ -3,10 +3,18 @@
 var fs = require("fs");
 var util = require("util");
 var lisp = require("./lisp2js.js");
+var list = require("./dependencies/list.js");
 var vm = require("vm");
 var repl = require("repl");
 var argv = process.argv;
 //console.log("\nATTENTION: Current version of nodejs doesn't support ECMAScript6(es6)\n, so some es6 features cannot be used.\nPlease wait until es6 is officially supported.\n\n");
+/*
+global.cons = list.cons;
+global.car = list.car;
+global.cdr = list.cdr;
+global.$List = list.$List;
+global.list = list.list;
+*/
 if (argv.length === 2){
     console.log("lisp2js by Yiyi Wang (shd101wyy) 2015 λ");
     console.log("Interactive Mode");
@@ -29,20 +37,32 @@ if (argv.length === 2){
             }
             input_lines = ""; // clear input lines
             opt.prompt = "> ";
+            /*
+            try{
+                var result = (context === global) ? (vm.runInThisContext(compiled_result, filename)) : (vm.runInContext(compiled_result, context, filename));
+                var result = vm.runInContext(compiled_result, global, filename);
+                if(result instanceof context.$List)
+                    return cb(null, result.toString());
+            }
+            catch(error){
+                console.log(error);
+                return cb(error);
+            }
+            */
             var result = lisp.getEvalResult();
             return cb(null, result);
         }
-    };
+    }
 
     var lisp2js_repl = repl.start(opt).on("exit", function(){
         console.log("\nquit repl\n");
         process.exit();
-    });
-    lisp2js_repl.context.$List = lisp.$List;
-    lisp2js_repl.context.car = lisp.car;
-    lisp2js_repl.context.cdr = lisp.cdr;
-    lisp2js_repl.context.cons = lisp.cons;
-    lisp2js_repl.context.list = lisp.list;
+    })
+    lisp2js_repl.context.$List = list.$List;
+    lisp2js_repl.context.car = list.car;
+    lisp2js_repl.context.cdr = list.cdr;
+    lisp2js_repl.context.cons = list.cons;
+    lisp2js_repl.context.list = list.list;
 }
 else if (argv.length === 3){
     var file_name = argv[2];
@@ -84,10 +104,21 @@ else if (argv.length === 4){
         console.log("ERRPR: () paren doesn't match\n");
         process.exit(0);
     }
+    /*
+    try{
+        // var context = vm.createContext({cons: list.cons, car: list.car, cdr: list.cdr, "$List": list.$List});
+        vm.runInThisContext(compiled_result, "lisp.vm"); // now running in global
+    }
+    catch(e){
+        console.log(e);
+        console.log("\n\nCompiled result:\n============");
+        console.log(compiled_result);
+    }
+    */
     console.log("\n\nCompiled result:\n============");
     console.log(compiled_result);
 
-    var save_to_file = argv[3];// file_name.slice(-5) + ".js";
+    var save_to_file = argv[3]// file_name.slice(-5) + ".js";
 
     // if has js-beautify installed
     try{
@@ -95,12 +126,12 @@ else if (argv.length === 4){
         var res = beautify(compiled_result);
         fs.writeFile(save_to_file, res, function(error){
             if(error){
-                console.log(error);
+                console.log(error)
             }
             else{
                 console.log("\n\nFile: " + save_to_file + " saved!");
             }
-        });
+        })
     }
     catch(e){
         console.log("\n\n\n");
@@ -108,11 +139,11 @@ else if (argv.length === 4){
         console.log("You need to install js-beautify to see beautified result\nsee https://www.npmjs.com/package/js-beautify for more information\n\n\n");
         fs.writeFile(save_to_file, compiled_result, function(error){
             if(error){
-                console.log(error);
+                console.log(error)
             }
             else{
                 console.log("\n\nFile: " + save_to_file + " saved!");
             }
-        });
+        })
     }
 }

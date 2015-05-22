@@ -10,314 +10,12 @@ if(typeof(module) != "undefined"){ // nodejs
     node_environment = true;
 }
 
-/**
- * ######################################################
- * ######################################################
- * ##################  List Prototype  ##################
- * ######################################################
- * ######################################################
- */
-var $List, car, cdr, cons, list, list_module,
-  slice = [].slice;
-list_module = (function() {
-  /*
-      Construct List data structure
-   */
-  var List, car, cdr, cons, list;
-  List = function(first, rest) {
-    this.first = first;
-    this.rest = rest;
-    return null;
-  };
-
-  /*
-  get length of list
-  eg:
-      x = list(1, 2, 3)
-      x.length() => 3
-   */
-  List.prototype.length = function() {
-    var list_length;
-    list_length = function(l, acc) {
-      if (l === null) {
-        return acc;
-      } else {
-        return list_length(l.rest, acc + 1);
-      }
-    };
-    return list_length(this, 0);
-  };
-
-  /*
-  list to string
-   */
-  List.prototype.toString = function() {
-    function to_string(l, output) {
-      if (l === null) {
-        return output += ")";
-      } else if (l instanceof List) {
-        return to_string(l.rest, output + (l.first === null ? "()" : (l.first instanceof Array ? "[" + l.first.toString() + "]" : l.first.toString())) + (l.rest === null ? "" : ", "));
-      } else {
-        return output.slice(0, -2) + " . " + l.toString() + ")";
-      }
-    }
-    return to_string(this, "(");
-  };
-
-  /*
-  list reverse
-  eg:
-      x = list(1, 2, 3)
-      x.reverse() => (3, 2, 1)
-   */
-  List.prototype.reverse = function() {
-    var list_reverse;
-    list_reverse = function(l, output) {
-      if (l instanceof List) {
-        return list_reverse(l.rest, cons(l.first, output));
-      } else if (l === null) {
-        return output;
-      } else {
-        return cons(l, output);
-      }
-    };
-    return list_reverse(this, null);
-  };
-
-  /*
-  list slice
-  eg:
-      x = list(1, 2, 3, 4, 5)
-      x.slice(2) => list(3, 4, 5)
-      x.slice(3, 5) => list(4, 5)
-      x.slice(-2) => list(4, 5)
-   */
-  List.prototype.slice = function(start, end) {
-    var length, neg, slice1, slice2;
-    if (end === void 0) {
-      end = null;
-    }
-    if (end === null) {
-      if (start < 0) {
-        start = this.length() + start;
-      }
-      slice1 = function(l, i) {
-        if (i === 0) {
-          return l;
-        } else {
-          return slice1(l.rest, i - 1);
-        }
-      };
-      return slice1(this, start);
-    } else {
-      neg = start < 0 || end < 0;
-      if (neg) {
-        length = this.length();
-        start = (start < 0 ? length + start : start);
-        end = (end < 0 ? length + end : end);
-      }
-      slice2 = function(l, i, j) {
-        if (i === 0) {
-          if (j === 0 || l === null) {
-            return null;
-          } else {
-            return cons(l.first, slice2(l.rest, i, j - 1));
-          }
-        } else {
-          return slice2(l.rest, i - 1, j);
-        }
-      };
-      return slice2(this, start, end - start);
-    }
-  };
-
-  /*
-  list ref
-  eg:
-      x = list(1, 2, 3, 4)
-      x.ref(0) => 1
-   */
-  List.prototype.ref = function(i) {
-    var ref;
-    if (i < 0) {
-      i = this.length() + i;
-    }
-    ref = function(l, i) {
-      if (l === null) {
-        return null;
-      } else if (i === 0) {
-        return l.first;
-      } else {
-        return ref(l.rest, i - 1);
-      }
-    };
-    return ref(this, i);
-  };
-
-  /*
-  list append
-  eg:
-      x = list(1, 2, 3, 4)
-      x.append(5) => (1, 2, 3, 4, 5)
-      x.append(7, 8) => (1, 2, 3, 4, 7, 8)
-   */
-  List.prototype.append = function() {
-    var append, i, o;
-    i = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-    o = list.apply(list, i);
-    append = function(l, o) {
-      if (l === null) {
-        return o;
-      } else {
-        return cons(l.first, append(l.rest, o));
-      }
-    };
-    return append(this, o);
-  };
-
-  /*
-  list toArray
-  eg:
-      x = list(1, 2, 3)
-      x.toArray() => [1, 2, 3]
-   */
-  List.prototype.toArray = function() {
-    var output, to_array;
-    output = [];
-    to_array = function(l) {
-      if (l === null) {
-        return output;
-      } else {
-        output.push(l.first);
-        return to_array(l.rest);
-      }
-    };
-    return to_array(this);
-  };
-
-  /*
-  list forEach
-  eg:
-      x = list(1, 2, 3)
-      x.forEach(i => console.log(i)) => print 1, 2, 3
-   */
-  List.prototype.forEach = function(func) {
-    var iter;
-    iter = function(l) {
-      if (l === null) {
-        return null;
-      } else {
-        func(l.first);
-        return iter(l.rest);
-      }
-    };
-    return iter(this);
-  };
-  List.prototype.foreach = List.prototype.forEach;
-
-  /*
-  list map
-  eg:
-      x = list(1, 2, 3)
-      x.map(i=>i*2) => (2, 4, 6)
-   */
-  List.prototype.map = function(func) {
-    var iter;
-    iter = function(l) {
-      if (l === null) {
-        return null;
-      } else {
-        return cons(func(l.first), iter(l.rest));
-      }
-    };
-    return iter(this);
-  };
-
-  /*
-  list filter
-  eg:
-      x = list(1, 2, 3, 4)
-      x.filter(i => i > 2)  => (3, 4)
-   */
-  List.prototype.filter = function(func) {
-    var iter;
-    iter = function(l) {
-      if (l === null) {
-        return null;
-      } else {
-        if (func(l.first)) {
-          return cons(l.first, iter(l.rest));
-        } else {
-          return iter(l.rest);
-        }
-      }
-    };
-    return iter(this);
-  };
-
-  /*
-  cons two elements.  same as lisp
-  eg:
-      x = cons(3, 4)
-      y = cons(3, cons(4, null))
-   */
-  cons = function(a, b) {
-    return new List(a, b);
-  };
-
-  /*
-  car: get first element of list
-   */
-  car = function(l) {
-    return l.first;
-  };
-
-  /*
-  cdr: get rest elements of list
-   */
-  cdr = function(l) {
-    return l.rest;
-  };
-
-  /*
-  construct list. same as lisp
-  eg:
-      x = list(1, 2, 3, 4)
-   */
-  list = function() {
-    var a, create_list;
-    a = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-    create_list = function(a, i) {
-      if (i === a.length) {
-        return null;
-      } else {
-        return cons(a[i], create_list(a, i + 1));
-      }
-    };
-    return create_list(a, 0);
-  };
-  return {
-    list: list,
-    cons: cons,
-    List: List,
-    car: car,
-    cdr: cdr
-  };
-})();
-
-$List = list_module.List;
-list = list_module.list;
-cons = list_module.cons;
-car = list_module.car;
-cdr = list_module.cdr;
-
-if (typeof module !== "undefined") {
-  module.exports.$List = $List;
-  module.exports.list = list;
-  module.exports.cons = cons;
-  module.exports.car = car;
-  module.exports.cdr = cdr;
-}
+var $List,car,cdr,cons,list,list_module,slice=[].slice;
+list_module=function(){var d,e,f;d=function(b,a){this.first=b;this.rest=a;return null};d.prototype.length=function(){var b;b=function(a,c){return null===a?c:b(a.rest,c+1)};return b(this,0)};d.prototype.toString=function(){var b;b=function(a,c){return null===a?c+")":a instanceof d?b(a.rest,c+(null===a.first?"()":a.first instanceof Array?"["+a.first.toString()+"]":a.first.toString())+(null===a.rest?"":", ")):c.slice(0,-2)+" . "+a.toString()+")"};return b(this,"(")};d.prototype.reverse=function(){var b;
+b=function(a,c){return a instanceof d?b(a.rest,e(a.first,c)):null===a?c:e(a,c)};return b(this,null)};d.prototype.slice=function(b,a){var c,d,f;null==a&&(a=null);if(null===a)return 0>b&&(b=this.length()+b),d=function(a,b){return 0===b?a:d(a.rest,b-1)},d(this,b);if(0>b||0>a)c=this.length(),b=0>b?c+b:b,a=0>a?c+a:a;f=function(a,b,c){return 0===b?0===c||null===a?null:e(a.first,f(a.rest,b,c-1)):f(a.rest,b-1,c)};return f(this,b,a-b)};d.prototype.ref=function(b){var a;0>b&&(b=this.length()+b);a=function(b,
+d){return null===b?null:0===d?b.first:a(b.rest,d-1)};return a(this,b)};d.prototype.append=function(){var b,a;a=1<=arguments.length?slice.call(arguments,0):[];a=f.apply(f,a);b=function(a,d){return null===a?d:e(a.first,b(a.rest,d))};return b(this,a)};d.prototype.toArray=function(){var b,a;b=[];a=function(c){if(null===c)return b;b.push(c.first);return a(c.rest)};return a(this)};d.prototype.forEach=function(b){var a;a=function(c){if(null===c)return null;b(c.first);return a(c.rest)};return a(this)};d.prototype.foreach=
+d.prototype.forEach;d.prototype.map=function(b){var a;a=function(c){return null===c?null:e(b(c.first),a(c.rest))};return a(this)};d.prototype.filter=function(b){var a;a=function(c){return null===c?null:b(c.first)?e(c.first,a(c.rest)):a(c.rest)};return a(this)};e=function(b,a){return new d(b,a)};f=function(){var b,a;b=1<=arguments.length?slice.call(arguments,0):[];a=function(b,d){return d===b.length?null:e(b[d],a(b,d+1))};return a(b,0)};return{list:f,cons:e,List:d,car:function(b){return b.first},cdr:function(b){return b.rest}}}();
+$List=list_module.List;list=list_module.list;cons=list_module.cons;car=list_module.car;cdr=list_module.cdr;"undefined"!==typeof module&&(module.exports.$List=$List,module.exports.list=list,module.exports.cons=cons,module.exports.car=car,module.exports.cdr=cdr);
 
 /*
  * ########################################
@@ -558,16 +256,16 @@ var lisp_module = function() {
         }
         return current_list_pointer;
     };
-
+    
     function arrayToList(arr, f){
-        var output = null;
+        var output = null; 
         for (var i = arr.length - 1; i >= 0; i--){
-            var a = arr[i];
+            var a = arr[i]; 
             if (typeof(a) === "number")
-                output = cons(a, output);
+                output = cons(a, output); 
             else if (typeof(a) === "string" && a[0] === "\"")
-                output = cons(a, output);
-            else if (typeof(a) === "string")
+                output = cons(a, output);      
+            else if (typeof(a) === "string") 
                 output = cons("\"" + a + "\"", output);
             else if (a instanceof Array)
                 output = cons(arrayToList(a), output);
@@ -576,8 +274,8 @@ var lisp_module = function() {
                     output = cons(a.rest.first, output);
                 else
                     output = cons(f(a), output)
-            }
-            else
+            } 
+            else 
                 output = cons(a, output);
         }
         return output;
@@ -656,13 +354,13 @@ var lisp_module = function() {
                         cons(v, null)),
                     cons(quasiquote_list(l.rest),
                         null)));
-    }
+    };
 
     var macro_match = function(a, b, result) {
         var i = 0;
         while(true){
             if (i === a.length && i === b.length){
-                return result;
+                return result; 
             }
             else if ((i === a.length && i !== b.length) || (i !== a.length && i === b.length && a[i] !== ".")) {
                 return 0; // doesn't match
@@ -898,8 +596,8 @@ var lisp_module = function() {
         var i;
         if (l === null)
             return (need_return_string) ? "return null" : "null";
-
-        // Array value
+            
+        // Array value 
         else if (l instanceof Array){
             o = need_return_string ? "return [" : "[";
             for (i = 0; i < l.length; i++){
@@ -1099,7 +797,7 @@ var lisp_module = function() {
                     o2 += ")=>{";
                 else
                     o2 += "){";
-
+                    
                 if(__lisp_rest__){ // rest parameters
                     o2 += "for(var " + __lisp_rest__ + " = [], $__0 = " + (parameter_num - 1) + "; $__0 < arguments.length; $__0++)" +
                           __lisp_rest__ + "[$__0 - " + (parameter_num - 1) + "] = arguments[$__0];";
@@ -1139,12 +837,12 @@ var lisp_module = function() {
             else if (tag === "let") {
                 var vars = {};
                 var assignments = l.rest.first;
-
+     
                 o = "((function(){";
                 for(i = 0; i < assignments.length; i+=2){
                     var_name = assignments[i];
-                    var_value = assignments[i + 1];
-
+                    var_value = assignments[i + 1]; 
+                    
                     if (typeof(var_name === "string")) {
                         if (var_name in vars) {
                             o += (var_name + " = " + compiler(var_value) + ";");
@@ -1387,14 +1085,14 @@ var lisp_module = function() {
             else if (tag === "loop"){
                 var loop_params = [];
                 var loop_args = [];
-                clauses = l.rest.first;
+                clauses = l.rest.first; 
                 body = l.rest.rest;
                 for(i = 0; i < clauses.length; i+=2){
                     var_name = compiler(clauses[i]);
                     var_value = compiler(clauses[i+1], null, null, null, true);
                     loop_params.push(var_name);
                     loop_args.push(var_value);
-                }
+                } 
                 var loop_args_list = null;
                 for(i = loop_params.length - 1; i >= 0; i--){
                     loop_args_list = cons(loop_args[i], loop_args_list);
