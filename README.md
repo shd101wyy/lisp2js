@@ -67,7 +67,7 @@ lisp2js beta (clojure like syntax)
         (+ a b))
 ```
 ```javascript
-    var add = function(a, b){
+    function add(a, b){
         return a + b;
     }
 ```
@@ -86,7 +86,7 @@ lisp2js beta (clojure like syntax)
         (+ a b))
 ```
 ```javascript
-    var add = function(a, b) {
+    function add(a, b) {
         a = (a === void 0 ? 12 : a);
         b = (b === void 0 ? 3 : b);
         return (a + b);
@@ -101,7 +101,7 @@ lisp2js beta (clojure like syntax)
     (add 1 :y 3)   ;;  6
 ```
 ```javascript
-    var add = function(x, __lisp_args__) {
+    function add(x, __lisp_args__) {
         var __lisp_args_v__;
         __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
         var y = ((__lisp_args_v__ = __lisp_args__.y) === void 0 ? 1 : __lisp_args_v__);
@@ -122,7 +122,7 @@ lisp2js beta (clojure like syntax)
     (add :b 3)             ;; => 4
 ```
 ```javascript
-    var add = function(__lisp_args__) {
+    function add(__lisp_args__) {
         var __lisp_args_v__;
         __lisp_args__ = (__lisp_args__ === void 0 ? {} : __lisp_args__);
         var a = ((__lisp_args_v__ = __lisp_args__.a) === void 0 ? 1 : __lisp_args_v__);
@@ -147,11 +147,11 @@ lisp2js beta (clojure like syntax)
         (+ a (car b)))
 ```
 ```javascript
-    var add = function(a) {
+    function add(a) {
         for (var b = [], $__0 = 1; $__0 < arguments.length; $__0++) b[$__0 - 1] = arguments[$__0];
         return (a + b[0]);
-    };
-    var add = function(a) {
+    };  
+    function add(a) {
         for (var b = [], $__0 = 1; $__0 < arguments.length; $__0++) b[$__0 - 1] = arguments[$__0];
         b = list.apply(null, b);
         return (a + car(b));
@@ -248,7 +248,7 @@ lisp2js beta (clojure like syntax)
             else "This is nothing"))
 ```
 ```javascript
-    var test = function(x) {
+    function test(x) {
         switch (x) {
             case "apple":
                 return "This is apple";
@@ -285,7 +285,7 @@ lisp2js beta (clojure like syntax)
         var y = 2;
         return (x - y)
     })()) + 3);
-    var test = function() {
+    function test() {
         return ((function() {
             var x = 1;
             var y = 2;
@@ -313,7 +313,7 @@ lisp2js beta (clojure like syntax)
     (x.next)   ;; stop
 ```
 ```javascript
-    var test = function() {
+    function test() {
         yield 1;
         yield 2;
         return;
@@ -651,6 +651,9 @@ lisp2js beta (clojure like syntax)
 ###### However, the macro implementation still has errors.
 ---------------------------------------
 #### Change Log
+- <strong> Version 0.0.36 </strong>
+- <strong> 2015/6/14 </strong>
+    * begin to use clojure like syntax.
 - <strong> 2015/3/15 </strong>
 - <strong> Version 0.0.33 </strong>
     * fix one macro bug
